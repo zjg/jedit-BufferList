@@ -1,3 +1,16 @@
+Version 0.4 (2001/03/10)
+------------------------
+- session management:
+  * session switcher
+  * session manager dialog
+  * autosave sessions on switch
+  * close all files before switching to a new session
+- new option: turn off auto-resize of columns
+- new column in bufferlist showing mode
+- remember size and order of columns
+- requires jEdit 3.0final or higher, JDK 1.1 or higher
+
+
 Version 0.3.1 (20001/01/06)
 --------------------------
 - bugfix: if a buffer is selected from the "Open Files" list,

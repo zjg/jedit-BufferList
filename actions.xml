@@ -3,20 +3,39 @@
 <!DOCTYPE ACTIONS SYSTEM "actions.dtd">
 
 <ACTIONS>
+
 	<ACTION NAME="bufferlist">
 		<CODE>
-			view.getDockableWindowManager()
-				.toggleDockableWindow("bufferlist");
+			view.getDockableWindowManager().toggleDockableWindow("bufferlist");
 		</CODE>
 		<IS_SELECTED>
-			return view.getDockableWindowManager()
-				.isDockableWindowVisible("bufferlist");
+			return view.getDockableWindowManager().isDockableWindowVisible("bufferlist");
 		</IS_SELECTED>
 	</ACTION>
+
 	<ACTION NAME="bufferlist-to-front">
 		<CODE>
-			view.getDockableWindowManager()
-				.addDockableWindow("bufferlist");
+			view.getDockableWindowManager().addDockableWindow("bufferlist");
+			view.getDockableWindowManager().showDockableWindow("bufferlist");
 		</CODE>
 	</ACTION>
+
+	<ACTION NAME="session-save">
+		<CODE>
+			SessionManager.getInstance().saveCurrentSession(view);
+		</CODE>
+	</ACTION>
+
+	<ACTION NAME="session-save-as">
+		<CODE>
+			SessionManager.getInstance().saveCurrentSessionAs(view);
+		</CODE>
+	</ACTION>
+
+	<ACTION NAME="session-manager">
+		<CODE>
+			SessionManager.getInstance().showSessionManagerDialog(view);
+		</CODE>
+	</ACTION>
+
 </ACTIONS>

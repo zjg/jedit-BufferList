@@ -3,3 +3,9 @@ TODO
 
 - allow multiple selections and operations on them (close all, save all etc.)
 
+- click on a table header and sort by this column:
+  is currently not feasible, because jEdit sorts buffers in a different way
+  internally, and we have no means to modify this sort order. If then we cycle
+  through the buffers with 'next-buffer'/'previous-buffer', the current
+  highlighted buffer would jump around in an inintuitive way in BufferList.
+

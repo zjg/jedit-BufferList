@@ -23,42 +23,80 @@
 
 <UL>
     <LI><A HREF="#general">Introduction</A>
+    <LI><A HREF="#sessionmanagement">Session Management</A>
+    <LI><A HREF="#bufferlist">The Buffer List</A>
     <LI><A HREF="#customization">Customization</A>
-    <LI><A HREF="#comparison">Comparison</A>
     <LI><A HREF="#license">License</A>
     <LI><A HREF="#feedback">Feedback</A>
 </UL>
 
 
-<A NAME="general"></A><H2>Introduction</H2>
+<A NAME="general"></A>
+<H2>Introduction</H2>
 
 <P>
-The Buffer List shows a list of jEdit's open files and a second list
-with recently opened files.
+The Buffer List maintains lists of open files - called a <EM>session</EM> aka
+<EM>workspace</EM> - and offers some functions to switch between them.
+The current list of open files and the list of recently opened files is shown
+in a dockable window that can be placed permanently in jEdit's view.
 </P>
 
 
-<H3>MOUSE ACTIONS</H3>
+<A NAME="sessionmanagement"></A>
+<H2>Session Management</H2>
+
+<P>
+To do... (sorry!)
+</P>
+
+<P>
+<B>Attention!</B> If you use the SessionSwitcher, you should no longer
+use the jEdit commands <EM>Load Session...</EM> and <EM>Save Session...</EM>
+in menu <EM>File</EM> ! jEdit might loose track of the current session.
+</P>
+
+
+<A NAME="bufferlist"></A>
+<H2>The Buffer List</H2>
+
+<P>
+The BufferList shows:
+</P>
+
+<UL>
+    <LI>Status icon
+    <LI>Filename
+    <LI>Directory
+    <LI>Mode name
+</UL>
+
+<P>
+This can be configured to some extent in the Global Options. See
+<A HREF="#customization">Customization</A>.
+</P>
+
+
+<H3>Mouse Actions</H3>
 
 <P><B>On the open files list:</B></P>
 
 <UL>
-<LI>single click jumps to the selected buffer
-<LI>double click closes the selected buffer
-<LI>right mouse button click opens a popup with some convenient actions
-(<EM>goto, open in new view, close, save, save as, reload</EM>)
+    <LI>single click jumps to the selected buffer
+    <LI>double click closes the selected buffer
+    <LI>right mouse button click opens a popup with some convenient actions
+        (<EM>goto, open in new view, close, save, save as, reload</EM>)
 </UL>
 
 <P><B>On the recent files list:</B></P>
 
 <UL>
-<LI>double click opens the selected buffer
-<LI>right mouse button click opens a popup with some convenient actions
-(<EM>open, open in new view</EM>)
+    <LI>double click opens the selected buffer
+    <LI>right mouse button click opens a popup with some convenient actions
+        (<EM>open, open in new view</EM>)
 </UL>
 
 
-<H3>KEY ACTIONS</H3>
+<H3>Key Actions</H3>
 
 <P>
 Buffer List is fully keyboard navigable. A prerequisite is that you assigned
@@ -73,41 +111,21 @@ I suggest "A+b".
 </P>
 
 <TABLE BORDER>
-  <TR> <TD><B>Key Shortcut</B></TD> <TD><B>Action</B></TD> </TR>
-  <TR> <TD>[Alt-b]</TD> <TD>Show Buffer List</TD> </TR>
-  <TR> <TD>[Up] / [Down]</TD> <TD>Choose buffer</TD> </TR>
-  <TR> <TD>[Enter] / [Return]</TD> <TD>Jump to/Open selected buffer</TD> </TR>
-  <TR> <TD>[Tab]</TD> <TD>Switch between Open and Recent files list</TD> </TR>
-  <TR> <TD>[Esc]</TD> <TD>Close window (only, if not docked)</TD> </TR>
+  <TR> <TD><B>Key Shortcut</B></TD> <TD><B>Action</B></TD>                             </TR>
+  <TR> <TD>[Alt-b]</TD>             <TD>Show Buffer List</TD>                          </TR>
+  <TR> <TD>[Up] / [Down]</TD>       <TD>Choose buffer</TD>                             </TR>
+  <TR> <TD>[Enter] / [Return]</TD>  <TD>Jump to/Open selected buffer</TD>              </TR>
+  <TR> <TD>[Tab]</TD>               <TD>Switch between Open and Recent files list</TD> </TR>
+  <TR> <TD>[Esc]</TD>               <TD>Close window (only, if not docked)</TD>        </TR>
 </TABLE>
 
 <BR>
 
 
-<H3>APPEARANCE</H3>
+<A NAME="customization">
+</A><H2>Customization</H2>
 
-<P>
-Both lists can be displayed in one-column or two-column layout.
-</P>
-
-<P>
-The appearance of each entry in the buffer list depends on the state of its
-buffer:
-</P>
-
-<UL>
-<LI> a unmodified buffer appears with a small grey orb
-<LI> a modified buffer appears with a small orange orb
-<LI> a new buffer appears with a small green orb
-<LI> a new and modified buffer appears with a small yellow orb
-<LI> a read-only buffer appears with <FONT COLOR="#666666">grey text</FONT>
-<LI> the current buffer appears with a <B>bold font</B>
-</UL>
-
-
-<A NAME="customization"></A><H2>Customization</H2>
-
-<H3>APPEARANCE</H3>
+<H3>Appearance</H3>
 
 <P>
 You can customize the appearance of the Buffer List under
@@ -116,15 +134,32 @@ Buffer&nbsp;List</b>.
 The following options are available:
 </P>
 
-<UL>
-<LI> one column layout: filename only
-<LI> two column layout: filename and directory
-<LI> show vertical lines
-<LI> show horizontal lines
-</UL>
+<OL>
+<LI><B>Buffer List Options</B>
+    <UL>
+        <LI><B>Show vertical lines</B>
+        <LI><B>Show horizontal lines</B>
+        <LI><B>Show column headers</B><BR>
+            If the column headers are not shown, columns will be
+            auto-resized.
+        <LI><B>Auto-Resize columns</B><BR>
+            If checked, the columns are auto-resized to the width of their
+            longest entry. You cannot resize the columns manually any longer,
+            if this option is checked.
+        <LI><B>Show absolute pathname in filename column</B><BR>
+            The filename column is always shown. Use this option, if you want
+            to disable the directory column, but still see the directory.<BR>
+    </UL>
+<LI><B>Session Switcher Options</B>
+    <UL>
+        <LI><B>Show Session Switcher</B>
+        <LI><B>Show "Session:" label</B>
+        <LI><B>Autosave Sessions</B>
+        <LI><B>Close all files before switching to new session</B>
+    </UL>
+</OL>
 
-
-<H3>DOCKING</H3>
+<H3>Docking</H3>
 
 <P>
 Buffer List may be docked into the view.
@@ -136,50 +171,8 @@ the position, where Buffer List will be docked.
 </P>
 
 
-<A NAME="comparison"></A><H2>Comparison</H2>
-
-<p>
-Some of you may already have noticed that jEdit's buffer switcher
-and the plugins <b>BufferList</b>, <b>BufferTabs</b> and
-<b>BufferSelector</b> do the same thing. But each of them adresses
-different issues:
-</p>
-
-<ul>
-<li>
-<em>jEdit's buffer switcher</em>. As of version 3.0, this is the new
-default buffer selecton tool. It also show a status bar with some
-information. But many users find it inconvenient to use, so new
-plugins were developed.
-</li>
-<li>
-<em>BufferTabs</em> were jEdit's default way of switching buffers with
-the mouse up to version 2.6. In version 3.0, this was thrown away
-because of the bugginess of the implementation in some versions of
-Swing (focus problems). Since many users wanted this feature back,
-BufferTabs was revived as a plugin. However, the focus problems
-remain.
-</li>
-<li>
-<em>Buffer Selector</em>'s main goal is saving screen space. It is a
-small toolbar attached to the top or bottom of the view and doesn't get
-in the way.
-</li>
-<li>
-<em>Buffer List</em> is dockable. That means you can dock it into the current
-jEdit view, for example to the left or right of the text, if you got some
-free space there. The second advantage is, that it is fully keyboard
-navigable.
-</li>
-</ul>
-
-<p>
-So, basically all three are just four different ways of adressing the same
-problem. Choose the one method that suits you best.
-</p>
-
-
-<A NAME="license"></A><H2>License</H2>
+<A NAME="license">
+</A><H2>License</H2>
 
 <P>
 The source code is distributed under the GPL. Please see
@@ -187,7 +180,8 @@ The source code is distributed under the GPL. Please see
 </P>
 
 
-<A NAME="feedback"></A><H2>Feedback</H2>
+<A NAME="feedback"></A>
+<H2>Feedback</H2>
 
 <P>
 The preferred way to send bug reports or feature requests is to use the
@@ -200,9 +194,9 @@ You can also write to:
 </P>
 
 <UL>
-<LI>Dirk M&ouml;bius <a href="mailto:dmoebius@gmx.net"><EM>&lt;dmoebius@gmx.net&gt;</EM></a>, or
-<LI>jEdit-users mailing-list <a href="mailto:jedit-users@lists.sourceforge.net"><EM>&lt;jedit-users@lists.sourceforge.net&gt;</EM></a>, or
-<LI>jEdit-devel mailing-list <a href="mailto:jedit-devel@lists.sourceforge.net"><EM>&lt;jedit-devel@lists.sourceforge.net&gt;</EM></a>.
+    <LI>Dirk M&ouml;bius <a href="mailto:dmoebius@gmx.net"><EM>&lt;dmoebius@gmx.net&gt;</EM></a>, or
+    <LI>jEdit-users mailing-list <a href="mailto:jedit-users@lists.sourceforge.net"><EM>&lt;jedit-users@lists.sourceforge.net&gt;</EM></a>, or
+    <LI>jEdit-devel mailing-list <a href="mailto:jedit-devel@lists.sourceforge.net"><EM>&lt;jedit-devel@lists.sourceforge.net&gt;</EM></a>.
 </UL>
 
 

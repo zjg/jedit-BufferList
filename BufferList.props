@@ -1,17 +1,29 @@
+# General plugin properites
 plugin.BufferListPlugin.name=BufferList
 plugin.BufferListPlugin.author=Dirk Moebius <dmoebius@gmx.net>
-plugin.BufferListPlugin.version=0.3.1
+plugin.BufferListPlugin.version=0.4
 plugin.BufferListPlugin.docs=index.html
 plugin.BufferListPlugin.depend.0=jdk 1.1
-plugin.BufferListPlugin.depend.1=jedit 02.07.03.00
+plugin.BufferListPlugin.depend.1=jedit 03.00.99.00
+
 
 # dockable name
 bufferlist.name.label=Buffer List
 bufferlist.title=Buffer List
 
+
+# menu
+bufferlist.menu=bufferlist - bufferlist-to-front - session-save session-save-as session-manager
+bufferlist.menu.label=Buffer List
+
+
 # actions
 bufferlist.label=Buffer List
 bufferlist-to-front.label=Bring Buffer List to front
+session-save.label=Save Session
+session-save-as.label=Save Session As...
+session-manager.label=Manage Sessions...
+
 
 # popup menu
 bufferlist.popup.goto.label=Goto
@@ -22,15 +34,90 @@ bufferlist.popup.save.label=Save
 bufferlist.popup.save-as.label=Save as...
 bufferlist.popup.reload.label=Reload
 
-# mics
+
+# BufferList panel
 bufferlist.openfiles.label=Open Files
 bufferlist.recentfiles.label=Recent Files
 
+bufferlist.table.column0=\ 
+bufferlist.table.column1=Name
+bufferlist.table.column2=Directory
+bufferlist.table.column3=Mode
+
+bufferlist.table1.column0.width=20
+bufferlist.table2.column0.width=20
+bufferlist.table1.column1.width=100
+bufferlist.table2.column1.width=100
+bufferlist.table1.column2.width=200
+bufferlist.table2.column2.width=200
+bufferlist.table1.column3.width=60
+bufferlist.table2.column3.width=60
+
+
+# SessionSwitcher panel
+bufferlist.switcher.title=Session:\ \ 
+
+bufferlist.switcher.save.tooltip=Save current session
+bufferlist.switcher.saveAs.tooltip=Save current session under a different name...
+bufferlist.switcher.prefs.tooltip=Manage sessions...
+
+bufferlist.switcher.save.saved.title=Session Saved
+bufferlist.switcher.save.saved.message=Session {0} saved.
+
+bufferlist.switcher.saveAs.input.title=New Session Name
+bufferlist.switcher.saveAs.input.message=Please enter a new name for the session:
+
+bufferlist.switcher.saveAs.exists.title=Session Name Exists
+bufferlist.switcher.saveAs.exists.message=\
+	A session file with the name {0} already exists.\n\
+	Overwrite?
+
+bufferlist.switcher.saveAs.error.empty.title=Empty Name
+bufferlist.switcher.saveAs.error.empty.message=Please enter a name, or cancel the dialog.
+
+bufferlist.switcher.saveAs.error.illegalChars.title=Illegal Characters in Name
+bufferlist.switcher.saveAs.error.illegalChars.message=\
+	The name may not contain any of these characters:\n\
+	{0}
+
+
+# SessionManager dialog
+bufferlist.manager.title=Manage Sessions
+bufferlist.manager.rename=Rename...
+bufferlist.manager.delete=Delete
+bufferlist.manager.changeTo=Change To
+bufferlist.manager.close=Close
+
+bufferlist.manager.error.rename.title=Error Renaming Session File
+bufferlist.manager.error.rename.message=\
+	Could not rename the session file:\n\
+	{0}\n\
+	to:\n\
+	{1}
+
+bufferlist.manager.error.delete.title=Error Deleting Session File
+bufferlist.manager.error.delete.message=\
+	Could not delete the session file:\n\
+	{0}
+
+
 # option pane
 options.bufferlist.label=Buffer List
-options.bufferlist.oneColumn=One column layout: filename
-options.bufferlist.twoColumns=Two column layout: filename & location
+
+options.bufferlist.showColumns=Show Columns:
+options.bufferlist.showStatus=Status icon
+options.bufferlist.showDir=Directory
+options.bufferlist.showMode=Mode
+
+options.bufferlist.showAbsoluteFilename=Show absolute pathname in filename column
 options.bufferlist.verticalLines=Show vertical lines
 options.bufferlist.horizontalLines=Show horizontal lines
+options.bufferlist.headers=Show column headers
+options.bufferlist.autoresize=Auto-Resize columns
 
+options.bufferlist.switcher.label=Session Switcher
+options.bufferlist.switcher.show=Show Session Switcher
+options.bufferlist.switcher.showTitle=Show "Session:" label
+options.bufferlist.switcher.autoSave=Autosave sessions (on switch, rename, close)
+options.bufferlist.switcher.closeAll=Close all files before switching to new session
 

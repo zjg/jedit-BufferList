@@ -40,13 +40,13 @@ public class BufferListPopup extends JPopupMenu {
 
     public BufferListPopup(View view,
                            String path,
-                           boolean isOpen,
+                           boolean isOpenFilesList,
                            boolean isCurrent)
     {
         this.view = view;
         this.path = path;
 
-        if (isOpen) {
+        if (isOpenFilesList) {
             if (!isCurrent) {
                 add(createMenuItem("goto"));
             }
