@@ -26,7 +26,9 @@
 	<ACTION NAME="bufferlist-next-buffer">
 		<CODE>
 			DockableWindowManager mgr = view.getDockableWindowManager();
-			mgr.addDockableWindow("bufferlist");
+			DockableWindow win = mgr.getDockableWindow("bufferlist");
+			if (win == null)
+				mgr.addDockableWindow("bufferlist");
 			BufferList bufferlist = (BufferList) mgr.getDockableWindow("bufferlist").getComponent();
 			bufferlist.nextBuffer();
 		</CODE>
@@ -35,7 +37,9 @@
 	<ACTION NAME="bufferlist-previous-buffer">
 		<CODE>
 			DockableWindowManager mgr = view.getDockableWindowManager();
-			mgr.addDockableWindow("bufferlist");
+			DockableWindow win = mgr.getDockableWindow("bufferlist");
+			if (win == null)
+				mgr.addDockableWindow("bufferlist");
 			BufferList bufferlist = (BufferList) mgr.getDockableWindow("bufferlist").getComponent();
 			bufferlist.previousBuffer();
 		</CODE>

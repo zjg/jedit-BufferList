@@ -427,7 +427,7 @@ public class HelpfulJTable extends JTable {
 			ToolTipManager ttm = ToolTipManager.sharedInstance();
 			toolTipInitialDelay = ttm.getInitialDelay();
 			toolTipReshowDelay = ttm.getReshowDelay();
-			ttm.setInitialDelay(200);
+			ttm.setInitialDelay(500);
 			ttm.setReshowDelay(0);
 		}
 
@@ -496,17 +496,6 @@ public class HelpfulJTable extends JTable {
 		}
 
 	    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
-			//super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
-			/*
-			if (table != null) {
-				JTableHeader header = table.getTableHeader();
-				if (header != null) {
-					setForeground(header.getForeground());
-					setBackground(header.getBackground());
-					setFont(header.getFont());
-				}
-			}
-			*/
 			setText(value == null ? "" : value.toString());
 			if (viewColumn == sortColumn)
 				switch (sortOrder) {

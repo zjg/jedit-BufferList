@@ -1,10 +1,10 @@
 # General plugin properites
 plugin.BufferListPlugin.name=BufferList
 plugin.BufferListPlugin.author=Dirk Moebius <dmoebius@gmx.net>
-plugin.BufferListPlugin.version=0.5.1
+plugin.BufferListPlugin.version=0.6
 plugin.BufferListPlugin.docs=index.html
 plugin.BufferListPlugin.depend.0=jdk 1.1
-plugin.BufferListPlugin.depend.1=jedit 03.00.99.00
+plugin.BufferListPlugin.depend.1=jedit 03.01.04.00
 
 
 # dockable name
@@ -35,6 +35,7 @@ bufferlist.popup.close.label=Close
 bufferlist.popup.save.label=Save
 bufferlist.popup.save-as.label=Save as...
 bufferlist.popup.reload.label=Reload
+bufferlist.popup.remove.label=Remove entry
 
 
 # BufferList panel
@@ -112,6 +113,7 @@ options.bufferlist.horizontalLines=Show horizontal lines
 options.bufferlist.showAbsoluteFilename=Show absolute pathname in filename column
 options.bufferlist.headers=Show column headers
 options.bufferlist.autoresize=Auto-Resize columns
+options.bufferlist.checkRecentFiles=Check status of recent files
 
 options.bufferlist.showColumns=Show Columns:
 options.bufferlist.showStatus=Status icon

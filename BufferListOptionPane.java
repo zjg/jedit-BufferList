@@ -61,6 +61,9 @@ public class BufferListOptionPane extends AbstractOptionPane implements ActionLi
 		bAutoResize.setSelected(jEdit.getBooleanProperty("bufferlist.autoresize", true));
 		bAutoResize.setEnabled(bHeaders.isSelected());
 
+		bCheckRecentFiles = new JCheckBox(jEdit.getProperty("options.bufferlist.checkRecentFiles"));
+		bCheckRecentFiles.setSelected(jEdit.getBooleanProperty("bufferlist.checkRecentFiles", true));
+
 		JLabel lbShowColumns = new JLabel(jEdit.getProperty("options.bufferlist.showColumns"));
 
 		bShowStatus = new JCheckBox(jEdit.getProperty("options.bufferlist.showStatus"));
@@ -84,6 +87,8 @@ public class BufferListOptionPane extends AbstractOptionPane implements ActionLi
 		bufferListOptions.add(bHeaders);
 		bufferListOptions.add(new JPanel()); // empty cell
 		bufferListOptions.add(bAutoResize);
+		bufferListOptions.add(new JPanel()); // empty cell
+		bufferListOptions.add(bCheckRecentFiles);
 
 		// SessionSwitcher options:
 
@@ -124,6 +129,7 @@ public class BufferListOptionPane extends AbstractOptionPane implements ActionLi
 		jEdit.setBooleanProperty("bufferlist.showOneColumn", bShowAbsoluteFilename.isSelected());
 		jEdit.setBooleanProperty("bufferlist.headers", bHeaders.isSelected());
 		jEdit.setBooleanProperty("bufferlist.autoresize", bAutoResize.isSelected());
+		jEdit.setBooleanProperty("bufferlist.checkRecentFiles", bCheckRecentFiles.isSelected());
 
 		jEdit.setBooleanProperty("bufferlist.showColumn0", bShowStatus.isSelected());
 		jEdit.setBooleanProperty("bufferlist.showColumn2", bShowDir.isSelected());
@@ -170,6 +176,7 @@ public class BufferListOptionPane extends AbstractOptionPane implements ActionLi
 	private JCheckBox bShowAbsoluteFilename;
 	private JCheckBox bHeaders;
 	private JCheckBox bAutoResize;
+	private JCheckBox bCheckRecentFiles;
 	private JCheckBox bShowStatus;
 	private JCheckBox bShowDir;
 	private JCheckBox bShowMode;

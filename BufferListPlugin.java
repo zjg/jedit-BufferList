@@ -25,6 +25,8 @@ import org.gjt.sp.jedit.gui.OptionsDialog;
 import org.gjt.sp.jedit.msg.BufferUpdate;
 import org.gjt.sp.jedit.msg.CreateDockableWindow;
 import org.gjt.sp.jedit.msg.EditPaneUpdate;
+import org.gjt.sp.jedit.msg.EditorExitRequested;
+import org.gjt.sp.util.Log;
 
 
 /**
@@ -39,6 +41,12 @@ public class BufferListPlugin extends EBPlugin {
 
 	public void start() {
 		EditBus.addToNamedList(DockableWindow.DOCKABLE_WINDOW_LIST, NAME);
+
+		// don't let jEdit restore the previously open files at startup - BufferList does this
+		jEdit.setBooleanProperty("restore", false);
+
+		SessionManager mgr = SessionManager.getInstance();
+		mgr._loadLastSession();
 	}
 
 
@@ -78,6 +86,17 @@ public class BufferListPlugin extends EBPlugin {
 					if (view != null)
 						view.getDockableWindowManager().addDockableWindow(NAME);
 				}
+			}
+		}
+		else if (message instanceof EditorExitRequested) {
+			EditorExitRequested eer = (EditorExitRequested) message;
+			// remember the last open session:
+			SessionManager mgr = SessionManager.getInstance();
+			mgr.saveCurrentSessionProperty();
+			// if autosave sessions is on, save current session silently:
+			if (jEdit.getBooleanProperty("bufferlist.switcher.autoSave", true)) {
+				Log.log(Log.DEBUG, this, "autosaving current session...");
+				mgr.saveCurrentSession(eer.getView(), true);
 			}
 		}
 	}

@@ -133,7 +133,6 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 
 		pane = new JSplitPane(splitmode, true, top, bottom);
 		pane.setOneTouchExpandable(true);
-		pane.setDividerLocation(Integer.parseInt(jEdit.getProperty("bufferlist.divider", "300")));
 
 		add(pane, BorderLayout.CENTER);
 
@@ -143,6 +142,7 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 			public void run() {
 				if (position.equals(DockableWindowManager.FLOATING))
 					table1.requestFocus();
+				pane.setDividerLocation(Integer.parseInt(jEdit.getProperty("bufferlist.divider", "300")));
 			}
 		});
 	}
@@ -160,12 +160,17 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 	}
 
 
+	/**
+	 * Invoked by action "bufferlist-to-front" only;
+	 * sets the focus on the table of open files.
+	 * @see actions.xml
+	 */
 	public void requestFocusOpenFiles() {
 		table1.requestFocus();
 	}
 
 
-	/** go to next buffer in open files list */
+	/** Go to next buffer in open files list */
 	public void nextBuffer() {
 		int row = model1.getCurrentBufferRow();
 		Buffer next = model1.getBuffer(row == model1.getRowCount()-1 ? 0 : row + 1);
@@ -173,7 +178,7 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 	}
 
 
-	/** go to previous buffer in open files list */
+	/** Go to previous buffer in open files list */
 	public void previousBuffer() {
 		int row = model1.getCurrentBufferRow();
 		Buffer prev = model1.getBuffer(row == 0 ? model1.getRowCount()-1 : row - 1);
@@ -223,14 +228,6 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 			((PersistentTableColumnModel)tcm1).save();
 		if (tcm2 instanceof PersistentTableColumnModel)
 			((PersistentTableColumnModel)tcm2).save();
-
-		// save currently selected session:
-		if (jEdit.getBooleanProperty("bufferlist.switcher.autoSave", true))
-			// FIXME: jEdit bug: list of open buffers is empty if jEdit is exiting
-			// Workaround: until this is fixed (jEdit should send an
-			// EditorIsExiting message), don't save buffer list to the current
-			// session here. Save the currentSession property only.
-			SessionManager.getInstance().saveCurrentSessionProperty();
 	}
 
 
@@ -265,7 +262,19 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 
 
 	/**
-	 * sets new table models and table column models for both tables.
+	 * Overwritten so that changes to the current look and feel take effect.
+	 * @see javax.swing.JComponent#updateUI()
+	 */
+	public void updateUI() {
+		// need to discard cached font and color info:
+		fontHeaderNormal = null;
+		initFontsAndColors();
+		super.updateUI();
+	}
+
+
+	/**
+	 * Sets new table models and table column models for both tables.
 	 */
 	private void setNewModels() {
 		model1 = new BufferListModel(jEdit.getBuffers());
@@ -310,9 +319,12 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 	private void propertiesChanged() {
 		boolean showAbsoluteOld = model1.isShowingAbsoluteFilename();
 		boolean showAbsoluteNew = jEdit.getBooleanProperty("bufferlist.showOneColumn");
+		int recentFilesOld = model2.getRowCount();
+		int recentFilesNew = BufferHistory.getBufferHistory().size();
 
-		// if the property "showOneColumn" has changed, we need to update the models:
-		if (showAbsoluteOld != showAbsoluteNew) {
+		// if the property "showOneColumn" or the number of recent files have
+		// changed, we need to update the models:
+		if (showAbsoluteOld != showAbsoluteNew || recentFilesOld != recentFilesNew) {
 			setNewModels();
 		} else {
 			// otherwise we only need to update the column models, which is faster:
@@ -391,26 +403,37 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 
 
 	// private static members
-	private static Font headerNormalFont;
-	private static Font headerBoldFont;
-	private static Font labelNormalFont;
-	private static Font labelBoldFont;
+	private static Font fontHeaderNormal;
+	private static Font fontHeaderSelected;
+	private static Font fontNameNormal;
+	private static Font fontNameSelected;
 	private static Color labelNormalColor;
 	private static Color labelSelectedColor;
 	private static Color labelDisabledColor;
 	private static Color labelBackgrndColor;
 
 
+	private static final void initFontsAndColors() {
+		if (fontHeaderNormal == null) {
+			Font labelFont = UIManager.getFont("Label.font");
+			fontHeaderNormal = new Font(labelFont.getName(), Font.PLAIN, labelFont.getSize());
+			fontHeaderSelected = new Font(labelFont.getName(), Font.BOLD, labelFont.getSize());
+
+			Font tableFont = UIManager.getFont("Table.font");
+			fontNameNormal = new Font(tableFont.getName(), Font.PLAIN, tableFont.getSize());
+			fontNameSelected = new Font(tableFont.getName(), Font.BOLD, tableFont.getSize());
+
+			labelNormalColor = UIManager.getColor("Table.foreground");
+			labelSelectedColor = UIManager.getColor("Table.selectionForeground");
+			labelDisabledColor = UIManager.getColor("TextField.inactiveForeground");
+			labelBackgrndColor = UIManager.getColor("Table.background");
+		}
+	}
+
+
 	// initialize static members
 	static {
-		headerNormalFont = new Font("Dialog", Font.PLAIN, 12);
-		headerBoldFont = new Font("Dialog", Font.BOLD, 12);
-		labelNormalFont = UIManager.getFont("Table.font");
-		labelBoldFont = new Font(labelNormalFont.getName(), Font.BOLD, labelNormalFont.getSize());
-		labelNormalColor = UIManager.getColor("Table.foreground");
-		labelSelectedColor = UIManager.getColor("Table.selectionForeground");
-		labelDisabledColor = UIManager.getColor("TextField.inactiveForeground");
-		labelBackgrndColor = UIManager.getColor("Table.background");
+		initFontsAndColors();
 	}
 
 
@@ -508,18 +531,22 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 		private Icon getIconForRow(Object[] rowValues) {
 			Icon icon = GUIUtilities.NORMAL_BUFFER_ICON;
 			Buffer buffer = (Buffer) rowValues[3];
-			if (buffer != null)
+			if (buffer != null) {
+				// has a buffer (ie. it is an open file): use it's icon
 				icon = buffer.getIcon();
-			else {
-				// don't has a buffer (=recent file list), check FS:
-				String path = rowValues[1].toString() + rowValues[0].toString();
-				VFS vfs = VFSManager.getVFSForPath(path);
-				if (vfs != null && vfs instanceof FileVFS) {
-					File file = new File(path);
-					if (!file.exists())
-						icon = GUIUtilities.NEW_BUFFER_ICON;
-					else if (!file.canWrite())
-						icon = GUIUtilities.READ_ONLY_BUFFER_ICON;
+			} else {
+				// doesn't have a buffer (ie. is from recent file list)
+				if (jEdit.getBooleanProperty("bufferlist.checkRecentFiles", true)) {
+					// check FS for existence of recent files:
+					String path = rowValues[1].toString() + rowValues[0].toString();
+					VFS vfs = VFSManager.getVFSForPath(path);
+					if (vfs != null && vfs instanceof FileVFS) {
+						File file = new File(path);
+						if (!file.exists())
+							icon = GUIUtilities.NEW_BUFFER_ICON;
+						else if (!file.canWrite())
+							icon = GUIUtilities.READ_ONLY_BUFFER_ICON;
+					}
 				}
 			}
 			return icon;
@@ -714,7 +741,7 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 			if (buffer != null) {
 				comp.setForeground(buffer.isReadOnly() ? labelDisabledColor :
 					isSelected ? labelSelectedColor : labelNormalColor);
-				comp.setFont(buffer == currentBuffer ? labelBoldFont : labelNormalFont);
+				comp.setFont(buffer == currentBuffer ? fontNameSelected : fontNameNormal);
 			} else {
 				comp.setForeground(isSelected ? labelSelectedColor : labelNormalColor);
 			}
@@ -854,11 +881,11 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 
 		public void focusGained(FocusEvent evt) {
 			if (evt.getComponent() == table1) {
-				header1.setFont(headerBoldFont);
-				header2.setFont(headerNormalFont);
+				header1.setFont(fontHeaderSelected);
+				header2.setFont(fontHeaderNormal);
 			} else {
-				header1.setFont(headerNormalFont);
-				header2.setFont(headerBoldFont);
+				header1.setFont(fontHeaderNormal);
+				header2.setFont(fontHeaderSelected);
 			}
 		}
 
@@ -875,11 +902,16 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 				// <Enter> opens the buffer
 				if (evt.getSource() == table1) {
 					// open files table
-					view.setBuffer(model1.getBuffer(table1.getSelectedRow()));
+					int sel = table1.getSelectedRow();
+					if (sel >= 0)
+						view.setBuffer(model1.getBuffer(sel));
 				} else {
 					// recent files table
-					String filename = model2.getFilename(table2.getSelectedRow());
-					jEdit.openFile(view, filename);
+					int sel =table2.getSelectedRow();
+					if (sel >= 0) {
+						String filename = model2.getFilename(sel);
+						jEdit.openFile(view, filename);
+					}
 				}
 				view.toFront();
 				closeWindowAndFocusEditPane();
@@ -906,7 +938,7 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 				return;
 
 			if (evt.getKeyCode() == KeyEvent.VK_ESCAPE) {
-				// <Esc> closes a floating window
+				// <Esc> closes a floating window and returns to jEdit text pane
 				evt.consume();
 				closeWindowAndFocusEditPane();
 			}

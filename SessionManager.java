@@ -35,8 +35,6 @@ import org.gjt.sp.util.Log;
 /**
  * A singleton class that holds a current session and has methods to switch
  * between sessions.
- *
- * @author Dirk Moebius
  */
 public class SessionManager {
 
@@ -45,15 +43,14 @@ public class SessionManager {
 
 	/** Returns the singleton instance */
 	public static SessionManager getInstance() {
-		if (instance == null) {
+		if (instance == null)
 			instance = new SessionManager();
-		}
 		return instance;
 	}
 
 
 	/**
-	 * Switch to new session.
+	 * Switch to a new session.
 	 * @param view  view for displaying error messages
 	 * @param newSession  the new session name
 	 * @return false, if the new session could not be set.
@@ -85,7 +82,7 @@ public class SessionManager {
 
 
 		// load new session:
-		Buffer buffer = loadSession(newSession, true);
+		Buffer buffer = loadSession(newSession);
 		VFSManager.waitForRequests();
 		if (VFSManager.errorOccurred())
 			return false;
@@ -108,28 +105,15 @@ public class SessionManager {
 
 
 	/**
-	 * (Re)Loads the current session, after closing all open buffers.
-	 * This should be used on jEdit startup only.
-	 * @param  view  the view that should be used, where the sessions current
-	 *    open buffer is showed.
+	 * (Re)Loads the last open session.
+	 * This should only be called by the BufferList plugin on jEdit startup.
+	 * @return the last opened buffer in this session.
 	 */
-	public void loadCurrentSession(View view) {
-		Log.log(Log.DEBUG, this, "loadCurrentSession: currentSession=" + currentSession);
-
-		// close all open buffers:
-		// NOTE: can't use jEdit.closeAllBuffers(View) here, because we don't want jEdit to show dialogs
-		Buffer buffer = jEdit.getFirstBuffer();
-		while (buffer != null) {
-			jEdit._closeBuffer(view, buffer);
-			buffer = buffer.getNext();
-		}
-
-		// load session:
-		buffer = loadSession(currentSession, true);
-
-		// set current buffer:
-		if (buffer != null && view != null)
-			view.setBuffer(buffer);
+	public Buffer _loadLastSession() {
+		Log.log(Log.DEBUG, this, "loading last session: " + currentSession);
+		Buffer lastBuffer = loadSession(currentSession);
+		Log.log(Log.DEBUG, this, "done loading last session.");
+		return lastBuffer;
 	}
 
 
@@ -289,12 +273,9 @@ public class SessionManager {
 	 * Loads a session.
 	 * @param session The file name, relative to $HOME/.jedit/sessions
 	 *     (.session suffix not required)
-	 * @param ignoreNotFound If false, an exception will be printed if
-	 *     the session doesn't exist. If true, it will silently fail
 	 * @return the buffer that was used at last in this session, may be null.
-	 * @since BufferList 0.4.1
 	 */
-	private static Buffer loadSession(String session, boolean ignoreNotFound) {
+	private Buffer loadSession(String session) {
 		String filename = createSessionFileName(session);
 		Buffer buffer = null;
 
@@ -311,14 +292,12 @@ public class SessionManager {
 			in.close();
 		}
 		catch (FileNotFoundException fnf) {
-			Log.log(Log.NOTICE, SessionManager.class, fnf);
-			if (ignoreNotFound)
-				return null;
+			Log.log(Log.NOTICE, this, fnf);
 			String[] args = { filename };
 			GUIUtilities.error(null, "filenotfound", args);
 		}
 		catch (IOException io) {
-			Log.log(Log.ERROR, SessionManager.class, io);
+			Log.log(Log.ERROR, this, io);
 			String[] args = { io.getMessage() };
 			GUIUtilities.error(null, "ioerror", args);
 		}
@@ -328,66 +307,22 @@ public class SessionManager {
 
 
 	/**
-	 * Saves the session
-	 * @param view The view this is being saved from. The saved caret
-	 *     information and current buffer is taken from this view
-	 * @param session The file name, relative to $HOME/.jedit/sessions
-	 *     (.session suffix not required)
-	 * @since BufferList 0.4.1
-	 */
-	private static void saveSession(View view, String session) {
-		view.getEditPane().saveCaretInfo();
-
-		String lineSep = System.getProperty("line.separator");
-		String filename = createSessionFileName(session);
-		Buffer buffer = jEdit.getFirstBuffer();
-
-		try {
-			BufferedWriter out = new BufferedWriter(new FileWriter(filename));
-
-			while (buffer != null) {
-				if (!buffer.isUntitled()) {
-					writeSessionCommand(view, buffer, out);
-					out.write(lineSep);
-				}
-				buffer = buffer.getNext();
-			}
-
-			out.close();
-		}
-		catch (IOException io) {
-			Log.log(Log.ERROR, SessionManager.class, io);
-			String[] args = { io.getMessage() };
-			GUIUtilities.error(null, "ioerror", args);
-		}
-	}
-
-
-	/**
 	 * Parse one line from a session file.
-	 * @since BufferList 0.4.1
 	 */
-	private static Buffer readSessionCommand(String line) {
-		String path = null;
-		Integer selStart = null;
-		Integer selEnd = null;
-		Integer firstLine = null;
-		Integer horizontalOffset = null;
-		boolean current = false;
-
+	private Buffer readSessionCommand(String line) {
 		// handle path:XXX for backwards compatibility
 		// with jEdit 2.2 sessions
 		if (line.startsWith("path:"))
 			line = line.substring(5);
 
+		boolean current = false;
 		StringTokenizer st = new StringTokenizer(line, "\t");
-		path = st.nextToken();
+		String path = st.nextToken();
 
 		// ignore all tokens except for 'current' to maintain
 		// compatibility with jEdit 2.2 sessions
 		while(st.hasMoreTokens()) {
 			String token = st.nextToken();
-
 			if (token.equals("current"))
 				current = true;
 		}
@@ -404,13 +339,40 @@ public class SessionManager {
 
 
 	/**
-	 * Writes one line to a session file.
-	 * @since BufferList 0.4.1
+	 * Saves the session
+	 * @param view The view this is being saved from. The saved caret
+	 *     information and current buffer is taken from this view
+	 * @param session The file name, relative to $HOME/.jedit/sessions
+	 *     (.session suffix not required)
 	 */
-	private static void writeSessionCommand(View view, Buffer buffer, Writer out) throws IOException {
-		out.write(buffer.getPath());
-		if (view.getBuffer() == buffer)
-			out.write("\tcurrent");
+	private void saveSession(View view, String session) {
+		view.getEditPane().saveCaretInfo();
+
+		String lineSep = System.getProperty("line.separator");
+		String filename = createSessionFileName(session);
+		Buffer viewBuffer = view.getBuffer();
+		Buffer buffer = jEdit.getFirstBuffer();
+
+		try {
+			BufferedWriter out = new BufferedWriter(new FileWriter(filename));
+
+			while (buffer != null) {
+				if (!buffer.isUntitled()) {
+					out.write(buffer.getPath());
+					if (buffer == viewBuffer)
+						out.write("\tcurrent");
+					out.write(lineSep);
+				}
+				buffer = buffer.getNext();
+			}
+
+			out.close();
+		}
+		catch (IOException io) {
+			Log.log(Log.ERROR, this, io);
+			String[] args = { io.getMessage() };
+			GUIUtilities.error(null, "ioerror", args);
+		}
 	}
 
 

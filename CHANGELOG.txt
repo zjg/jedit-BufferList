@@ -1,3 +1,18 @@
+VERSION 0.6
+
+- New option "Check status of recent files"
+- New popup command to remove entries from the recent files list. Use this
+  if there are non-existent entries in the list and you don't want BufferList
+  to check these files any longer.
+- Faster loading of last session on jEdit startup
+- Bugfix: last session was not saved correctly (now uses the EditBus message
+  EditorExitRequested new since jEdit 3.1pre4)
+- Bugfix: split pane divider wasn't set correctly on IBM JDK 1.1.8
+- Bugfix: pressing Enter without selection caused Exception (Stefan Radig)
+- Bugfix: BufferList popped up even if "autoshow on buffer changed" was disabled
+- Requires jEdit 3.1pre4 or higher, JDK 1.1 or higher
+
+
 VERSION 0.5.1
 
 - Bugfix: ESC sets focus back to editor if BufferList is docked and focussed
