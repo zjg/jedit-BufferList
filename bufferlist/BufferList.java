@@ -737,7 +737,7 @@ public class BufferList extends JPanel implements EBComponent {
 
 			// create & show popup
 			paths = tree.getSelectionPaths();
-			BufferListPopup popup = new BufferListPopup(view, tree, paths);
+			BufferListPopup popup = new BufferListPopup(view, tree, paths, BufferListPlugin.getMenuExtensions());
 			popup.show(tree, e.getX() + 1, e.getY() + 1);
 		} //}}}
 	} //}}}

@@ -22,16 +22,20 @@
 package bufferlist;
 
 //{{{ imports
+//}}}
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import org.gjt.sp.jedit.*;
+import org.gjt.sp.jedit.ServiceManager;
 import org.gjt.sp.jedit.gui.OptionsDialog;
+import org.gjt.sp.jedit.jEdit;
 import org.gjt.sp.jedit.msg.*;
 import org.gjt.sp.util.Log;
-
-//}}}
+import org.gjt.sp.util.Log;
 
 /**
  * The BufferList plugin.
@@ -39,9 +43,20 @@ import org.gjt.sp.util.Log;
  * @author Dirk Moebius
  */
 public class BufferListPlugin extends EBPlugin {
+	
+	public static final String MENU_SERVICE_TYPE = "bufferlist.MenuEntries";
+	
+	private static List menuExtensions;
+	
 	//{{{ +start() : void
 	public void start() {
-		// nothing to do...
+		menuExtensions = new ArrayList();
+		loadPopupMenuExtensions();
+	} //}}}
+	
+	//{{{ +stop() : void
+	public void stop() {
+		menuExtensions = null;
 	} //}}}
 
 	//{{{ +createMenuItems(Vector) : void
@@ -73,5 +88,40 @@ public class BufferListPlugin extends EBPlugin {
 			}
 		}
 	} //}}}
+
+
+	//{{{ -loadPopupMenuExtensions() : void
+	/**
+	 * loads all the services defined by other plugins of type 'bufferlist.MenuEntries'
+	 * These services must return objects implementing the bufferlist.MenuEntries interface
+	 */
+	private void loadPopupMenuExtensions()
+	{
+		String[] serviceNames = ServiceManager.getServiceNames(MENU_SERVICE_TYPE);
+		for(int i = 0; i < serviceNames.length; ++i)
+		{
+			Object service = ServiceManager.getService(MENU_SERVICE_TYPE, serviceNames[i]);
+			if (service instanceof bufferlist.MenuEntries)
+			{
+				this.menuExtensions.add((MenuEntries) service);
+			}
+			else
+			{
+				Log.log(Log.WARNING, null, "Service " + serviceNames[i] + " is not a valid bufferlist.MenuEntries service");
+			}
+		}
+		
+	}
+	//}}}
+	
+	//{{{ getMenuExtension() : List
+	/** returns the List of MenuEntries objects to extend the popup menu.
+	*/
+	static List getMenuExtensions()
+	{
+		return menuExtensions;
+	}
+	//}}}
+
 }
 

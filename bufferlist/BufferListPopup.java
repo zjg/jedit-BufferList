@@ -26,20 +26,20 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.tree.TreePath;
-import org.gjt.sp.jedit.jEdit;
 import org.gjt.sp.jedit.Buffer;
 import org.gjt.sp.jedit.GUIUtilities;
 import org.gjt.sp.jedit.MiscUtilities;
 import org.gjt.sp.jedit.View;
 import org.gjt.sp.jedit.browser.VFSBrowser;
+import org.gjt.sp.jedit.jEdit;
 import org.gjt.sp.jedit.search.DirectoryListSet;
 import org.gjt.sp.jedit.search.SearchAndReplace;
 import org.gjt.sp.jedit.search.SearchDialog;
-
 //}}}
 
 /**
@@ -60,7 +60,7 @@ public class BufferListPopup extends JPopupMenu {
 	//}}}
 
 	//{{{ +BufferListPopup(View, JTree, TreePath[]) : <init>
-	public BufferListPopup(View view, JTree tree, TreePath[] sel) {
+	public BufferListPopup(View view, JTree tree, TreePath[] sel, List extensions) {
 		this.view = view;
 		this.tree = tree;
 		this.sel = sel;
@@ -136,6 +136,16 @@ public class BufferListPopup extends JPopupMenu {
 		if (sel != null) {
 			addSeparator();
 			add(createMenuItem("copy-paths"));
+		}
+		
+		//process any menu extensions
+		for(int i = 0; i < extensions.size(); ++i)
+		{
+			addSeparator();
+			//casting here is safe as the entries have already been checked when they were 
+			//added to the List in the BufferListPlugin class.
+			MenuEntries me = (MenuEntries) extensions.get(i);
+			me.addEntries(this, view, tree, sel);
 		}
 	} //}}}
 
