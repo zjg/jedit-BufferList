@@ -1,40 +1,44 @@
-# A plugin makefile
 #
-# To recompile this plugin, start jmk in the plugin's source directory.
+# BufferList plugin makefile
+#
+# :mode=jmk:tabSize=8:indentSize=8:noTabs=false:maxLineLen=0:
 #
 
-jar_name = "BufferList";
 
-##
+#
 # javac executable and args
-##
+#
 javac_bin = "javac";
 javac_opts = "-deprecation";
 
 #javac_bin = "jikes";
 #javac_opts = "-g" "-deprecation" "+E";
 
-# set up the class path
-new_class_path = "../../jedit.jar;../EditBus.jar;.";
-old_class_path = (getprop "java.class.path");
+javac_cmd = javac_bin javac_opts;
 
-# concatenate the old and new class paths
-if (equal "", old_class_path) then class_path = new_class_path;
-else class_path = (cat old_class_path ";" new_class_path); end
 
-cmd_javac = javac_bin "-classpath" class_path javac_opts;
-
-##
+#
 # jar executable and args
-##
+#
+jar_name = "BufferList";
 jar_bin = "jar";
 jar_opts = "cf0";
-cmd_jar = jar_bin jar_opts;
+jar_cmd = jar_bin jar_opts;
+jar_file = (cat "../" jar_name ".jar");
+
+
+#
+# source files
+#
 
 srcs = (subst ".java", ".class",
 	(glob (join (join (dirs "."), "/"), "*Plugin.java" "*.java"))
 );
-jar = (cat "../" jar_name ".jar");
+
+
+#
+# dist files
+#
 
 get_files = function (dummy)
 {
@@ -46,21 +50,31 @@ get_files = function (dummy)
 }
 end;
 
-"all": jar;
+
+#
+# targets
+#
+
+"all": jar_file;
+
 
 "%.class" : "%.java";
 {
-	exec cmd_javac <;
+	exec javac_cmd <;
 }
 
-jar: srcs;
+
+jar_file: srcs;
 {
-	exec cmd_jar @ (get_files "1");
+	exec jar_cmd @ (get_files "1");
 }
+
 
 "clean":;
 {
 	delete (glob (join (dirs "."), "/*.class" "/*~" "/*.bak"));
 }
 
+
 ".PHONY": "all";
+

@@ -1,12 +1,12 @@
 #
 # General plugin properites
 #
-plugin.BufferListPlugin.name=BufferList
-plugin.BufferListPlugin.author=Dirk Moebius <dmoebius@gmx.net>
-plugin.BufferListPlugin.version=0.6.1
-plugin.BufferListPlugin.docs=index.html
-plugin.BufferListPlugin.depend.0=jdk 1.1
-plugin.BufferListPlugin.depend.1=jedit 03.01.99.00
+plugin.bufferlist.BufferListPlugin.name=BufferList
+plugin.bufferlist.BufferListPlugin.author=Dirk Moebius <dmoebius@gmx.net>
+plugin.bufferlist.BufferListPlugin.version=0.6.2
+plugin.bufferlist.BufferListPlugin.docs=bufferlist/index.html
+plugin.bufferlist.BufferListPlugin.depend.0=jdk 1.1
+plugin.bufferlist.BufferListPlugin.depend.1=jedit 03.02.02.00
 
 
 #
@@ -76,6 +76,7 @@ bufferlist.switcher.title=Session:\ \
 
 bufferlist.switcher.save.tooltip=Save current session
 bufferlist.switcher.saveAs.tooltip=Save current session under a different name...
+bufferlist.switcher.reload.tooltip=Reload current session
 bufferlist.switcher.prefs.tooltip=Manage sessions...
 
 bufferlist.switcher.save.saved.title=Session Saved
@@ -118,6 +119,42 @@ bufferlist.manager.error.delete.title=Error Deleting Session File
 bufferlist.manager.error.delete.message=\
 	Could not delete the session file:\n\
 	{0}
+
+bufferlist.manager.info.restore.title=Information
+bufferlist.manager.info.restore.message=\
+	As of version 0.6.2, BufferList doesn't restore the last\n\
+	open session itself; it relies on jEdit to do that.\n\
+	\n\
+	If you want jEdit to restore the last open session,\n\
+	please enable the option:\n\
+	"Restore previously open files on startup"\n\
+	in the Global Options.\n\
+	\n\
+	If your session turns out to be empty now,\n\
+	please press "Reload".\n\
+	\ 
+
+bufferlist.manager.info.restore_autosave.title=Warning
+bufferlist.manager.info.restore_autosave.message=\
+	BufferList's Autosave Sessions feature is currently enabled,\n\
+	but one of the options for restoring files on jEdit restart\n\
+	is disabled. Either:\n\
+	\n\
+	"Restore previously open files on startup"    and/or\n\
+	"Restore even if file names were specified on the command line"\n\
+	\n\
+	is currently off. This could cause conflicts, and end up in\n\
+	empty session files.\n\
+	\n\
+	Please either turn on both options again,\n\
+	or disable BufferList's Autosave Sessions feature.\n\
+	\n\
+	If your session turns out to be empty now,\n\
+	please press "Reload".\n\
+	\ 
+
+bufferlist.manager.info.dontShowAgain=\
+	Don't show this message again.
 
 
 #

@@ -1,3 +1,13 @@
+VERSION 0.6.2
+
+- Now let's jEdit restore the last open session again, subject
+  to jEdit's "Restore last open files on startup" option
+- Bugfix: order of recent files was reversed as of jEdit 3.2pre2
+- Bugfix: SessionSwitcher could be added to the view twice or more
+- Moved code to packages "bufferlist" und "bufferlist.table"
+- Requires jEdit 3.2pre2 or higher
+
+
 VERSION 0.6.1
 
 - SessionSwitcher can now be shown as View ToolBar.
@@ -7,7 +17,7 @@ VERSION 0.6.1
 - Bugfix: All recent files gone if BufferList installed for first time
 - Bugfix: Last open buffer wasn't restored on restart
 - Bugfix: Lists didn't scroll if selection was moved with cursor keys
-- Requires jEdit 3.1final or higher, JDK 1.1 or higher
+- Requires jEdit 3.1final or higher
 
 
 VERSION 0.6
@@ -22,7 +32,7 @@ VERSION 0.6
 - Bugfix: split pane divider wasn't set correctly on IBM JDK 1.1.8
 - Bugfix: pressing Enter without selection caused Exception (Stefan Radig)
 - Bugfix: BufferList popped up even if "autoshow on buffer changed" was disabled
-- Requires jEdit 3.1pre4 or higher, JDK 1.1 or higher
+- Requires jEdit 3.1pre4 or higher
 
 
 VERSION 0.5.1
@@ -31,7 +41,8 @@ VERSION 0.5.1
 - Bugfix: Changing option "Show absolute path name in filename column" had no
   immediate effect.
 - Bugfix: Name column rendered wrong on Windows L&F
-- some minor optimizations (lesser redraws)
+- Some minor optimizations (lesser redraws)
+- Requires jEdit 3.0final or higher
 
 
 VERSION 0.5 (2001/03/24)
@@ -48,7 +59,7 @@ VERSION 0.5 (2001/03/24)
 - Bugfix: "Bring Buffer List to front" didn't work right if window was docked.
 - Bugfix: lists no longer autoscrolls to the selected cell, was irritating.
 - Bugfix: some redraw problems.
-- Requires jEdit 3.0final or higher, JDK 1.1 or higher
+- Requires jEdit 3.0final or higher
 
 
 VERSION 0.4.1 (2001/03/16)
@@ -58,6 +69,7 @@ VERSION 0.4.1 (2001/03/16)
 - bugfix: #407948 BufferList clears 'default.session' file on exit
 - bugfix: same column shown twice after reordering or showing/hiding
 - bugfix: buffer click doesn't work if mouse was moved during click
+- requires jEdit 3.0final or higher
 
 
 VERSION 0.4 (2001/03/10)
@@ -70,7 +82,7 @@ VERSION 0.4 (2001/03/10)
 - new option: turn off auto-resize of columns
 - new column in bufferlist showing mode
 - remember size and order of columns
-- requires jEdit 3.0final or higher, JDK 1.1 or higher
+- requires jEdit 3.0final or higher
 
 
 VERSION 0.3.1 (20001/01/06)
