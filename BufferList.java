@@ -21,7 +21,6 @@
 // from Java:
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
 import java.util.Vector;
 
 // from Swing:
@@ -35,6 +34,7 @@ import javax.swing.table.TableColumn;
 // from jEdit:
 import org.gjt.sp.jedit.*;
 import org.gjt.sp.jedit.gui.*;
+import org.gjt.sp.jedit.io.*;
 import org.gjt.sp.jedit.msg.BufferUpdate;
 import org.gjt.sp.jedit.msg.CreateDockableWindow;
 import org.gjt.sp.jedit.msg.EditPaneUpdate;
@@ -59,8 +59,8 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
     private static Color labelBackgrndColor;
     
     static {
-        headerNormalFont   = new Font("Dialog", Font.PLAIN, 11);
-        headerBoldFont     = new Font("Dialog", Font.BOLD, 11); 
+        headerNormalFont   = new Font("Dialog", Font.PLAIN, 12);
+        headerBoldFont     = new Font("Dialog", Font.BOLD, 12); 
         labelNormalFont    = UIManager.getFont("EditorPane.font");
         labelBoldFont      = new Font(labelNormalFont.getName(), Font.BOLD, 
                                       labelNormalFont.getSize());
@@ -255,7 +255,7 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
     
     private void setNewModels() {
         table1.setModel(model1 = new StringArrayModel(jEdit.getBuffers()));
-        table2.setModel(model2 = new StringArrayModel(jEdit.getRecent()));
+        table2.setModel(model2 = new StringArrayModel(BufferHistory.getBufferHistory()));
         setNewColumnModel(table1, rendTable1Col1, rendTable1Col2);
         setNewColumnModel(table2, rendTable2Col1, rendTable2Col2);
         currentBuffer = view.getBuffer();
@@ -318,21 +318,18 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
             arr = new String[bufferarr.length][2];
             for (int i=0; i < bufferarr.length; i++) {
                 arr[i][0] = bufferarr[i].getName();
-                arr[i][1] = bufferarr[i].getFile().getParent();
+                arr[i][1] = bufferarr[i].getVFS().getParentOfPath(
+                        bufferarr[i].getPath());
             }
         }
-        public StringArrayModel(String[] stringarr) {
+        public StringArrayModel(Vector vec) {
             super();
-            arr = new String[stringarr.length][2];
-            for (int i=0; i < stringarr.length; i++) {
-                int pos = stringarr[i].lastIndexOf(File.separator);
-                if (pos == -1) {
-                    arr[i][0] = stringarr[i];
-                    arr[i][1] = "";
-                } else {
-                    arr[i][0] = stringarr[i].substring(pos + 1);
-                    arr[i][1] = stringarr[i].substring(0, pos);
-                }
+            arr = new String[vec.size()][2];
+            for (int i=0; i < arr.length; i++) {
+                String path = ((BufferHistory.Entry)vec.elementAt(i)).path;
+                VFS vfs = VFSManager.getVFSForPath(path);
+                arr[i][0] = MiscUtilities.getFileName(path);
+                arr[i][1] = vfs.getParentOfPath(path);
             }
         }
         public Object getValueAt(int row, int col) { return arr[row][col]; }
@@ -340,7 +337,7 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
         public int getRowCount() { return arr.length; }
         public int getColumnCount() { return 2; } 
         public String getFilename(int row) { 
-            String f = arr[row][1] + File.separator + arr[row][0];
+            String f = arr[row][1] + arr[row][0];
             return f;
         }
         private String[][] arr;

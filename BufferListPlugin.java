@@ -38,8 +38,6 @@ public class BufferListPlugin extends EBPlugin {
     
     public void start() {
         EditBus.addToNamedList(DockableWindow.DOCKABLE_WINDOW_LIST, NAME);
-        jEdit.addAction(new bufferlist());
-        jEdit.addAction(new bufferlist_to_front());
     }
 
 
@@ -60,45 +58,6 @@ public class BufferListPlugin extends EBPlugin {
                 cmsg.setDockableWindow(new BufferList(cmsg.getView(),
                     cmsg.getPosition()));
             }
-        }
-    }
-
-
-    /** this action toggles the Buffer List on/off. */
-    private class bufferlist extends EditAction {
-        public bufferlist() {
-            super("bufferlist");
-        }
-        
-        public void actionPerformed(ActionEvent evt) {
-            View view = getView(evt);
-            DockableWindowManager wm = view.getDockableWindowManager();
-            wm.toggleDockableWindow(NAME);
-        }
-    
-        public boolean isToggle() {
-            return true;
-        }
-    
-        public boolean isSelected(Component comp) {
-            return getView(comp).getDockableWindowManager()
-                .isDockableWindowVisible(NAME);
-        }
-    }
-
-    
-    /** this action brings the Buffer List to the front. */
-    private class bufferlist_to_front extends EditAction {
-        public bufferlist_to_front() {
-            super("bufferlist-to-front");
-        }
-        public void actionPerformed(ActionEvent evt) {
-            View view = getView(evt);
-            DockableWindowManager wm = view.getDockableWindowManager();
-            if (!wm.isDockableWindowVisible(NAME)) {
-                wm.addDockableWindow(NAME);
-            }
-            wm.showDockableWindow(NAME);
         }
     }
 }

@@ -1,57 +1,66 @@
-# jmk makefile for the BufferList plugin
+# A plugin makefile
+#
 # To recompile this plugin, start jmk in the plugin's source directory.
+#
 
-NAME = "BufferList";
+jar_name = "BufferList";
 
-# compiler:
-#javac = "javac";
-#javaflags =  "-g" "-deprecation"; 
-javac = "jikes";
-javaflags =  "+E" "-g" "-deprecation"; 
+##
+# javac executable and args
+##
+javac_bin = "javac";
+javac_opts = "-deprecation";
 
-# directories to compile and include:
-pkgs = ".";
+#javac_bin = "jikes";
+#javac_opts = "-g" "-deprecation" "+E";
 
-# target jar filename:
-jarfile = (cat "../" NAME ".jar");
+# set up the class path
+new_class_path = "../../jedit.jar;../EditBus.jar;.";
+old_class_path = (getprop "java.class.path");
 
-# jar tool:
-jar = "jar";
-jarflags = "cfM0";
+# concatenate the old and new class paths
+if (equal "", old_class_path) then class_path = new_class_path;
+else class_path = (cat old_class_path ";" new_class_path); end
 
+cmd_javac = javac_bin "-classpath" class_path javac_opts;
 
-##########################################################################
+##
+# jar executable and args
+##
+jar_bin = "jar";
+jar_opts = "cf0";
+cmd_jar = jar_bin jar_opts;
 
-srcs = (subst ".java", ".class", (glob (join pkgs, "/*.java")));
+srcs = (subst ".java", ".class", 
+	(glob (join (join (dirs "."), "/"), "*Plugin.java" "*.java"))
+);
+jar = (cat "../" jar_name ".jar");
 
-"all": jarfile;
+get_files = function (dummy)
+{
+	extensions = "class" "gif" "html" "props";
+	file_globs = (join "/*.", extensions);
+	other_files = "actions.xml";
+
+	(glob (join (dirs "."), file_globs)) other_files
+}
+end;
+
+"all": jar;
 
 "%.class" : "%.java";
 {
-    exec javac javaflags <;
+    exec cmd_javac <;
 }
 
-jarfile: srcs;
+jar: srcs;
 {
-    exec jar jarflags @
-        (glob 
-            (join pkgs, "/*.class")
-            (join pkgs, "/*.gif")
-            (join pkgs, "/*.html")
-            (join pkgs, "/*.props"));
+    exec cmd_jar @ (get_files "1");
 }
-
-"jar": jarfile;
 
 "clean":;
 {
-    -delete
-        (glob 
-            (join pkgs, "/*.class")
-            (join pkgs, "/*~")
-            (join pkgs, "/*.bak"));
+	delete (glob (join (dirs "."), "/*.class"));
 }
 
-
-".PHONY": "all" "jar" "clean";
-
+".PHONY": "all";

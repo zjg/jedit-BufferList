@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE ACTIONS SYSTEM "actions.dtd">
+
+<ACTIONS>
+	<ACTION NAME="bufferlist">
+		<CODE>
+			view.getDockableWindowManager()
+				.toggleDockableWindow("bufferlist");
+		</CODE>
+		<IS_SELECTED>
+			return view.getDockableWindowManager()
+				.isDockableWindowVisible("bufferlist");
+		</IS_SELECTED>
+	</ACTION>
+	<ACTION NAME="bufferlist-to-front">
+		<CODE>
+			view.getDockableWindowManager()
+				.addDockableWindow("bufferlist");
+		</CODE>
+	</ACTION>
+</ACTIONS>

@@ -2,7 +2,7 @@ TODO
 ====
 
 - right click popup menu
-  * on open files: open in new view, close (default), save, save as, reload                   
+  * on open files: open in new view, close (default), save, save as, reload
   * on recent files: open (default), open in new view
 - allow multiple selections and operations on them (close all, save all etc.)
 
