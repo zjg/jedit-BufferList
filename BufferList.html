@@ -20,6 +20,10 @@
 	</TR>
 </TABLE>
 
+<P>
+Contributions by Slava Pestov, Stefan Radig, Lee Turner, Karsten Pilz, Daniel Wunsch.
+</P>
+
 
 <H2>Introduction</H2>
 
@@ -52,16 +56,16 @@ The following menu actions are available in menu
 
 <UL>
 	<LI><B>Buffer List (Toggle)</B><BR>
-			Show/Hide the Buffer List.
+		Show/Hide the Buffer List.</LI>
 	<LI><B>Go to Buffer List</B><BR>
-			Show the Buffer List and set the focus on the current buffer entry.
+		Show the Buffer List and set the focus on the current buffer entry.</LI>
 	<LI><B>Go to Next Buffer in Buffer List</B><BR>
-			Go to the buffer below the current one in the Buffer List.
-			This is different from <B>View&gt;Go to Next Buffer</B>,
-			because the Buffer List might be sorted differently than jEdit's
-			internal list.
+		Go to the buffer below the current one in the Buffer List.
+		This is different from <B>View&gt;Go to Next Buffer</B>,
+		because the Buffer List might be sorted differently than jEdit's
+		internal list.</LI>
 	<LI><B>Go to Previous Buffer in Buffer List</B><BR>
-			Go to the buffer above the current one in the Buffer List.
+		Go to the buffer above the current one in the Buffer List.</LI>
 </UL>
 
 
@@ -79,14 +83,13 @@ A prerequisite is that you assigned a keyboard shortcut to the plugin action
 </P>
 
 <TABLE BORDER>
-	<TR> <TD><B>Key Shortcut</B></TD> <TD><B>Action</B></TD>                             </TR>
-	<TR> <TD>[Alt-b]</TD>             <TD>Show Buffer List</TD>                          </TR>
-	<TR> <TD>[Up] / [Down]</TD>       <TD>Choose buffer</TD>                             </TR>
-	<TR> <TD>[Right]</TD>             <TD>Expand a directory entry</TD>                  </TR>
-	<TR> <TD>[Left]</TD>              <TD>Collapse a directory entry</TD>                </TR>
-	<TR> <TD>[Tab]</TD>               <TD>Switch between Open and Recent files list</TD> </TR>
-	<TR> <TD>[Enter] / [Return]</TD>  <TD>Jump to/Open selected buffer</TD>              </TR>
-	<TR> <TD>[Esc]</TD>               <TD>Return to text area</TD>                       </TR>
+	<TR> <TD><B>Key Shortcut</B></TD> <TD><B>Action</B></TD>                </TR>
+	<TR> <TD>[Alt-b]</TD>             <TD>Show Buffer List</TD>             </TR>
+	<TR> <TD>[Up] / [Down]</TD>       <TD>Choose buffer</TD>                </TR>
+	<TR> <TD>[Right]</TD>             <TD>Expand a directory entry</TD>     </TR>
+	<TR> <TD>[Left]</TD>              <TD>Collapse a directory entry</TD>   </TR>
+	<TR> <TD>[Enter] / [Return]</TD>  <TD>Jump to/Open selected buffer</TD> </TR>
+	<TR> <TD>[Esc]</TD>               <TD>Return to text area</TD>          </TR>
 </TABLE>
 
 <BR>
@@ -98,26 +101,32 @@ A prerequisite is that you assigned a keyboard shortcut to the plugin action
 <H3>Appearance</H3>
 
 <P>
-You can customize the appearance of the Buffer List under
-<B>Utilities&gt;Global&nbsp;options&gt;Plugin&nbsp;Options&gt;Buffer&nbsp;List</B>.
-The following options are available:
+You can customize the appearance of the Buffer List via
+<B>Plugins&gt;Plugin&nbsp;Options&gt;Buffer&nbsp;List</B>. The following options
+are available:
 </P>
 
 <UL>
 	<LI><B>Font</B><BR>
-			The base font of bufferlist entries.<BR>
-			The current buffer will be shown <B>bold</B>.
-			All entries will be shown with a color that matches one of the regular
-			expressions in
-			<B>Utilities&gt;Global&nbsp;options&gt;File&nbsp;System&nbsp;Browser&gt;Colors</B>.</LI>
+		The base font of bufferlist entries.<BR>
+		The current buffer will be shown <B>bold</B>.
+		All entries will be shown with a color that matches one of the regular
+		expressions in
+		<B>Utilities&gt;Global&nbsp;options&gt;File&nbsp;System&nbsp;Browser&gt;Colors</B>.</LI>
 	<LI><B>Auto-Show on buffer change</B><BR>
-			If checked, the Buffer List is automatically shown, if the current buffer
-			has been changed.</LI>
+		If checked, the Buffer List is automatically shown, if the current buffer
+		has been changed.</LI>
 	<LI><B>Close files on double click</B><BR>
-			If checked, a buffer that has been double clicked is closed. Otherwise it
-			is opened.</LI>
+		If checked, a buffer that has been double clicked is closed. Otherwise it
+		is opened.</LI>
 	<LI><B>Fully expand directory tree by default</B><BR>
-			If checked, the BufferList tree will be fully expanded when first loaded.</LI>
+		If checked, the BufferList tree will be fully expanded when first loaded.</LI>
+	<LI><B>Flat tree</B><BR>
+		Toggles display of BufferList between a flat and hierarchical view.</LI>
+	<LI><B>Clip long paths with "..."</B><BR>
+		Toggles display of long paths between text clipping at end, at start
+		(default) and no clipping. If no clipping is selected, BufferList displays
+		a horizontal scrollbar.</LI>
 </UL>
 
 <H3>Docking</H3>
@@ -132,9 +141,8 @@ the position, where the Buffer List will be docked.
 </P>
 
 
-
-<A NAME="license">
-</A><H2>License</H2>
+<A NAME="license"></A>
+<H2>License</H2>
 
 <P>
 The source code is distributed under the GPL. Please have a look at:
@@ -146,8 +154,9 @@ The source code is distributed under the GPL. Please have a look at:
 <H2>Feedback</H2>
 
 <P>
-		<p>The preferred way to send bug reports is to use the <b>
-		<a href="http://sourceforge.net/tracker/?group_id=588&atid=565475&func=browse">Sourceforge Plugin Bug Tracker</a></b>.
+The preferred way to send bug reports is to use the
+<b><a href="http://sourceforge.net/tracker/?group_id=588&atid=565475&func=browse">Sourceforge
+Plugin Bug Tracker</a></b>.
 </P>
 
 <P>
@@ -155,11 +164,248 @@ You can also write to:
 </P>
 
 <UL>
-		<LI>Dirk M&ouml;bius <a href="mailto:dmoebius@gmx.net"><EM>&lt;dmoebius@gmx.net&gt;</EM></a>, or
-		<LI>jEdit-users mailing-list <a href="mailto:jedit-users@lists.sourceforge.net"><EM>&lt;jedit-users@lists.sourceforge.net&gt;</EM></a>, or
-		<LI>jEdit-devel mailing-list <a href="mailto:jedit-devel@lists.sourceforge.net"><EM>&lt;jedit-devel@lists.sourceforge.net&gt;</EM></a>.
+	<LI>Dirk M&ouml;bius <a href="mailto:dmoebius@gmx.net"><EM>&lt;dmoebius@gmx.net&gt;</EM></a>, or</LI>
+	<LI>jEdit-users mailing-list <a href="mailto:jedit-users@lists.sourceforge.net"><EM>&lt;jedit-users@lists.sourceforge.net&gt;</EM></a>, or</LI>
+	<LI>jEdit-devel mailing-list <a href="mailto:jedit-devel@lists.sourceforge.net"><EM>&lt;jedit-devel@lists.sourceforge.net&gt;</EM></a>.</LI>
 </UL>
+<P>
 
+
+<A NAME="changelog">
+<H2>Changelog</H2>
+
+<UL>
+	<LI><B>VERSION 1.0 (2005/03/08)</B>
+		<UL>
+			<LI>New option to replace occurrences of the user's home directory with
+			the char "~". Enabled by default. (Daniel Wunsch)</LI>
+			<LI>New option to clip the text of long directory names with "..." at
+			the start or at the end of the display, instead of showing a horizonal
+			scrollbar. (Kudos to Marcelo Vanzin)</LI>
+			<LI>Bugfix: setting an italic font for BufferList was ignored (Ronald Fischer)</LI>
+			<LI>Updated docs.</LI>
+		</UL>
+	</LI>
+
+	<LI><B>VERSION 0.11</B>
+		<UL>
+			<LI>Added new hierarchical layout (containing only as many intermediate
+			levels as neccessary). Disabled by default, but can be enabled with
+			the new option "Flat Tree". (Karsten Pilz)</LI>
+		</UL>
+	</LI>
+
+	<LI><B>VERSION 0.10</B>
+		<UL>
+			<LI>Updated to jEdit 4.2 API (Lee Turner)</LI>
+			<LI>Added open buffer and unsaved buffer counts (Lee Turner)</LI>
+			<LI>Requires jEdit 4.2pre5 or higher</LI>
+		</UL>
+	</LI>
+
+	<LI><B>VERSION 0.9</B>
+		<UL>
+			<LI>Added option to fully expand tree by default (Lee Turner)</LI>
+			<LI>Added tooltips to the items in the tree (Lee Turner)</LI>
+		</UL>
+	</LI>
+
+	<LI><B>VERSION 0.8</B>
+		<UL>
+			<LI>Tree display instead of table display; the files are grouped by directory.</LI>
+			<LI>Removed list of recent files</LI>
+			<LI>Entries are shown in the color specified by File System Browser colors.</LI>
+			<LI>Allow multiple selections of open buffers: popup operations are: save, close
+			  and reload. This allows you to close, for example, all files of one directory
+			  at once.</LI>
+			<LI>Bugfix: bufferlist showed up on buffer change even if "Auto-show on buffer
+			  change" was off</LI>
+			<LI>Requires jEdit 4.0final or higher</LI>
+		</UL>
+	</LI>
+
+	<LI><B>VERSION 0.7.1</B>
+		<UL>
+			<LI>New option to disable "Close files on double click" (Lee Turner)</LI>
+			<LI>New option to hide recent files window permanently (Lee Turner)</LI>
+			<LI>Updated to new jEdit 4.0 API</LI>
+			<LI>Using HelpfulJTable from CommonControls plugin</LI>
+			<LI>Removed action "Bring BufferList to front", because it is obsolete now with
+			  the new jEdit 4.0 docking API</LI>
+			<LI>Requires jEdit 4.0pre1 or higher, CommonControls 0.2 or higher</LI>
+		</UL>
+	</LI>
+
+	<LI><B>VERSION 0.7</B>
+		<UL>
+			<LI>Session management taken out into a new plugin: SessionsPlugin</LI>
+			<LI>Bugfix: NullPointerException in HelpfulJTable, BufferList didn't start up</LI>
+			<LI>Bugfix: table background color changed after properties changed</LI>
+			<LI>Requires jEdit 3.2pre2 or higher</LI>
+		</UL>
+	</LI>
+
+	<LI><B>VERSION 0.6.3</B>
+		<UL>
+			<LI>Bugfix: NullPointerException at initialization after clean install.</LI>
+			<LI>Bugfix: "Save Session as" and "Manage Sessions" threw BeanShell errors.</LI>
+			<LI>Bugfix: Default session never got autosaved after clean install.</LI>
+			<LI>Bugfix: "Show vertical/horizonal lines" options had wrong default value
+			  in options pane.</LI>
+			<LI>Bugfix: Sometimes a (harmless) NullPointerException was thrown when switching
+			  sessions using the combo box because of a race condition.</LI>
+			<LI>Requires jEdit 3.2pre2 or higher</LI>
+		</UL>
+	</LI>
+
+	<LI><B>VERSION 0.6.2</B>
+		<UL>
+			<LI>Now let's jEdit restore the last open session again, subject
+			  to jEdit's "Restore last open files on startup" option</LI>
+			<LI>Bugfix: order of recent files was reversed as of jEdit 3.2pre2</LI>
+			<LI>Bugfix: SessionSwitcher could be added to the view twice or more</LI>
+			<LI>Moved code to packages "bufferlist" und "bufferlist.table"</LI>
+			<LI>Requires jEdit 3.2pre2 or higher</LI>
+		</UL>
+	</LI>
+
+	<LI><B>VERSION 0.6.1</B>
+		<UL>
+			<LI>SessionSwitcher can now be shown as View ToolBar.
+			  So now users can use the session management functions without showing
+			  the bufferlist at all!</LI>
+			<LI>Bugfix: #418299 FileNotFoundException on jEdit clean install</LI>
+			<LI>Bugfix: All recent files gone if BufferList installed for first time</LI>
+			<LI>Bugfix: Last open buffer wasn't restored on restart</LI>
+			<LI>Bugfix: Lists didn't scroll if selection was moved with cursor keys</LI>
+			<LI>Requires jEdit 3.1final or higher</LI>
+		</UL>
+	</LI>
+
+	<LI><B>VERSION 0.6</B>
+		<UL>
+			<LI>New option "Check status of recent files"</LI>
+			<LI>New popup command to remove entries from the recent files list. Use this
+			  if there are non-existent entries in the list and you don't want BufferList
+			  to check these files any longer.</LI>
+			<LI>Faster loading of last session on jEdit startup</LI>
+			<LI>Bugfix: last session was not saved correctly (now uses the EditBus message
+			  EditorExitRequested new since jEdit 3.1pre4)</LI>
+			<LI>Bugfix: split pane divider wasn't set correctly on IBM JDK 1.1.8</LI>
+			<LI>Bugfix: pressing Enter without selection caused Exception (Stefan Radig)</LI>
+			<LI>Bugfix: BufferList popped up even if "autoshow on buffer changed" was disabled</LI>
+			<LI>Requires jEdit 3.1pre4 or higher</LI>
+		</UL>
+	</LI>
+
+	<LI><B>VERSION 0.5.1</B>
+		<UL>
+			<LI>Bugfix: ESC sets focus back to editor if BufferList is docked and focussed</LI>
+			<LI>Bugfix: Changing option "Show absolute path name in filename column" had no
+			  immediate effect.</LI>
+			<LI>Bugfix: Name column rendered wrong on Windows L&amp;F</LI>
+			<LI>Some minor optimizations (lesser redraws)</LI>
+			<LI>Requires jEdit 3.0final or higher</LI>
+		</UL>
+	</LI>
+
+	<LI><B>VERSION 0.5 (2001/03/24)</B>
+		<UL>
+			<LI>Sort a column by clicking on the table header (cycling through ascending,
+			  descending and jEdit's sort order).</LI>
+			<LI>New actions "Go to Next Buffer in Buffer List" and "Go to Previous Buffer
+			  in Buffer List" to cycle through the buffers in the same order as displayed
+			  in Buffer List.</LI>
+			<LI>New option "Auto-Show on buffer change" (default: off).</LI>
+			<LI>Show the right status icon (read-only/not exist) in recent file list.</LI>
+			<LI>Bugfix: if last entry in open files list was grey, all entries in recent
+			  files were grey, too.</LI>
+			<LI>Bugfix: "Bring Buffer List to front" didn't work right if window was docked.</LI>
+			<LI>Bugfix: lists no longer autoscrolls to the selected cell, was irritating.</LI>
+			<LI>Bugfix: some redraw problems.</LI>
+			<LI>Requires jEdit 3.0final or higher</LI>
+		</UL>
+	</LI>
+
+	<LI><B>VERSION 0.4.1 (2001/03/16)</B>
+		<UL>
+			<LI>don't use class org.gjt.sp.jedit.Sessions any more, copied required methods
+			  into SessionManager class.</LI>
+			<LI>bugfix: #407948 BufferList clears 'default.session' file on exit</LI>
+			<LI>bugfix: same column shown twice after reordering or showing/hiding</LI>
+			<LI>bugfix: buffer click doesn't work if mouse was moved during click</LI>
+			<LI>requires jEdit 3.0final or higher</LI>
+		</UL>
+	</LI>
+
+	<LI><B>VERSION 0.4 (2001/03/10)</B>
+		<UL>
+			<LI>session management:
+				<UL>
+					<LI>session switcher</LI>
+					<LI>session manager dialog</LI>
+					<LI>autosave sessions on switch</LI>
+					<LI>close all files before switching to a new session</LI>
+				</UL>
+			</LI>
+			<LI>new option: turn off auto-resize of columns</LI>
+			<LI>new column in bufferlist showing mode</LI>
+			<LI>remember size and order of columns</LI>
+			<LI>requires jEdit 3.0final or higher</LI>
+		</UL>
+	</LI>
+
+	<LI><B>VERSION 0.3.1 (20001/01/06)</B>
+		<UL>
+			<LI>bugfix: if a buffer is selected from the "Open Files" list,
+			  the focus is set to the buffer now.</LI>
+			<LI>requires jEdit 2.7pre3 or higher</LI>
+		</UL>
+	</LI>
+
+	<LI><B>VERSION 0.3 (2000/12/31)</B>
+		<UL>
+			<LI>added right click popup menus</LI>
+			<LI>bugfix: BufferList didn't recognize filename changes on "Save As"</LI>
+			<LI>bugfix: Sometimes column width too short on properties change</LI>
+			<LI>requires jEdit 2.7pre3 or higher</LI>
+		</UL>
+	</LI>
+
+	<LI><B>VERSION 0.2.1 (2000/12/2)</B>
+		<UL>
+			<LI>put together by Slava Pestov</LI>
+			<LI>bugfix: BufferList threw exceptions with FTP buffers</LI>
+			<LI>bugfix: BufferList didn't work with jEdit 2.7pre3</LI>
+			<LI>updated for jEdit 2.7 action API</LI>
+			<LI>requires jEdit 2.7pre3 or higher</LI>
+		</UL>
+	</LI>
+
+	<LI><B>VERSION 0.2</B>
+		<UL>
+			<LI>directory now shown in a separate column</LI>
+			<LI>keyboard navigation: [enter] to open file, [tab] to switch between the
+			  two lists, [esc] to close window (if docked)</LI>
+			<LI>new option pane in the plugin options</LI>
+			<LI>options to turn off second column and horizontal and vertical lines</LI>
+			<LI>the two actions are now called "BufferList" (internal name: "bufferlist")
+			  and "Bring BufferList to front" (internal name: "bufferlist-to-front").
+			  You should assign a keyboard shortcut to "Bring BufferList to front".</LI>
+			<LI>bugfix: handle split views correctly</LI>
+			<LI>bugfix: divider position was not set properly on Swing versions &lt; Kestrel</LI>
+			<LI>bugfix: NPE on "Create New View"</LI>
+			<LI>requires jEdit 2.6pre7 or higher</LI>
+		</UL>
+	</LI>
+
+	<LI><B>VERSION 0.1 (2000/10/23)</B>
+		<UL>
+			<LI>initial release</LI>
+			<LI>requires jEdit 2.6pre7 or higher</LI>
+		</UL>
+	</LI>
+</UL>
 
 </BODY>
 </HTML>

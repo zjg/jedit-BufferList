@@ -1,7 +1,7 @@
 TODO
 ====
 
-- show status of directory entries: sum of all buffer status
+- reintroduce recent file list due to popular request
+- optional tabular layout, like in earlier releases
 - new option: collapse inactive directories after n seconds
-- update docs
-
+- update docs to docbook

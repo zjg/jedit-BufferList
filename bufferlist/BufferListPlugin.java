@@ -30,6 +30,7 @@ import org.gjt.sp.jedit.*;
 import org.gjt.sp.jedit.gui.OptionsDialog;
 import org.gjt.sp.jedit.msg.*;
 import org.gjt.sp.util.Log;
+
 //}}}
 
 /**
@@ -37,47 +38,37 @@ import org.gjt.sp.util.Log;
  *
  * @author Dirk Moebius
  */
-public class BufferListPlugin extends EBPlugin
-{
+public class BufferListPlugin extends EBPlugin {
 	//{{{ +start() : void
-	public void start()
-	{
+	public void start() {
 		// nothing to do...
 	} //}}}
 
 	//{{{ +createMenuItems(Vector) : void
-	public void createMenuItems(Vector menuItems)
-	{
+	public void createMenuItems(Vector menuItems) {
 		// menuItems.addElement(GUIUtilities.loadMenu("bufferlist.menu"));
 	} //}}}
 
 	//{{{ +createOptionPanes(OptionsDialog) : void
-	public void createOptionPanes(OptionsDialog od)
-	{
+	public void createOptionPanes(OptionsDialog od) {
 		od.addOptionPane(new BufferListOptionPane());
 	} //}}}
 
 	//{{{ +handleMessage(EBMessage) : void
-	public void handleMessage(EBMessage message)
-	{
-		if(message instanceof BufferUpdate)
-		{
+	public void handleMessage(EBMessage message) {
+		if (message instanceof BufferUpdate) {
 			BufferUpdate bu = (BufferUpdate) message;
-			if(jEdit.getBooleanProperty("bufferlist.autoshow", false)
-				&& bu.getView() != null
-				&& (bu.getWhat() == BufferUpdate.CREATED || bu.getWhat() == BufferUpdate.CLOSED))
-			{
+			if (jEdit.getBooleanProperty("bufferlist.autoshow", false)
+					&& bu.getView() != null
+					&& (bu.getWhat() == BufferUpdate.CREATED || bu.getWhat() == BufferUpdate.CLOSED)) {
 				bu.getView().getDockableWindowManager().addDockableWindow("bufferlist");
 			}
-		}
-		else if(message instanceof EditPaneUpdate)
-		{
+		} else if (message instanceof EditPaneUpdate) {
 			EditPaneUpdate epu = (EditPaneUpdate) message;
-			if(jEdit.getBooleanProperty("bufferlist.autoshow", false)
-				&& epu.getWhat() == EditPaneUpdate.BUFFER_CHANGED)
-			{
+			if (jEdit.getBooleanProperty("bufferlist.autoshow", false)
+					&& epu.getWhat() == EditPaneUpdate.BUFFER_CHANGED) {
 				View view = ((EditPane) epu.getSource()).getView();
-				if(view != null)
+				if (view != null)
 					view.getDockableWindowManager().addDockableWindow("bufferlist");
 			}
 		}

@@ -22,11 +22,19 @@
 plugin.bufferlist.BufferListPlugin.activate=defer
 plugin.bufferlist.BufferListPlugin.name=BufferList
 plugin.bufferlist.BufferListPlugin.author=Dirk Moebius
-plugin.bufferlist.BufferListPlugin.version=0.10
+plugin.bufferlist.BufferListPlugin.version=1.0
 plugin.bufferlist.BufferListPlugin.docs=BufferList.html
-plugin.bufferlist.BufferListPlugin.depend.0=jdk 1.3
-plugin.bufferlist.BufferListPlugin.depend.1=jedit 04.02.05.00
+plugin.bufferlist.BufferListPlugin.depend.0=jedit 04.02.05.00
 # }}}
+
+#{{{ default user properties
+bufferlist.autoshow=false
+bufferlist.startExpanded=false
+bufferlist.flatTree=true
+bufferlist.closeFilesOnDoubleClick=true
+bufferlist.shortenHome=true
+bufferlist.textClipping=1
+#}}}
 
 #{{{ dockable name
 bufferlist.name.label=Buffer List
@@ -76,6 +84,12 @@ options.bufferlist.font=Font:\
 options.bufferlist.autoshow=Auto-Show on buffer change
 options.bufferlist.closeFilesOnDoubleClick=Close files on double click
 options.bufferlist.startExpanded=Fully expand directory tree by default
+options.bufferlist.flatTree=Flat Tree
+options.bufferlist.shortenHome=Replace occurences of user\'s home directory with "~"
+options.bufferlist.textClipping.label=Clip long paths with "...":
+options.bufferlist.textClipping.start=at start
+options.bufferlist.textClipping.end=at end
+options.bufferlist.textClipping.none=don\'t clip
 #}}}
 
 #{{{ error and message dialogs

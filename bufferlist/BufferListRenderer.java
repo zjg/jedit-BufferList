@@ -1,6 +1,7 @@
 /*{{{ header
  * BufferListRenderer.java
  * Copyright (c) 2000-2002 Dirk Moebius
+ * Copyright (c) 2004 Karsten Pilz
  *
  * :tabSize=4:indentSize=4:noTabs=false:maxLineLen=0:folding=explicit:collapseFolds=1:
  *
@@ -25,12 +26,14 @@ package bufferlist;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.JLabel;
 import javax.swing.JTree;
 import javax.swing.UIManager;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import gnu.regexp.RE;
 import gnu.regexp.REException;
@@ -39,70 +42,137 @@ import org.gjt.sp.jedit.Buffer;
 import org.gjt.sp.jedit.MiscUtilities;
 import org.gjt.sp.jedit.View;
 import org.gjt.sp.util.Log;
+
 //}}}
 
-public class BufferListRenderer extends DefaultTreeCellRenderer
-{
+public class BufferListRenderer extends DefaultTreeCellRenderer {
+	//{{{ constants
+	private static final String USER_HOME = System.getProperty("user.home");
+	private static final String USER_HOME_SEP = USER_HOME + java.io.File.separator;
+	//}}}
+
+	//{{{ static variables
+	private static Object LOCK = new Object();
+	//}}}
+
 	//{{{ instance variables
 	private View view;
 	private Vector colors;
 	private Hashtable name2color;
 	private Color colNormal = UIManager.getColor("Tree.foreground");
 	private Color colSelected = UIManager.getColor("Tree.selectionForeground");
-	private Font font = jEdit.getFontProperty("bufferlist.font", UIManager.getFont("Tree.font"));
-	private Font fontNormal = font.deriveFont(Font.PLAIN);
-	private Font fontSelected = font.deriveFont(Font.BOLD);
-	private static Object LOCK = new Object();
+	private Font fontNormal;
+	private Font fontSelected;
+	private int textClipping;
+	private JTree tree;
+	private int row;
 	//}}}
 
+
 	//{{{ +BufferListRenderer(View) : <init>
-	public BufferListRenderer(View view)
-	{
+	public BufferListRenderer(View view) {
 		this.view = view;
+		this.name2color = new Hashtable();
+		this.textClipping = jEdit.getIntegerProperty("bufferlist.textClipping", 1);
+
+		Font font = jEdit.getFontProperty("bufferlist.font", UIManager.getFont("Tree.font"));
+		this.fontNormal = font.deriveFont(font.isItalic() ? Font.ITALIC : Font.PLAIN);
+		this.fontSelected = font.deriveFont(font.isItalic() ? Font.BOLD | Font.ITALIC : Font.BOLD);
 	} //}}}
 
 	//{{{ +getTreeCellRendererComponent(JTree, Object, boolean, boolean, boolean, int, boolean) : Component
-	public Component getTreeCellRendererComponent(JTree tree, Object value, boolean isSelected,	boolean isExpanded,	boolean isLeaf,	int row, boolean hasFocus)
-	{
+	public Component getTreeCellRendererComponent(JTree tree, Object value, boolean isSelected, boolean isExpanded, boolean isLeaf, int row, boolean hasFocus) {
 		JLabel comp = (JLabel) super.getTreeCellRendererComponent(tree, value, isSelected, isExpanded, isLeaf, row, hasFocus);
-		Object obj = ((DefaultMutableTreeNode)value).getUserObject();
-		if(obj instanceof Buffer)
-		{
+
+		this.tree = tree;
+		this.row = row;
+
+		BufferListTreeNode node = (BufferListTreeNode) value;
+		if (node.isBuffer()) {
 			// Buffer entry
-			Buffer buffer = (Buffer) obj;
+			Buffer buffer = node.getBuffer();
 			String name = buffer.getName();
 			comp.setText(name);
-			comp.setToolTipText(name);
+			comp.setToolTipText(node.getUserPath());
 			comp.setIcon(buffer.getIcon());
 			comp.setFont(buffer == view.getBuffer() ? fontSelected : fontNormal);
 			comp.setForeground(isSelected ? colSelected : getColor(name));
-		}
-		else if(obj instanceof String)
-		{
+		} else if (node.isDirNode()) {
 			// Directory entry
-			comp.setText(obj != null ? obj.toString() : "");
-			comp.setToolTipText(obj == null ? "" : obj.toString());
+			//### HACK: replace $user.home/ at the start of the path with ~/
+			Object obj = node.getUserObject();
+			String path = obj != null ? obj.toString() : "";
+			if(jEdit.getBooleanProperty("bufferlist.shortenHome", true)) {
+				if (path.equals(USER_HOME)) {
+					path = "~";
+				} else if (path.startsWith(USER_HOME_SEP)) {
+					path = "~" + path.substring(USER_HOME.length());
+				}
+			}
+			// comp.setText((node.isExpanded()?"+":"-")+node.getReused()+":"+obj.toString()); // NOTE: debug only
+			comp.setText(path);
+			comp.setToolTipText(node.getUserPath());
 			comp.setIcon(null);
 			comp.setFont(fontNormal);
 			comp.setForeground(isSelected ? colSelected : colNormal);
 		}
+
 		return comp;
 	} //}}}
 
+	//{{{ +paintComponent(Graphics g) : void
+	public void paintComponent(Graphics g) {
+		if (textClipping != 0) {
+			String toShow = getText();
+			Rectangle bounds = tree.getRowBounds(row);
+			FontMetrics fm = getFontMetrics(getFont());
+			int width = fm.stringWidth(toShow);
+			int textStart = (int) bounds.getX();
+
+			if (getIcon() != null)
+				textStart += getIcon().getIconWidth() + getIconTextGap();
+
+			if (textStart < tree.getParent().getWidth()
+				&& textStart + width > tree.getParent().getWidth()) {
+				// figure out how much to clip
+				int availableWidth = tree.getParent().getWidth() - textStart - fm.stringWidth("...");
+				int shownChars = 0;
+				for (int i = 1; i < toShow.length(); i++) {
+					width = (textClipping == 1)  // clip at start
+						? fm.stringWidth(toShow.substring(toShow.length() - i, toShow.length()))
+						: fm.stringWidth(toShow.substring(0, i));
+					if (width < availableWidth) {
+						shownChars++;
+					} else {
+						break;
+					}
+				}
+
+				if (shownChars > 0) {
+					// ask the node whether it wants to be clipped at the start or
+					// at the end of the string
+					if (textClipping == 1) {
+						toShow = "..." + toShow.substring(toShow.length() - shownChars, toShow.length());
+					} else {
+						toShow = toShow.substring(0, shownChars) + "...";
+					}
+					setText(toShow);
+				}
+			}
+		}
+
+		super.paintComponent(g);
+	} //}}}
+
 	//{{{ -getColor(String) : Color
-	private Color getColor(String name)
-	{
-		if(name2color == null)
-			name2color = new Hashtable();
+	private Color getColor(String name) {
 		Color col = (Color) name2color.get(name);
-		if(col != null)
+		if (col != null)
 			return col;
 		loadColors();
-		for(int i = 0; i < colors.size(); i++)
-		{
-			ColorEntry entry = (ColorEntry)colors.elementAt(i);
-			if(entry.re.isMatch(name))
-			{
+		for (int i = 0; i < colors.size(); i++) {
+			ColorEntry entry = (ColorEntry) colors.elementAt(i);
+			if (entry.re.isMatch(name)) {
 				name2color.put(name, entry.color);
 				return entry.color;
 			}
@@ -111,31 +181,22 @@ public class BufferListRenderer extends DefaultTreeCellRenderer
 	} //}}}
 
 	//{{{ -loadColors() : void
-	private void loadColors()
-	{
-		if(colors != null)
+	private void loadColors() {
+		if (colors != null)
 			return;
-		synchronized(LOCK)
-		{
+		synchronized (LOCK) {
 			colors = new Vector();
-			if(!jEdit.getBooleanProperty("vfs.browser.colorize"))
+			if (!jEdit.getBooleanProperty("vfs.browser.colorize"))
 				return;
-			try
-			{
+			try {
 				String glob;
 				int i = 0;
-				while((glob = jEdit.getProperty("vfs.browser.colors." + i + ".glob")) != null)
-				{
-					colors.addElement(new ColorEntry(
-						new RE(MiscUtilities.globToRE(glob)),
-						jEdit.getColorProperty(
-						"vfs.browser.colors." + i + ".color",
-						colNormal)));
+				while ((glob = jEdit.getProperty("vfs.browser.colors." + i + ".glob")) != null) {
+					colors.addElement(new ColorEntry(new RE(MiscUtilities.globToRE(glob)),
+						jEdit.getColorProperty("vfs.browser.colors." + i + ".color", colNormal)));
 					i++;
 				}
-			}
-			catch(REException e)
-			{
+			} catch (REException e) {
 				Log.log(Log.ERROR, BufferList.class, "Error loading file list colors:");
 				Log.log(Log.ERROR, BufferList.class, e);
 			}
@@ -143,12 +204,12 @@ public class BufferListRenderer extends DefaultTreeCellRenderer
 	} //}}}
 
 	//{{{ +class ColorEntry
-	public static class ColorEntry
-	{
+	public static class ColorEntry {
 		RE re;
+
 		Color color;
-		ColorEntry(RE re, Color color)
-		{
+
+		ColorEntry(RE re, Color color) {
 			this.re = re;
 			this.color = color;
 		}
