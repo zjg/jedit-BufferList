@@ -1,17 +1,17 @@
 /*
  * BufferList.java
  * Copyright (c) 2000 Dirk Moebius
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -49,7 +49,7 @@ import org.gjt.sp.util.Log;
  * @author Dirk Moebius
  */
 public class BufferList extends JPanel implements EBComponent, DockableWindow {
-    
+
     private static Font headerNormalFont;
     private static Font headerBoldFont;
     private static Font labelNormalFont;
@@ -57,18 +57,18 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
     private static Color labelNormalColor;
     private static Color labelDisabledColor;
     private static Color labelBackgrndColor;
-    
+
     static {
         headerNormalFont   = new Font("Dialog", Font.PLAIN, 12);
-        headerBoldFont     = new Font("Dialog", Font.BOLD, 12); 
+        headerBoldFont     = new Font("Dialog", Font.BOLD, 12);
         labelNormalFont    = UIManager.getFont("EditorPane.font");
-        labelBoldFont      = new Font(labelNormalFont.getName(), Font.BOLD, 
+        labelBoldFont      = new Font(labelNormalFont.getName(), Font.BOLD,
                                       labelNormalFont.getSize());
         labelNormalColor   = UIManager.getColor("EditorPane.foreground");
         labelDisabledColor = UIManager.getColor("EditorPane.inactiveForeground");
         labelBackgrndColor = UIManager.getColor("EditorPane.background");
     }
-                    
+
     private View view;                                 // the view
     private Buffer currentBuffer;                      // the buffer the cursor is in
     private String position;                           // the docked position
@@ -80,29 +80,29 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
     private JLabel header1;                            // header for table1
     private JLabel header2;                            // header for table2
     private JSplitPane pane;                           // split pane
-    private OpenFilesCellRenderer rendTable1Col1;      // renderer for 
+    private OpenFilesCellRenderer rendTable1Col1;      // renderer for
     private OtherCellRenderer rendTable1Col2;          // the table cells
     private RecentFilesCellRenderer rendTable2Col1;
     private OtherCellRenderer rendTable2Col2;
     private boolean showOneColumn;
-    
-    
+
+
     public BufferList(View view, String position) {
         super(new BorderLayout());
         this.view = view;
         this.position = position;
         this.currentBuffer = view.getBuffer();
-        
+
         rendTable1Col1 = new OpenFilesCellRenderer();
         rendTable1Col2 = new OtherCellRenderer();
         rendTable2Col1 = new RecentFilesCellRenderer();
         rendTable2Col2 = new OtherCellRenderer();
-        
+
         textAreaFocusHandler = new TextAreaFocusHandler();
         ActionHandler actionhandler = new ActionHandler();
         KeyHandler keyhandler = new KeyHandler();
         FocusHandler focushandler = new FocusHandler();
-        
+
         table1 = new HelpfulJTable();
         table1.setTableHeader(null);
         table1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -110,7 +110,7 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
         table1.addActionListener(actionhandler);
         table1.addKeyListener(keyhandler);
         table1.addFocusListener(focushandler);
-        
+
         table2 = new HelpfulJTable();
         table2.setTableHeader(null);
         table2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -125,27 +125,27 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
         scrTable1.getViewport().setBackground(labelBackgrndColor);
         JScrollPane scrTable2 = new JScrollPane(table2);
         scrTable2.getViewport().setBackground(labelBackgrndColor);
-        
+
         header1 = new JLabel(jEdit.getProperty("bufferlist.openfiles.label"));
         header2 = new JLabel(jEdit.getProperty("bufferlist.recentfiles.label"));
-            
+
         JPanel top = new JPanel(new BorderLayout());
         JPanel bottom = new JPanel(new BorderLayout());
         top.add(BorderLayout.NORTH, header1);
         top.add(BorderLayout.CENTER, scrTable1);
         bottom.add(BorderLayout.NORTH, header2);
         bottom.add(BorderLayout.CENTER, scrTable2);
-        
+
         int splitmode = JSplitPane.VERTICAL_SPLIT;
         if (position.equals(DockableWindowManager.TOP) ||
             position.equals(DockableWindowManager.BOTTOM)) {
             splitmode = JSplitPane.HORIZONTAL_SPLIT;
         }
-            
+
         pane = new JSplitPane(splitmode, true, top, bottom);
         pane.setOneTouchExpandable(true);
         add(BorderLayout.CENTER, pane);
-        
+
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 pane.setDividerLocation(Integer.parseInt(
@@ -153,47 +153,46 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
                 table1.getSelectionModel().setSelectionInterval(0, 0);
                 table2.getSelectionModel().setSelectionInterval(0, 0);
                 pane.revalidate();
-                table1.requestFocus();                
+                table1.requestFocus();
             }
         });
     }
 
-    
+
     public String getName() {
         return BufferListPlugin.NAME;
     }
 
-    
+
     public Component getComponent() {
         return this;
     }
 
-    
+
     public void addNotify() {
         super.addNotify();
         EditBus.addToBus(this);
         addHandlers();
     }
 
-    
+
     public void removeNotify() {
         super.removeNotify();
         EditBus.removeFromBus(this);
         removeHandlers();
         // save divider location:
         jEdit.setProperty("bufferlist.divider", Integer.toString(
-            pane.getDividerLocation())); 
+            pane.getDividerLocation()));
     }
-    
-    
+
+
     public void handleMessage(EBMessage message) {
         if (message instanceof BufferUpdate) {
             BufferUpdate bu = (BufferUpdate) message;
             if ((bu.getWhat() == BufferUpdate.CREATED) ||
-                (bu.getWhat() == BufferUpdate.CLOSED)) {
+                (bu.getWhat() == BufferUpdate.CLOSED) ||
+                (bu.getWhat() == BufferUpdate.DIRTY_CHANGED)) {
                 setNewModels();
-            } else if (bu.getWhat() == BufferUpdate.DIRTY_CHANGED) {
-                refresh();
             }
         } else if (message instanceof EditPaneUpdate) {
             EditPaneUpdate epu = (EditPaneUpdate) message;
@@ -219,8 +218,8 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
         }
     }
 
-    
-    /** 
+
+    /**
      * adds focus event handlers to all EditPanes of the View associated
      * with this BufferList.
      */
@@ -233,9 +232,9 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
         }
     }
 
-    /** 
+    /**
      * removes focus event handlers from all EditPanes of the View
-     * associated with this BufferList. 
+     * associated with this BufferList.
      */
     private void removeHandlers() {
         if (view == null) return;
@@ -252,18 +251,20 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
         model2.fireTableDataChanged();
     }
 
-    
+
     private void setNewModels() {
-        table1.setModel(model1 = new StringArrayModel(jEdit.getBuffers()));
-        table2.setModel(model2 = new StringArrayModel(BufferHistory.getBufferHistory()));
+        model1 = new StringArrayModel(jEdit.getBuffers());
+        model2 = new StringArrayModel(BufferHistory.getBufferHistory());
+        table1.setModel(model1);
+        table2.setModel(model2);
         setNewColumnModel(table1, rendTable1Col1, rendTable1Col2);
         setNewColumnModel(table2, rendTable2Col1, rendTable2Col2);
         currentBuffer = view.getBuffer();
         refresh();
     }
-    
 
-    private void setNewColumnModel(JTable table, 
+
+    private void setNewColumnModel(JTable table,
                                    TableCellRenderer rendCol1,
                                    TableCellRenderer rendCol2) {
         // show first column
@@ -271,7 +272,7 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
         TableColumn col = new TableColumn(0);
         col.setCellRenderer(rendCol1);
         dtcm.addColumn(col);
-        
+
         // show second column (optionally)
         showOneColumn = jEdit.getBooleanProperty("bufferlist.showOneColumn");
         if (!showOneColumn) {
@@ -279,7 +280,7 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
             col.setCellRenderer(rendCol2);
             dtcm.addColumn(col);
         }
-        
+
         // show vertical/horizontal lines
         boolean verticalLines = jEdit.getBooleanProperty(
             "bufferlist.verticalLines");
@@ -292,7 +293,7 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
         // set new column model
         table.setColumnModel(dtcm);
     }
-    
+
     private void closeWindowIfFloating() {
         if (position.equals(DockableWindowManager.FLOATING)) {
             DockableWindowManager wm = view.getDockableWindowManager();
@@ -300,15 +301,16 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
         }
     }
 
-    
+
     private void propertiesChanged() {
         setNewColumnModel(table1, rendTable1Col1, rendTable1Col2);
         setNewColumnModel(table2, rendTable2Col1, rendTable2Col2);
+        refresh();
     }
-    
 
-    /** 
-     * A table model for both open and recent files. 
+
+    /**
+     * A table model for both open and recent files.
      * It's a two-dimensional String array. The first dimension carries
      * the buffer name, the second dimension carries the buffer path.
      */
@@ -335,15 +337,15 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
         public Object getValueAt(int row, int col) { return arr[row][col]; }
         public boolean isCellEditable(int row, int col) { return false; }
         public int getRowCount() { return arr.length; }
-        public int getColumnCount() { return 2; } 
-        public String getFilename(int row) { 
+        public int getColumnCount() { return 2; }
+        public String getFilename(int row) {
             String f = arr[row][1] + arr[row][0];
             return f;
         }
         private String[][] arr;
     }
 
-    
+
     /** A cell renderer for the open files table. */
     private class OpenFilesCellRenderer extends DefaultTableCellRenderer {
         public Component getTableCellRendererComponent(
@@ -373,11 +375,11 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
         public String getToolTipText() {
             return showOneColumn ? filename : getText();
         }
-        
+
         private String filename;
     }
 
-    
+
     /** A cell renderer for the recent files table */
     private class RecentFilesCellRenderer extends DefaultTableCellRenderer {
         public Component getTableCellRendererComponent(
@@ -395,20 +397,20 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
         public String getToolTipText() {
             return showOneColumn ? filename : getText();
         }
-        
+
         private String filename;
     }
-    
-    
+
+
     /** A cell renderer for the second column in open and recent files */
     private class OtherCellRenderer extends DefaultTableCellRenderer {
         public String getToolTipText() {
             return getText();
         }
     }
-    
-    
-    /** 
+
+
+    /**
      * Listens for a TextArea to get focus, to make the appropiate buffer
      * in the BufferList bold.
      */
@@ -425,15 +427,19 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
             }
         }
     }
-    
-    
+
+
     /** a mouse listener for the open files table */
     private class OpenFilesMouseHandler extends MouseAdapter {
         public void mouseClicked(MouseEvent e) {
+            // only left mb click allowed here:
+            if ((e.getModifiers() & MouseEvent.BUTTON1_MASK) == 0) return;
+            // get clicked row
             int row = table1.rowAtPoint(e.getPoint());
             if (row == -1) return;
             String filename = model1.getFilename(row);
             Buffer buffer = jEdit.getBuffer(filename);
+            if (buffer == null) return; // just in case
             if (e.getClickCount() == 1) {
                 // single-click: jump to buffer
                 view.setBuffer(buffer);
@@ -443,23 +449,53 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
                 jEdit.closeBuffer(view, buffer);
             }
         }
-    }
-    
-    
-    /** a mouse listener for the recent files table */
-    private class RecentFilesMouseHandler extends MouseAdapter {
-        public void mouseClicked(MouseEvent e) {
-            int row = table2.rowAtPoint(e.getPoint());
+
+        public void mousePressed(MouseEvent e) {
+            // only right mb click allowed here:
+            if ((e.getModifiers() & MouseEvent.BUTTON3_MASK) == 0) return;
+            // show popup
+            Point p = e.getPoint();
+            int row = table1.rowAtPoint(p);
+            int sel_row = table1.getSelectedRow();
             if (row == -1) return;
-            String filename = model2.getFilename(row);
-            if (e.getClickCount() == 2) {
-                // double-click: jump to buffer
-                jEdit.openFile(view, filename);
-            }
+            String filename = model1.getFilename(row);
+            table1.getSelectionModel().setSelectionInterval(row, row);
+            BufferListPopup popup = new BufferListPopup(view, filename, true,
+                                                        row == sel_row);
+            popup.show(table1, p.x+1, p.y+1);
         }
     }
 
-    
+
+    /** a mouse listener for the recent files table */
+    private class RecentFilesMouseHandler extends MouseAdapter {
+        public void mouseClicked(MouseEvent e) {
+            // only double click allowed here:
+            if (e.getClickCount() < 2) return;
+            // on double-click: jump to buffer
+            int row = table2.rowAtPoint(e.getPoint());
+            if (row == -1) return;
+            String filename = model2.getFilename(row);
+            jEdit.openFile(view, filename);
+        }
+
+        public void mousePressed(MouseEvent e) {
+            // only right mb click allowed here:
+            if ((e.getModifiers() & MouseEvent.BUTTON3_MASK) == 0) return;
+            // show popup
+            Point p = e.getPoint();
+            int row = table2.rowAtPoint(p);
+            int sel_row = table2.getSelectedRow();
+            if (row == -1) return;
+            String filename = model2.getFilename(row);
+            table2.getSelectionModel().setSelectionInterval(row, row);
+            BufferListPopup popup = new BufferListPopup(view, filename, false,
+                                                        row == sel_row);
+            popup.show(table2, p.x+1, p.y+1);
+        }
+    }
+
+
     /** a focus handler for both tables. */
     private class FocusHandler extends FocusAdapter {
         public void focusGained(FocusEvent evt) {
@@ -472,14 +508,14 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
             }
         }
     }
-    
-    
+
+
     /** an action handler for both tables. */
     private class ActionHandler implements ActionListener {
         public void actionPerformed(ActionEvent evt) {
             if (evt.getActionCommand() == "enter-pressed") {
                 // <Enter> opens the buffer
-                if (evt.getSource() == table1) { 
+                if (evt.getSource() == table1) {
                     // open files table
                     int row = table1.getSelectedRow();
                     String filename = model1.getFilename(row);
@@ -507,7 +543,7 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
         }
     } // inner class ActionHandler
 
-    
+
     /** a key handler for the tables */
     private class KeyHandler extends KeyAdapter {
         public void keyPressed(KeyEvent evt) {

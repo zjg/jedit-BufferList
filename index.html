@@ -5,13 +5,21 @@
 
 <BODY BGCOLOR="#FFFFFF">
 
-<TABLE BGCOLOR="#CCCCFF" BORDER="0" CELLSPACING="0" CELLPADDING="3"
-       WIDTH="100%" SUMMARY="Buffer List page header">
-    <TR WIDTH="100%">
-    <TD><BIG><BIG>Buffer List plugin</BIG></BIG></TD>
-    <TD ALIGU="right"><small>By Dirk M&ouml;bius<BR>
-<EM>dmoebius@gmx.net</EM></SMALL></TD></TR>
+
+<TABLE BGCOLOR="#CCCCFF" BORDER="0" CELLSPACING="0" CELLPADDING="5"
+       WIDTH="100%">
+  <TR>
+    <TD>
+      <BIG><BIG>Buffer List plugin</BIG></BIG>
+    </TD>
+    <TD ALIGU="right">
+        <SMALL>By Dirk M&ouml;bius<BR>
+        <A HREF="mailto:dmoebius@gmx.net"><EM>dmoebius@gmx.net</EM></A>
+        </SMALL>
+    </TD>
+  </TR>
 </TABLE>
+
 
 <UL>
     <LI><A HREF="#general">Introduction</A>
@@ -29,6 +37,7 @@ The Buffer List shows a list of jEdit's open files and a second list
 with recently opened files.
 </P>
 
+
 <H3>MOUSE ACTIONS</H3>
 
 <P><B>On the open files list:</B></P>
@@ -36,24 +45,30 @@ with recently opened files.
 <UL>
 <LI>single click jumps to the selected buffer
 <LI>double click closes the selected buffer
+<LI>right mouse button click opens a popup with some convenient actions
+(<EM>goto, open in new view, close, save, save as, reload</EM>)
 </UL>
 
 <P><B>On the recent files list:</B></P>
 
 <UL>
 <LI>double click opens the selected buffer
+<LI>right mouse button click opens a popup with some convenient actions
+(<EM>open, open in new view</EM>)
 </UL>
+
 
 <H3>KEY ACTIONS</H3>
 
 <P>
 Buffer List is fully keyboard navigable. A prerequisite is that you assigned
-a keyboard shortcut to the action <b>"Bring Buffer List to front"</b>, that
+a keyboard shortcut to the action <b>Bring Buffer List to front</b>, that
 is available after installation of BufferList.
 </P>
 
-<P>You can assign a keyboard shortcut to this action under
-<b>"Utilities -&gt; Global&nbsp;options -&gt; Shortcuts -&gt; Commands"</b>.
+<P>
+You can assign a keyboard shortcut to this action under
+<b>Utilities -&gt; Global&nbsp;options -&gt; Command&nbsp;Shortcuts</b>.
 I suggest "A+b".
 </P>
 
@@ -65,7 +80,9 @@ I suggest "A+b".
   <TR> <TD>[Tab]</TD> <TD>Switch between Open and Recent files list</TD> </TR>
   <TR> <TD>[Esc]</TD> <TD>Close window (only, if not docked)</TD> </TR>
 </TABLE>
-  
+
+<BR>
+
 
 <H3>APPEARANCE</H3>
 
@@ -82,7 +99,7 @@ buffer:
 <LI> a unmodified buffer appears with a small grey orb
 <LI> a modified buffer appears with a small orange orb
 <LI> a new buffer appears with a small green orb
-<LI> a new and modified buffer appears with a small yellow orb 
+<LI> a new and modified buffer appears with a small yellow orb
 <LI> a read-only buffer appears with <FONT COLOR="#666666">grey text</FONT>
 <LI> the current buffer appears with a <B>bold font</B>
 </UL>
@@ -91,6 +108,21 @@ buffer:
 <A NAME="customization"></A><H2>Customization</H2>
 
 <H3>APPEARANCE</H3>
+
+<P>
+You can customize the appearance of the Buffer List under
+<b>Utilities -&gt; Global&nbsp;options -&gt; Plugin&nbsp;Options -&gt;
+Buffer&nbsp;List</b>.
+The following options are available:
+</P>
+
+<UL>
+<LI> one column layout: filename only
+<LI> two column layout: filename and directory
+<LI> show vertical lines
+<LI> show horizontal lines
+</UL>
+
 
 <H3>DOCKING</H3>
 
@@ -107,20 +139,31 @@ the position, where Buffer List will be docked.
 <A NAME="comparison"></A><H2>Comparison</H2>
 
 <p>
-Some of you may already have noticed that jEdit's <b>BufferTabs</b> and the
-plugins <b>Buffer List</b> and <b>Buffer Selector</b> do the same thing. 
-Each of them adresses different issues:
+Some of you may already have noticed that jEdit's buffer switcher
+and the plugins <b>BufferList</b>, <b>BufferTabs</b> and
+<b>BufferSelector</b> do the same thing. But each of them adresses
+different issues:
 </p>
 
 <ul>
 <li>
-<em>BufferTabs</em> are jEdit's default way of switching buffers with the mouse.
-Chances are, that they are no longer implemented using Tabs in future
-jEdit versions because of it's inherent navigational disadvantages.
+<em>jEdit's buffer switcher</em>. As of version 3.0, this is the new
+default buffer selecton tool. It also show a status bar with some
+information. But many users find it inconvenient to use, so new
+plugins were developed.
 </li>
 <li>
-<em>Buffer Selector</em>'s main goal is saving screen space. It is a small toolbar
-attached to the top or bottom of the view and doesn't get in the way.
+<em>BufferTabs</em> were jEdit's default way of switching buffers with
+the mouse up to version 2.6. In version 3.0, this was thrown away
+because of the bugginess of the implementation in some versions of
+Swing (focus problems). Since many users wanted this feature back,
+BufferTabs was revived as a plugin. However, the focus problems
+remain.
+</li>
+<li>
+<em>Buffer Selector</em>'s main goal is saving screen space. It is a
+small toolbar attached to the top or bottom of the view and doesn't get
+in the way.
 </li>
 <li>
 <em>Buffer List</em> is dockable. That means you can dock it into the current
@@ -131,7 +174,7 @@ navigable.
 </ul>
 
 <p>
-So, basically all three are just three different ways of adressing the same
+So, basically all three are just four different ways of adressing the same
 problem. Choose the one method that suits you best.
 </p>
 
@@ -147,8 +190,8 @@ The source code is distributed under the GPL. Please see
 <A NAME="feedback"></A><H2>Feedback</H2>
 
 <P>
-The preferred way to send bug reports or feature requests is to use the 
-<B>Sourceforge Bug Tracker</B> at 
+The preferred way to send bug reports or feature requests is to use the
+<B>Sourceforge Bug Tracker</B> at
 <A HREF="http://sourceforge.net/bugs/?group_id=588">http://sourceforge.net/bugs/?group_id=588</A>.
 </P>
 

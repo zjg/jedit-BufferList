@@ -1,3 +1,12 @@
+Version 0.3 (2000/12/31)
+------------------------
+
+- added right click popup menus
+- bugfix: BufferList didn't recognize filename changes on "Save As"
+- bugfix: Sometimes column width too short on properties change
+- requires jEdit 2.7pre3 or higher
+
+
 Version 0.2.1 (2000/12/2)
 -------------------------
 
@@ -7,8 +16,10 @@ Version 0.2.1 (2000/12/2)
 - updated for jEdit 2.7 action API
 - requires jEdit 2.7pre3 or higher
 
+
 Version 0.2
 -----------
+
 - directory now shown in a separate column
 - keyboard navigation: [enter] to open file, [tab] to switch between the
   two lists, [esc] to close window (if docked)

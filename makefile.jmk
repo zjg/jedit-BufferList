@@ -31,7 +31,7 @@ jar_bin = "jar";
 jar_opts = "cf0";
 cmd_jar = jar_bin jar_opts;
 
-srcs = (subst ".java", ".class", 
+srcs = (subst ".java", ".class",
 	(glob (join (join (dirs "."), "/"), "*Plugin.java" "*.java"))
 );
 jar = (cat "../" jar_name ".jar");
@@ -50,17 +50,17 @@ end;
 
 "%.class" : "%.java";
 {
-    exec cmd_javac <;
+	exec cmd_javac <;
 }
 
 jar: srcs;
 {
-    exec cmd_jar @ (get_files "1");
+	exec cmd_jar @ (get_files "1");
 }
 
 "clean":;
 {
-	delete (glob (join (dirs "."), "/*.class"));
+	delete (glob (join (dirs "."), "/*.class" "/*~" "/*.bak"));
 }
 
 ".PHONY": "all";
