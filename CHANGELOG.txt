@@ -1,3 +1,12 @@
+VERSION 0.5.1
+
+- Bugfix: ESC sets focus back to editor if BufferList is docked and focussed
+- Bugfix: Changing option "Show absolute path name in filename column" had no
+  immediate effect.
+- Bugfix: Name column rendered wrong on Windows L&F
+- some minor optimizations (lesser redraws)
+
+
 VERSION 0.5 (2001/03/24)
 
 - Sort a column by clicking on the table header (cycling through ascending,

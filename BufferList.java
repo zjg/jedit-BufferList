@@ -308,8 +308,17 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 
 
 	private void propertiesChanged() {
-		setNewColumnModel(table1);
-		setNewColumnModel(table2);
+		boolean showAbsoluteOld = model1.isShowingAbsoluteFilename();
+		boolean showAbsoluteNew = jEdit.getBooleanProperty("bufferlist.showOneColumn");
+
+		// if the property "showOneColumn" has changed, we need to update the models:
+		if (showAbsoluteOld != showAbsoluteNew) {
+			setNewModels();
+		} else {
+			// otherwise we only need to update the column models, which is faster:
+			setNewColumnModel(table1);
+			setNewColumnModel(table2);
+		}
 
 		// show/hide table headers:
 		if (jEdit.getBooleanProperty("bufferlist.headers", false)) {
@@ -338,11 +347,12 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 	}
 
 
-	private void closeWindowIfFloating() {
+	private void closeWindowAndFocusEditPane() {
 		if (position.equals(DockableWindowManager.FLOATING)) {
 			DockableWindowManager wm = view.getDockableWindowManager();
 			wm.removeDockableWindow(BufferListPlugin.NAME);
 		}
+		view.getTextArea().requestFocus();
 	}
 
 
@@ -386,6 +396,7 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 	private static Font labelNormalFont;
 	private static Font labelBoldFont;
 	private static Color labelNormalColor;
+	private static Color labelSelectedColor;
 	private static Color labelDisabledColor;
 	private static Color labelBackgrndColor;
 
@@ -394,11 +405,12 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 	static {
 		headerNormalFont = new Font("Dialog", Font.PLAIN, 12);
 		headerBoldFont = new Font("Dialog", Font.BOLD, 12);
-		labelNormalFont = UIManager.getFont("EditorPane.font");
+		labelNormalFont = UIManager.getFont("Table.font");
 		labelBoldFont = new Font(labelNormalFont.getName(), Font.BOLD, labelNormalFont.getSize());
-		labelNormalColor = UIManager.getColor("EditorPane.foreground");
-		labelDisabledColor = UIManager.getColor("EditorPane.inactiveForeground");
-		labelBackgrndColor = UIManager.getColor("EditorPane.background");
+		labelNormalColor = UIManager.getColor("Table.foreground");
+		labelSelectedColor = UIManager.getColor("Table.selectionForeground");
+		labelDisabledColor = UIManager.getColor("TextField.inactiveForeground");
+		labelBackgrndColor = UIManager.getColor("Table.background");
 	}
 
 
@@ -455,10 +467,29 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 		public int getRowCount() { return arr.length; }
 		public int getColumnCount() { return 4; }
 		public String getColumnName(int col) { return jEdit.getProperty("bufferlist.table.column" + col); }
-
-
 		public Buffer getBuffer(int row) { return (Buffer) arr[row][3]; }
-		public String getFilename(int row) { return arr[row][1].toString() + arr[row][0].toString(); }
+		public boolean isShowingAbsoluteFilename() { return showOneColumn; }
+
+
+		public String getFilename(int row) {
+			VFS vfs;
+			Buffer buf = getBuffer(row);
+			String dir = arr[row][1].toString();
+			String name = arr[row][0].toString();
+
+			if (buf != null)
+				vfs = buf.getVFS();
+			else
+				vfs = VFSManager.getVFSForPath(dir);
+
+			if (vfs != null)
+				return vfs.constructPath(dir, name);
+			else {
+				// shouldn't occur
+				Log.log(Log.WARNING, this, "VFS for path " + dir + name + " not found!");
+				return dir + name;
+			}
+		}
 
 
 		public int getCurrentBufferRow() {
@@ -681,10 +712,11 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 			Buffer buffer = model.getBuffer(row);
 
 			if (buffer != null) {
-				comp.setForeground(buffer.isReadOnly() ? labelDisabledColor : labelNormalColor);
+				comp.setForeground(buffer.isReadOnly() ? labelDisabledColor :
+					isSelected ? labelSelectedColor : labelNormalColor);
 				comp.setFont(buffer == currentBuffer ? labelBoldFont : labelNormalFont);
 			} else {
-				comp.setForeground(labelNormalColor);
+				comp.setForeground(isSelected ? labelSelectedColor : labelNormalColor);
 			}
 
 			return comp;
@@ -720,12 +752,10 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 			if (comp == null)
 				return;
 
-			currentBuffer = ((EditPane)comp).getBuffer();
-			refresh();
-
-			if (view != null) {
-				view.invalidate();  // redraw
-				view.validate();
+			Buffer newBuffer = ((EditPane)comp).getBuffer();
+			if (newBuffer != currentBuffer) {
+				currentBuffer = newBuffer;
+				refresh();
 			}
 		}
 
@@ -744,7 +774,7 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 				return;
 
 			String filename = model1.getFilename(row);
-			Buffer buffer = jEdit.getBuffer(filename);
+			Buffer buffer = model1.getBuffer(row);
 
 			if ((e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0) {
 				if (e.getClickCount() == 1) {
@@ -845,18 +875,14 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 				// <Enter> opens the buffer
 				if (evt.getSource() == table1) {
 					// open files table
-					int row = table1.getSelectedRow();
-					String filename = model1.getFilename(row);
-					view.setBuffer(jEdit.getBuffer(filename));
+					view.setBuffer(model1.getBuffer(table1.getSelectedRow()));
 				} else {
 					// recent files table
-					int row = table2.getSelectedRow();
-					String filename = model2.getFilename(row);
+					String filename = model2.getFilename(table2.getSelectedRow());
 					jEdit.openFile(view, filename);
 				}
 				view.toFront();
-				view.getEditPane().requestFocus();
-				closeWindowIfFloating();
+				closeWindowAndFocusEditPane();
 			}
 			else if (evt.getActionCommand().equals("tab-pressed") || evt.getActionCommand().equals("shift-tab-pressed")) {
 				// <Tab>/<Shift-Tab> changes between both tables
@@ -882,7 +908,7 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 			if (evt.getKeyCode() == KeyEvent.VK_ESCAPE) {
 				// <Esc> closes a floating window
 				evt.consume();
-				closeWindowIfFloating();
+				closeWindowAndFocusEditPane();
 			}
 		}
 
