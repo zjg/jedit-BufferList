@@ -23,7 +23,6 @@
 
 <UL>
     <LI><A HREF="#general">Introduction</A>
-    <LI><A HREF="#sessionmanagement">Session Management</A>
     <LI><A HREF="#bufferlist">The Buffer List</A>
     <LI><A HREF="#customization">Customization</A>
     <LI><A HREF="#license">License</A>
@@ -35,24 +34,27 @@
 <H2>Introduction</H2>
 
 <P>
-The Buffer List maintains lists of open files - called a <EM>session</EM> aka
-<EM>workspace</EM> - and offers some functions to switch between them.
-The current list of open files and the list of recently opened files are shown
-in a dockable window that can be placed permanently in jEdit's view.
+The Buffer List shows the lists of currently open files and the list of
+recent files in a window, that may be docked permanently into jEdit's
+view. The lists are displayed in a table fashion style.
 </P>
 
 
-<A NAME="sessionmanagement"></A>
-<H2>Session Management</H2>
+<H2>Release Notes</H2>
 
 <P>
-To do... (sorry!)
+<B>Help!!! Where's the Session Manager?!?</B>
+<P>
+
+<P>
+As of version 0.7, the session management functions have been taken out into
+a separate plugin called <B>Sessions</B>. You can download it using the
+Plugin Manager.
 </P>
 
 <P>
-<B>Attention!</B> If you use the SessionSwitcher, you should no longer
-use the jEdit commands <EM>Load Session...</EM> and <EM>Save Session...</EM>
-in menu <EM>File</EM> ! jEdit might loose track of the current session.
+Note: a side effect of splitting the Session Manager out of Buffer List is that
+it can no longer be shown as BufferList's toolbar. Sorry.
 </P>
 
 
@@ -83,22 +85,23 @@ This can be configured to some extent in the Global Options. See
 <UL>
     <LI>single click jumps to the selected buffer
     <LI>double click closes the selected buffer
-    <LI>right mouse button click opens a popup with some convenient actions
-        (<EM>goto, open in new view, close, save, save as, reload</EM>)
+    <LI>right mouse button click opens a popup with some buffer related actions
+        (goto, open in new view, close, save, save as, reload)
 </UL>
 
 <P><B>On the recent files list:</B></P>
 
 <UL>
     <LI>double click opens the selected buffer
-    <LI>right mouse button click opens a popup with some convenient actions
-        (<EM>open, open in new view</EM>)
+    <LI>right mouse button click opens a popup with some file related actions
+        (open, open in new view)
 </UL>
 
 <P><B>On both lists:</B></P>
 
 <UL>
-    <LI>If the column headers are displayed (see <EM>Global Options</EM>),
+    <LI>If the column headers are displayed (see
+        <A HREF="#customization">Customization</A>)
         single-clicking a column header sorts the list by this by this
         column, in ascending order.<BR>
         Clicking it again sorts the list in descending order.<BR>
@@ -106,16 +109,16 @@ This can be configured to some extent in the Global Options. See
     <LI>If the column headers are displayed, double-clicking on a column
         header edge auto-resizes the column to the size of the largest
         cell in that column.<BR>
-        This only works if auto-resizing of columns is turned off in the
-        <EM>Global options</EM>.
+        Note: This only works if auto-resizing of columns is turned off in
+        BufferList's options.
 </UL>
 
 
 <H3>Menu Actions</H3>
 
 <P>
-The following menu actions are available in the menu
-<EM>Plugins&nbsp;-&gt;Buffer&nbsp;List</EM>:
+The following menu actions are available in menu
+<B>Plugins&gt;Buffer&nbsp;List</B>:
 <P>
 
 <UL>
@@ -124,12 +127,6 @@ The following menu actions are available in the menu
         <LI><B>Go to Next Buffer in Buffer List</B><BR>
                ...
         <LI><B>Go to Previous Buffer in Buffer List</B><BR>
-               ...
-        <LI><B>Save Session</B><BR>
-               ...
-        <LI><B>Save Session As...</B><BR>
-               ...
-        <LI><B>Manage Sessions...</B><BR>
                ...
 </UL>
 
@@ -144,7 +141,7 @@ is available after installation of BufferList.
 
 <P>
 You can assign a keyboard shortcut to this action under
-<b>Utilities -&gt; Global&nbsp;options -&gt; Command&nbsp;Shortcuts</b>.
+<b>Utilities&gt;Global&nbsp;options&gt;Shortcuts</b>.
 I suggest "A+b".
 </P>
 
@@ -167,49 +164,44 @@ I suggest "A+b".
 
 <P>
 You can customize the appearance of the Buffer List under
-<b>Utilities -&gt; Global&nbsp;options -&gt; Plugin&nbsp;Options -&gt;
-Buffer&nbsp;List</b>.
+<b>Utilities&gt;Global&nbsp;options&gt;Plugin&nbsp;Options&gt;Buffer&nbsp;List</b>.
 The following options are available:
 </P>
 
-<OL>
-<LI><B>Buffer List Options</B>
-    <UL>
-        <LI><B>Auto-Show on buffer change</B><BR>
-            If enabled, the Buffer List is automatically shown, if the buffer
-            has been changed.
-        <LI><B>Show vertical lines</B>
-        <LI><B>Show horizontal lines</B>
-        <LI><B>Show column headers</B><BR>
-            If the column headers are not shown, columns will be
-            auto-resized.
-        <LI><B>Auto-Resize columns</B><BR>
-            If checked, the columns are auto-resized to the width of their
-            longest entry. You cannot resize the columns manually any longer,
-            if this option is checked.
-        <LI><B>Show absolute pathname in filename column</B><BR>
-            The filename column is always shown. Use this option, if you want
-            to disable the directory column, but still see the directory.<BR>
-    </UL>
-<LI><B>Session Switcher Options</B>
-    <UL>
-        <LI><B>Show Session Switcher</B>
-        <LI><B>Show "Session:" label</B>
-        <LI><B>Autosave Sessions</B>
-        <LI><B>Close all files before switching to new session</B>
-    </UL>
-</OL>
+<UL>
+<LI><B>Auto-Show on buffer change</B><BR>
+    If enabled, the Buffer List is automatically shown, if the buffer
+    has been changed.
+<LI><B>Show vertical lines</B>
+<LI><B>Show horizontal lines</B>
+<LI><B>Show column headers</B><BR>
+    If the column headers are not shown, columns will be
+    auto-resized.
+<LI><B>Auto-Resize columns</B><BR>
+    If checked, the columns are auto-resized to the width of their
+    longest entry. You cannot resize the columns manually any longer,
+    if this option is checked.
+<LI><B>Show absolute pathname in filename column</B><BR>
+    The filename column is always shown. Use this option, if you want
+    to disable the directory column, but still see the directory.<BR>
+</UL>
 
 <H3>Docking</H3>
 
 <P>
-Buffer List may be docked into the view.
+Buffer List may be docked anywhere into the view.
 </P>
 
 <P>
-Open <b>"Utilities -&gt; Global&nbsp;options -&gt; Docking"</b> to define
+Open <b>Utilities&gt;Global&nbsp;options&gt;Docking</b> to define
 the position, where Buffer List will be docked.
 </P>
+
+<P>
+If Buffer List is docked to the left or right, the open files list is displayed
+above the recent files list. Otherwise they are displayed side by side.
+</P>
+
 
 
 <A NAME="license">

@@ -57,17 +57,20 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow
 		KeyHandler keyhandler = new KeyHandler();
 		FocusHandler focushandler = new FocusHandler();
 
+		// open files table:
 		table1 = new HelpfulJTable();
 		table1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table1.setAutoCreateColumnsFromModel(false);
-		try { table1.setSortColumn(Integer.parseInt(jEdit.getProperty("bufferlist.table1.sortColumn", "-1"))); }
-		catch (NumberFormatException nfex) {}
-		try { table1.setSortOrder(Integer.parseInt(jEdit.getProperty("bufferlist.table1.sortOrder", "-1"))); }
-		catch (NumberFormatException nfex) {}
 		table1.addMouseListener(new OpenFilesMouseHandler());
 		table1.addActionListener(actionhandler);
 		table1.addKeyListener(keyhandler);
 		table1.addFocusListener(focushandler);
+
+		try { table1.setSortColumn(Integer.parseInt(jEdit.getProperty("bufferlist.table1.sortColumn", "-1"))); }
+		catch (NumberFormatException nfex) {}
+		try { table1.setSortOrder(Integer.parseInt(jEdit.getProperty("bufferlist.table1.sortOrder", "-1"))); }
+		catch (NumberFormatException nfex) {}
+
 		table1.addPropertyChangeListener(new PropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent evt) {
 				String prop = evt.getPropertyName();
@@ -79,17 +82,19 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow
 			}
 		});
 
+		// recent files table:
 		table2 = new HelpfulJTable();
 		table2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table2.setAutoCreateColumnsFromModel(false);
-		try { table2.setSortColumn(Integer.parseInt(jEdit.getProperty("bufferlist.table2.sortColumn", "-1"))); }
-		catch (NumberFormatException nfex) {}
-		try { table2.setSortOrder(Integer.parseInt(jEdit.getProperty("bufferlist.table2.sortOrder", "-1"))); }
-		catch (NumberFormatException nfex) {}
 		table2.addMouseListener(new RecentFilesMouseHandler());
 		table2.addActionListener(actionhandler);
 		table2.addKeyListener(keyhandler);
 		table2.addFocusListener(focushandler);
+
+		try { table2.setSortColumn(Integer.parseInt(jEdit.getProperty("bufferlist.table2.sortColumn", "-1"))); }
+		catch (NumberFormatException nfex) {}
+		try { table2.setSortOrder(Integer.parseInt(jEdit.getProperty("bufferlist.table2.sortOrder", "-1"))); }
+		catch (NumberFormatException nfex) {}
 
 		table2.addPropertyChangeListener(new PropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent evt) {
@@ -160,7 +165,9 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow
 	 * @see actions.xml
 	 */
 	public void requestFocusOpenFiles() {
+		int row = model1.getRowOf(currentBuffer);
 		table1.requestFocus();
+		table1.setRowSelectionInterval(row, row);
 	}
 
 
@@ -176,7 +183,7 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow
 	/** Go to next buffer in open files list */
 	public void nextBuffer() {
 		int row = model1.getRowOf(currentBuffer);
-		Buffer next = model1.getBuffer(row == model1.getRowCount()-1 ? 0 : row + 1);
+		Buffer next = model1.getBuffer(row == model1.getRowCount() - 1 ? 0 : row + 1);
 		view.setBuffer(next);
 	}
 
@@ -184,7 +191,7 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow
 	/** Go to previous buffer in open files list */
 	public void previousBuffer() {
 		int row = model1.getRowOf(currentBuffer);
-		Buffer prev = model1.getBuffer(row == 0 ? model1.getRowCount()-1 : row - 1);
+		Buffer prev = model1.getBuffer(row == 0 ? model1.getRowCount() - 1 : row - 1);
 		view.setBuffer(prev);
 	}
 
@@ -254,7 +261,7 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow
 					epu.getEditPane().getTextArea().removeFocusListener(textAreaFocusHandler);
 				} else if (epu.getWhat() == EditPaneUpdate.BUFFER_CHANGED) {
 					currentBuffer = epu.getEditPane().getBuffer();
-					refresh();
+					currentBufferChanged();
 				}
 			}
 		}
@@ -269,7 +276,6 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow
 	 * @see javax.swing.JComponent#updateUI()
 	 */
 	public void updateUI() {
-		Log.log(Log.DEBUG, this, "updateUI()");
 		initFontsAndColors();
 		super.updateUI();
 	}
@@ -285,8 +291,10 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow
 		table2.setModel(model2);
 		setNewColumnModel(table1);
 		setNewColumnModel(table2);
+
+		// mark new current buffer:
 		currentBuffer = view.getBuffer();
-		refresh();
+		currentBufferChanged();
 	}
 
 
@@ -301,10 +309,20 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow
 		ptcm.setColumnMargin(verticalLines ? 1 : 0);
 		// set column model
 		table.setColumnModel(ptcm);
+
+		// bugfix: the table background colors are reverted to default after
+		// the models are changed; need to set it again:
+		scrTable1.getViewport().setBackground(labelBackgrndColor);
+		scrTable2.getViewport().setBackground(labelBackgrndColor);
 	}
 
 
-	private void refresh() {
+	/**
+	 * Called after the current buffer has changed; notifies the cell
+	 * renderers and makes sure the current buffer is visible in the open
+	 * files list.
+	 */
+	private void currentBufferChanged() {
 		model1.fireTableDataChanged();
 		model2.fireTableDataChanged();
 
@@ -355,16 +373,6 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow
 		table2.setShowVerticalLines(verticalLines);
 		table1.setShowHorizontalLines(horizontalLines);
 		table2.setShowHorizontalLines(horizontalLines);
-
-		// show/hide SessionSwitcher:
-		if (sessionSwitcher != null)
-			remove(sessionSwitcher);
-
-		String showWhere = jEdit.getProperty("bufferlist.switcher.show", "bufferlist");
-		if (showWhere.equals("bufferlist") || showWhere.equals("true")) {
-			sessionSwitcher = new SessionSwitcher(view);
-			add(sessionSwitcher, BorderLayout.NORTH);
-		}
 	}
 
 
@@ -377,7 +385,6 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow
 	}
 
 
-	// private members
 	private View view;
 	private Buffer currentBuffer;
 	private String position;
@@ -391,10 +398,7 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow
 	private JLabel header1;
 	private JLabel header2;
 	private JSplitPane pane;
-	private SessionSwitcher sessionSwitcher;
 
-
-	// private static members
 	private static Font fontHeaderNormal;
 	private static Font fontHeaderSelected;
 	private static Color labelBackgrndColor;
@@ -428,7 +432,7 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow
 			Buffer newBuffer = ((EditPane)comp).getBuffer();
 			if (newBuffer != currentBuffer) {
 				currentBuffer = newBuffer;
-				refresh();
+				currentBufferChanged();
 			}
 		}
 	}

@@ -1,0 +1,73 @@
+<project name="BufferList" default="dist" basedir=".">
+
+	<property name="src.dir" value="."/>
+	<property name="build.dir" value="build"/>
+	<property name="install.dir"  value=".."/>
+	<property name="doc.dir"  value="doc"/>
+
+	<property name="jedit.install.dir"  value="C:/Java/jEdit"/>
+
+
+	<path id="project.class.path">
+		<pathelement location="${jedit.install.dir}/jedit.jar"/>
+		<pathelement location="."/>
+	</path>
+
+
+	<target name="init">
+		<mkdir dir="${build.dir}"/>
+		<mkdir dir="${src.dir}"/>
+	</target>
+
+
+	<target name="compile" depends="init">
+		<javac
+			srcdir="${src.dir}"
+			destdir="${build.dir}"
+			debug="on"
+			deprecation="on"
+			includeJavaRuntime="yes"
+		>
+			<classpath refid="project.class.path"/>
+		</javac>
+	</target>
+
+
+	<target name="dist" depends="compile">
+		<mkdir dir="${install.dir}"/>
+		<jar jarfile="${install.dir}/BufferList.jar">
+			<fileset dir="${build.dir}"/>
+			<fileset dir="${src.dir}">
+				<include name="actions.xml"/>
+				<include name="BufferList.props"/>
+				<include name="**/*.html"/>
+				<include name="**/*.gif"/>
+			</fileset>
+		</jar>
+	</target>
+
+	<target name="clean">
+		<delete dir="${build.dir}"/>
+		<delete>
+			<fileset dir="." includes="**/*~" defaultexcludes="no"/>
+			<fileset dir="." includes="**/*.class"/>
+		</delete>
+	</target>
+
+
+	<target name="javadoc">
+		<delete dir="${doc.dir}"/>
+		<mkdir dir="${doc.dir}"/>
+		<javadoc
+			packagenames="bufferlist.*"
+			sourcepath="${src.dir}"
+			destdir="${doc.dir}"
+			classpathref="project.class.path"
+			author="true"
+			version="true"
+			use="true"
+			windowtitle="BufferList Plugin API reference"
+		/>
+	</target>
+
+</project>

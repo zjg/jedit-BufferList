@@ -1,10 +1,11 @@
 #
 # General plugin properites
 #
+
 plugin.bufferlist.BufferListPlugin.name=BufferList
 plugin.bufferlist.BufferListPlugin.author=Dirk Moebius <dmoebius@gmx.net>
-plugin.bufferlist.BufferListPlugin.version=0.6.3
-plugin.bufferlist.BufferListPlugin.docs=bufferlist/index.html
+plugin.bufferlist.BufferListPlugin.version=0.7
+plugin.bufferlist.BufferListPlugin.docs=bufferlist/BufferList.html
 plugin.bufferlist.BufferListPlugin.depend.0=jdk 1.1
 plugin.bufferlist.BufferListPlugin.depend.1=jedit 03.02.02.00
 
@@ -12,6 +13,7 @@ plugin.bufferlist.BufferListPlugin.depend.1=jedit 03.02.02.00
 #
 # dockable name
 #
+
 bufferlist.name.label=Buffer List
 bufferlist.title=Buffer List
 
@@ -19,25 +21,25 @@ bufferlist.title=Buffer List
 #
 # menu
 #
-bufferlist.menu=bufferlist - bufferlist-next-buffer bufferlist-previous-buffer bufferlist-to-front - session-save session-save-as session-manager
+
+bufferlist.menu=bufferlist - bufferlist-next-buffer bufferlist-previous-buffer bufferlist-to-front
 bufferlist.menu.label=Buffer List
 
 
 #
 # actions
 #
+
 bufferlist.label=Buffer List
 bufferlist-next-buffer.label=Go to Next Buffer in Buffer List
 bufferlist-previous-buffer.label=Go to Previous Buffer in Buffer List
 bufferlist-to-front.label=Bring Buffer List to front
-session-save.label=Save Session
-session-save-as.label=Save Session As...
-session-manager.label=Manage Sessions...
 
 
 #
 # popup menu
 #
+
 bufferlist.popup.goto.label=Goto
 bufferlist.popup.open.label=Open
 bufferlist.popup.open-view.label=Open in New View
@@ -51,6 +53,7 @@ bufferlist.popup.remove.label=Remove entry
 #
 # BufferList panel
 #
+
 bufferlist.openfiles.label=Open Files
 bufferlist.recentfiles.label=Recent Files
 
@@ -70,125 +73,23 @@ bufferlist.table2.column3.width=60
 
 
 #
-# SessionSwitcher panel
+# Option pane
 #
-bufferlist.switcher.title=Session:\ \ 
-
-bufferlist.switcher.save.tooltip=Save current session
-bufferlist.switcher.saveAs.tooltip=Save current session under a different name...
-bufferlist.switcher.reload.tooltip=Reload current session
-bufferlist.switcher.prefs.tooltip=Manage sessions...
-
-bufferlist.switcher.save.saved.title=Session Saved
-bufferlist.switcher.save.saved.message=Session {0} saved.
-
-bufferlist.switcher.saveAs.input.title=New Session Name
-bufferlist.switcher.saveAs.input.message=Please enter a new name for the session:
-
-bufferlist.switcher.saveAs.exists.title=Session Name Exists
-bufferlist.switcher.saveAs.exists.message=\
-	A session file with the name {0} already exists.\n\
-	Overwrite?
-
-bufferlist.switcher.saveAs.error.empty.title=Empty Name
-bufferlist.switcher.saveAs.error.empty.message=Please enter a name, or cancel the dialog.
-
-bufferlist.switcher.saveAs.error.illegalChars.title=Illegal Characters in Name
-bufferlist.switcher.saveAs.error.illegalChars.message=\
-	The name may not contain any of these characters:\n\
-	{0}
-
-
-#
-# SessionManager dialog
-#
-bufferlist.manager.title=Manage Sessions
-bufferlist.manager.rename=Rename...
-bufferlist.manager.delete=Delete
-bufferlist.manager.changeTo=Change To
-bufferlist.manager.close=Close
-
-bufferlist.manager.error.rename.title=Error Renaming Session File
-bufferlist.manager.error.rename.message=\
-	Could not rename the session file:\n\
-	{0}\n\
-	to:\n\
-	{1}
-
-bufferlist.manager.error.delete.title=Error Deleting Session File
-bufferlist.manager.error.delete.message=\
-	Could not delete the session file:\n\
-	{0}
-
-bufferlist.manager.info.restore.title=Information
-bufferlist.manager.info.restore.message=\
-	As of version 0.6.2, BufferList doesn't restore the last\n\
-	open session itself; it relies on jEdit to do that.\n\
-	\n\
-	If you want jEdit to restore the last open session,\n\
-	please enable the option:\n\
-	"Restore previously open files on startup"\n\
-	in the Global Options.\n\
-	\n\
-	If your session turns out to be empty now,\n\
-	please press "Reload".\n\
-	\ 
-
-bufferlist.manager.info.restore_autosave.title=Warning
-bufferlist.manager.info.restore_autosave.message=\
-	BufferList's Autosave Sessions feature is currently enabled,\n\
-	but one of the options for restoring files on jEdit restart\n\
-	is disabled. Either:\n\
-	\n\
-	"Restore previously open files on startup"    and/or\n\
-	"Restore even if file names were specified on the command line"\n\
-	\n\
-	is currently off. This could cause conflicts, and end up in\n\
-	empty session files.\n\
-	\n\
-	Please either turn on both options again,\n\
-	or disable BufferList's Autosave Sessions feature.\n\
-	\n\
-	If your session turns out to be empty now,\n\
-	please press "Reload".\n\
-	\ 
-
-bufferlist.manager.info.dontShowAgain=\
-	Don't show this message again.
-
-
-#
-# option pane
-#
-options.bufferlist.sessionmanager.label=Session Management
-
-options.bufferlist.switcher.autoSave=Autosave sessions (on switch, rename, close)
-options.bufferlist.switcher.closeAll=Close all files before switching to new session
-
-
-options.bufferlist.switcher.label=Session Switcher
-
-options.bufferlist.switcher.showWhere=Show Session Switcher:
-options.bufferlist.switcher.showInBufferList=Over BufferList
-options.bufferlist.switcher.showAsToolBar=As Toolbar
-options.bufferlist.switcher.showNot=Don\'t show
-
-options.bufferlist.switcher.displayOptions=Display Options:
-options.bufferlist.switcher.showTitle=Show "Session:" label
-
 
 options.bufferlist.label=Buffer List
 
+options.bufferlist.separator.behavior=Behaviour
 options.bufferlist.autoshow=Auto-Show on buffer change
+options.bufferlist.checkRecentFiles=Check status of recent files
+
+options.bufferlist.separator.appearance=Appearance
+options.bufferlist.headers=Show column headers
+options.bufferlist.autoresize=Auto-Resize columns
 options.bufferlist.verticalLines=Show vertical lines
 options.bufferlist.horizontalLines=Show horizontal lines
 options.bufferlist.showAbsoluteFilename=Show absolute pathname in column Name
-options.bufferlist.headers=Show column headers
-options.bufferlist.autoresize=Auto-Resize columns
-options.bufferlist.statusIcon=Status Icon:
-options.bufferlist.checkRecentFiles=Check status of recent files
 
-options.bufferlist.showColumns=Show Columns:
+options.bufferlist.separator.showColumns=Columns
 options.bufferlist.showStatus=Status icon
 options.bufferlist.showDir=Directory
 options.bufferlist.showMode=Mode

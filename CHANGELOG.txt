@@ -1,3 +1,11 @@
+VERSION 0.7
+
+- Session management taken out into a new plugin: SessionsPlugin
+- Bugfix: NullPointerException in HelpfulJTable, BufferList didn't start up
+- Bugfix: table background color changed after properties changed
+- Requires jEdit 3.2pre2 or higher
+
+
 VERSION 0.6.3
 
 - Bugfix: NullPointerException at initialization after clean install.

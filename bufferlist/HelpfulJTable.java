@@ -44,8 +44,8 @@ import org.gjt.sp.util.Log;
  * <li>
  * Fires an <code>ActionEvent</code>, if <b>Enter</b>, <b>Tab</b> or
  * <b>Shift-Tab</b> is pressed.<br>
- * Therefore, <code>addActionListener(...)</code> and
- * <code>removeActionListener(...)</code> methods are provided.
+ * Therefore, <code>addActionListener(ActionListener)</code> and
+ * <code>removeActionListener(ActionListener)</code> methods are provided.
  * </li>
  *
  * <li>
@@ -134,7 +134,7 @@ public class HelpfulJTable extends JTable
 		int oldSortColumn = this.sortColumn;
 		this.sortColumn = sortColumn;
 		if (oldSortColumn != this.sortColumn)
-			propertySupport.firePropertyChange("sortColumn", new Integer(oldSortColumn), new Integer(this.sortColumn));
+			firePropertyChange("sortColumn", new Integer(oldSortColumn), new Integer(this.sortColumn));
 	}
 
 
@@ -145,7 +145,10 @@ public class HelpfulJTable extends JTable
 
 	/**
 	 * Set whether the current <code>sortColumn</code> should be sorted
-	 *  ascending or descending, or not at all. This is a bound bean property.
+	 *  ascending or descending, or not at all.<p>
+	 *
+	 * This is a bound bean property named "sortOrder". If it is changed, a
+	 * <code>PropertyChangeEvent</code> gets fired.
 	 *
 	 * @param order  the new sort order, one of SORT_ASCENDING,
 	 *               SORT_DESCENDING, SORT_OFF.
@@ -157,7 +160,7 @@ public class HelpfulJTable extends JTable
 		int oldSortOrder = this.sortOrder;
 		this.sortOrder = order;
 		if (oldSortOrder != this.sortOrder)
-			propertySupport.firePropertyChange("sortOrder", new Integer(oldSortOrder), new Integer(this.sortOrder));
+			firePropertyChange("sortOrder", new Integer(oldSortOrder), new Integer(this.sortOrder));
 	}
 
 
@@ -216,30 +219,6 @@ public class HelpfulJTable extends JTable
 	/** Remove an action listener from this table instance. */
 	public void removeActionListener(ActionListener l) {
 		listenerList.remove(ActionListener.class, l);
-	}
-
-
-	/**
-	 * Adds a <code>PropertyChangeListener</code> to the listener list.
-	 * The listener is registered for all properties.
-	 * A <code>PropertyChangeEvent</code> will get fired in response to an
-	 * explicit call to <code>setSortColumn</code> and
-	 * <code>setSortOrder</code> on the current component.
-	 *
-	 * @param  listener  the listener to be added
-	 */
-	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		propertySupport.addPropertyChangeListener(listener);
-	}
-
-
-	/**
-	 * Removes a <code>PropertyChangeListener</code> from the listener list.
-	 *
-	 * @param  listener  the listener to be removed
-	 */
-	public void removePropertyChangeListener(PropertyChangeListener listener) {
-		propertySupport.removePropertyChangeListener(listener);
 	}
 
 
@@ -449,7 +428,6 @@ public class HelpfulJTable extends JTable
 	private boolean autoResizeColumns = true;
 	private int sortColumn = -1;
 	private int sortOrder = SORT_OFF;
-	private PropertyChangeSupport propertySupport = new PropertyChangeSupport(this);
 
 
 	private static Icon SORT_UP;
