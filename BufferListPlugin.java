@@ -26,6 +26,7 @@ import org.gjt.sp.jedit.msg.BufferUpdate;
 import org.gjt.sp.jedit.msg.CreateDockableWindow;
 import org.gjt.sp.jedit.msg.EditPaneUpdate;
 import org.gjt.sp.jedit.msg.EditorExitRequested;
+import org.gjt.sp.jedit.msg.ViewUpdate;
 import org.gjt.sp.util.Log;
 
 
@@ -42,11 +43,14 @@ public class BufferListPlugin extends EBPlugin {
 	public void start() {
 		EditBus.addToNamedList(DockableWindow.DOCKABLE_WINDOW_LIST, NAME);
 
-		// don't let jEdit restore the previously open files at startup - BufferList does this
-		jEdit.setBooleanProperty("restore", false);
-
 		SessionManager mgr = SessionManager.getInstance();
-		mgr._loadLastSession();
+		if (mgr.defaultSessionExists()) {
+			// BufferList has been run before. Don't let jEdit restore the
+			// previously open files at startup  -- BufferList does this:
+			jEdit.setBooleanProperty("restore", false);
+		}
+
+		bufferToOpenOnStartup = mgr._loadLastSession();
 	}
 
 
@@ -61,7 +65,14 @@ public class BufferListPlugin extends EBPlugin {
 
 
 	public void handleMessage(EBMessage message) {
-		if (message instanceof CreateDockableWindow) {
+		if (message instanceof ViewUpdate) {
+			ViewUpdate vu = (ViewUpdate) message;
+			if (vu.getWhat() == ViewUpdate.CREATED && bufferToOpenOnStartup != null) {
+				vu.getView().setBuffer(bufferToOpenOnStartup);
+				bufferToOpenOnStartup = null;
+			}
+		}
+		else if (message instanceof CreateDockableWindow) {
 			CreateDockableWindow cmsg = (CreateDockableWindow)message;
 			if (cmsg.getDockableWindowName().equals(NAME)) {
 				cmsg.setDockableWindow(new BufferList(cmsg.getView(), cmsg.getPosition()));
@@ -69,14 +80,9 @@ public class BufferListPlugin extends EBPlugin {
 		}
 		else if (message instanceof BufferUpdate) {
 			BufferUpdate bu = (BufferUpdate) message;
-			if (bu.getWhat() == BufferUpdate.CREATED || bu.getWhat() == BufferUpdate.CLOSED) {
-				if (jEdit.getBooleanProperty("bufferlist.autoshow", false)) {
-					// FIXME: how to get the view the cursor is in?
-					View view = jEdit.getFirstView();
-					if (view != null)
-						view.getDockableWindowManager().addDockableWindow(NAME);
-				}
-			}
+			if (bu.getWhat() == BufferUpdate.CREATED || bu.getWhat() == BufferUpdate.CLOSED)
+				if (jEdit.getBooleanProperty("bufferlist.autoshow", false) && bu.getView() != null)
+					bu.getView().getDockableWindowManager().addDockableWindow(NAME);
 		}
 		else if (message instanceof EditPaneUpdate) {
 			EditPaneUpdate epu = (EditPaneUpdate) message;
@@ -100,6 +106,9 @@ public class BufferListPlugin extends EBPlugin {
 			}
 		}
 	}
+
+
+	private Buffer bufferToOpenOnStartup;
 
 }
 

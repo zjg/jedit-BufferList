@@ -20,11 +20,15 @@
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.ButtonGroup;
+import javax.swing.Box;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import org.gjt.sp.jedit.jEdit;
 import org.gjt.sp.jedit.AbstractOptionPane;
+import org.gjt.sp.jedit.gui.VariableGridLayout;
 
 
 /**
@@ -38,44 +42,98 @@ public class BufferListOptionPane extends AbstractOptionPane implements ActionLi
 
 
 	public void _init() {
+		// Session Manager options:
+
+		bSwitcherAutoSave = new JCheckBox(jEdit.getProperty("options.bufferlist.switcher.autoSave"),
+			jEdit.getBooleanProperty("bufferlist.switcher.autoSave", true));
+
+		bSwitcherCloseAll = new JCheckBox(jEdit.getProperty("options.bufferlist.switcher.closeAll"),
+			jEdit.getBooleanProperty("bufferlist.switcher.closeAll", true));
+
+		JPanel mgrOptions = new JPanel(new VariableGridLayout(VariableGridLayout.FIXED_NUM_COLUMNS, 1, 15, 0));
+		mgrOptions.add(bSwitcherAutoSave);
+		mgrOptions.add(bSwitcherCloseAll);
+
+		// SessionSwitcher options:
+
+		JLabel lbSwitcherShowWhere = new JLabel(jEdit.getProperty("options.bufferlist.switcher.showWhere"));
+
+		bSwitcherShowInBufferList = new JRadioButton(jEdit.getProperty("options.bufferlist.switcher.showInBufferList"));
+		bSwitcherShowAsToolBar = new JRadioButton(jEdit.getProperty("options.bufferlist.switcher.showAsToolBar"));
+		bSwitcherShowNot = new JRadioButton(jEdit.getProperty("options.bufferlist.switcher.showNot"));
+
+		bSwitcherShowInBufferList.addActionListener(this);
+		bSwitcherShowAsToolBar.addActionListener(this);
+		bSwitcherShowNot.addActionListener(this);
+
+		ButtonGroup showSwitcherGroup = new ButtonGroup();
+		showSwitcherGroup.add(bSwitcherShowInBufferList);
+		showSwitcherGroup.add(bSwitcherShowAsToolBar);
+		showSwitcherGroup.add(bSwitcherShowNot);
+
+		String showWhere = jEdit.getProperty("bufferlist.switcher.show", "bufferlist");
+		if (showWhere.equals("bufferlist") || showWhere.equals("true"))
+			bSwitcherShowInBufferList.setSelected(true);
+		else if (showWhere.equals("view"))
+			bSwitcherShowAsToolBar.setSelected(true);
+		else
+			bSwitcherShowNot.setSelected(true);
+
+		JLabel lbSwitcherDisplayOptions = new JLabel(jEdit.getProperty("options.bufferlist.switcher.displayOptions"));
+
+		bSwitcherShowTitle = new JCheckBox(jEdit.getProperty("options.bufferlist.switcher.showTitle"),
+			jEdit.getBooleanProperty("bufferlist.switcher.showTitle", true));
+		bSwitcherShowTitle.setEnabled(!bSwitcherShowNot.isSelected());
+
+		JPanel switcherOptions = new JPanel(new VariableGridLayout(VariableGridLayout.FIXED_NUM_COLUMNS, 2, 40, 0));
+		switcherOptions.add(lbSwitcherShowWhere);
+		switcherOptions.add(lbSwitcherDisplayOptions);
+		switcherOptions.add(bSwitcherShowInBufferList);
+		switcherOptions.add(bSwitcherShowTitle);
+		switcherOptions.add(bSwitcherShowAsToolBar);
+		switcherOptions.add(Box.createGlue());
+		switcherOptions.add(bSwitcherShowNot);
+
 		// BufferList options:
 
-		bAutoShow = new JCheckBox(jEdit.getProperty("options.bufferlist.autoshow"));
-		bAutoShow.setSelected(jEdit.getBooleanProperty("bufferlist.autoshow", false));
+		bAutoShow = new JCheckBox(jEdit.getProperty("options.bufferlist.autoshow"),
+			jEdit.getBooleanProperty("bufferlist.autoshow", false));
 
-		bVerticalLines = new JCheckBox(jEdit.getProperty("options.bufferlist.verticalLines"));
-		bVerticalLines.setSelected(jEdit.getBooleanProperty("bufferlist.verticalLines", true));
+		bVerticalLines = new JCheckBox(jEdit.getProperty("options.bufferlist.verticalLines"),
+			jEdit.getBooleanProperty("bufferlist.verticalLines", true));
 
-		bHorizontalLines = new JCheckBox(jEdit.getProperty("options.bufferlist.horizontalLines"));
-		bHorizontalLines.setSelected(jEdit.getBooleanProperty("bufferlist.horizontalLines", true));
+		bHorizontalLines = new JCheckBox(jEdit.getProperty("options.bufferlist.horizontalLines"),
+			jEdit.getBooleanProperty("bufferlist.horizontalLines", true));
 
 		// NOTE: for historical reasons, the option "Show absolute filename" is named "showOneColumn":
-		bShowAbsoluteFilename = new JCheckBox(jEdit.getProperty("options.bufferlist.showAbsoluteFilename"));
-		bShowAbsoluteFilename.setSelected(jEdit.getBooleanProperty("bufferlist.showOneColumn", false));
+		bShowAbsoluteFilename = new JCheckBox(jEdit.getProperty("options.bufferlist.showAbsoluteFilename"),
+			jEdit.getBooleanProperty("bufferlist.showOneColumn", false));
 
-		bHeaders = new JCheckBox(jEdit.getProperty("options.bufferlist.headers"));
-		bHeaders.setSelected(jEdit.getBooleanProperty("bufferlist.headers", false));
+		bHeaders = new JCheckBox(jEdit.getProperty("options.bufferlist.headers"),
+			jEdit.getBooleanProperty("bufferlist.headers", false));
 		bHeaders.addActionListener(this);
 
-		bAutoResize = new JCheckBox(jEdit.getProperty("options.bufferlist.autoresize"));
-		bAutoResize.setSelected(jEdit.getBooleanProperty("bufferlist.autoresize", true));
+		bAutoResize = new JCheckBox(jEdit.getProperty("options.bufferlist.autoresize"),
+			jEdit.getBooleanProperty("bufferlist.autoresize", true));
 		bAutoResize.setEnabled(bHeaders.isSelected());
 
-		bCheckRecentFiles = new JCheckBox(jEdit.getProperty("options.bufferlist.checkRecentFiles"));
-		bCheckRecentFiles.setSelected(jEdit.getBooleanProperty("bufferlist.checkRecentFiles", true));
+		JLabel lbStatusIcon = new JLabel(jEdit.getProperty("options.bufferlist.statusIcon"));
+
+		bCheckRecentFiles = new JCheckBox(jEdit.getProperty("options.bufferlist.checkRecentFiles"),
+			jEdit.getBooleanProperty("bufferlist.checkRecentFiles", true));
 
 		JLabel lbShowColumns = new JLabel(jEdit.getProperty("options.bufferlist.showColumns"));
 
-		bShowStatus = new JCheckBox(jEdit.getProperty("options.bufferlist.showStatus"));
-		bShowStatus.setSelected(jEdit.getBooleanProperty("bufferlist.showColumn0", true));
+		bShowStatus = new JCheckBox(jEdit.getProperty("options.bufferlist.showStatus"),
+			jEdit.getBooleanProperty("bufferlist.showColumn0", true));
 
-		bShowDir = new JCheckBox(jEdit.getProperty("options.bufferlist.showDir"));
-		bShowDir.setSelected(jEdit.getBooleanProperty("bufferlist.showColumn2", true));
+		bShowDir = new JCheckBox(jEdit.getProperty("options.bufferlist.showDir"),
+			jEdit.getBooleanProperty("bufferlist.showColumn2", true));
 
-		bShowMode = new JCheckBox(jEdit.getProperty("options.bufferlist.showMode"));
-		bShowMode.setSelected(jEdit.getBooleanProperty("bufferlist.showColumn3", true));
+		bShowMode = new JCheckBox(jEdit.getProperty("options.bufferlist.showMode"),
+			jEdit.getBooleanProperty("bufferlist.showColumn3", true));
 
-		JPanel bufferListOptions = new JPanel(new VariableGridLayout(	VariableGridLayout.FIXED_NUM_COLUMNS, 2, 15, 0));
+		JPanel bufferListOptions = new JPanel(new VariableGridLayout(VariableGridLayout.FIXED_NUM_COLUMNS, 2, 15, 0));
 		bufferListOptions.add(bAutoShow);
 		bufferListOptions.add(lbShowColumns);
 		bufferListOptions.add(bVerticalLines);
@@ -85,34 +143,22 @@ public class BufferListOptionPane extends AbstractOptionPane implements ActionLi
 		bufferListOptions.add(bShowAbsoluteFilename);
 		bufferListOptions.add(bShowMode);
 		bufferListOptions.add(bHeaders);
-		bufferListOptions.add(new JPanel()); // empty cell
+		bufferListOptions.add(lbStatusIcon);
 		bufferListOptions.add(bAutoResize);
-		bufferListOptions.add(new JPanel()); // empty cell
 		bufferListOptions.add(bCheckRecentFiles);
 
-		// SessionSwitcher options:
+		// overall layout:
 
-		bShowSwitcher = new JCheckBox(jEdit.getProperty("options.bufferlist.switcher.show"));
-		bShowSwitcher.setSelected(jEdit.getBooleanProperty("bufferlist.switcher.show", true));
-		bShowSwitcher.addActionListener(this);
+		addSeparator("options.bufferlist.sessionmanager.label");
+		addComponent(mgrOptions);
 
-		bSwitcherShowTitle = new JCheckBox(jEdit.getProperty("options.bufferlist.switcher.showTitle"));
-		bSwitcherShowTitle.setSelected(jEdit.getBooleanProperty("bufferlist.switcher.showTitle", true));
-		bSwitcherShowTitle.setEnabled(bShowSwitcher.isSelected());
+		addComponent(Box.createVerticalStrut(10));
+		addSeparator("options.bufferlist.switcher.label");
+		addComponent(switcherOptions);
 
-		bSwitcherAutoSave = new JCheckBox(jEdit.getProperty("options.bufferlist.switcher.autoSave"));
-		bSwitcherAutoSave.setSelected(jEdit.getBooleanProperty("bufferlist.switcher.autoSave", true));
-
-		bSwitcherCloseAll = new JCheckBox(jEdit.getProperty("options.bufferlist.switcher.closeAll"));
-		bSwitcherCloseAll.setSelected(jEdit.getBooleanProperty("bufferlist.switcher.closeAll", true));
-
+		addComponent(Box.createVerticalStrut(10));
 		addSeparator("options.bufferlist.label");
 		addComponent(bufferListOptions);
-		addSeparator("options.bufferlist.switcher.label");
-		addComponent(bShowSwitcher);
-		addComponent(bSwitcherShowTitle);
-		addComponent(bSwitcherAutoSave);
-		addComponent(bSwitcherCloseAll);
 	}
 
 
@@ -135,7 +181,10 @@ public class BufferListOptionPane extends AbstractOptionPane implements ActionLi
 		jEdit.setBooleanProperty("bufferlist.showColumn2", bShowDir.isSelected());
 		jEdit.setBooleanProperty("bufferlist.showColumn3", bShowMode.isSelected());
 
-		jEdit.setBooleanProperty("bufferlist.switcher.show", bShowSwitcher.isSelected());
+		jEdit.setProperty("bufferlist.switcher.show",
+			bSwitcherShowInBufferList.isSelected() ? "bufferlist"
+			: bSwitcherShowAsToolBar.isSelected() ? "view" : "false");
+
 		jEdit.setBooleanProperty("bufferlist.switcher.showTitle", bSwitcherShowTitle.isSelected());
 		jEdit.setBooleanProperty("bufferlist.switcher.autoSave", bSwitcherAutoSave.isSelected());
 		jEdit.setBooleanProperty("bufferlist.switcher.closeAll", bSwitcherCloseAll.isSelected());
@@ -160,13 +209,11 @@ public class BufferListOptionPane extends AbstractOptionPane implements ActionLi
 			if (!bHeaders.isSelected()) {
 				bAutoResize.setSelected(true);
 				bAutoResize.setEnabled(false);
-			} else {
+			} else
 				bAutoResize.setEnabled(true);
-			}
 		}
-		else if (e.getSource() == bShowSwitcher) {
-			bSwitcherShowTitle.setEnabled(bShowSwitcher.isSelected());
-		}
+		else
+			bSwitcherShowTitle.setEnabled(!bSwitcherShowNot.isSelected());
 	}
 
 
@@ -180,10 +227,14 @@ public class BufferListOptionPane extends AbstractOptionPane implements ActionLi
 	private JCheckBox bShowStatus;
 	private JCheckBox bShowDir;
 	private JCheckBox bShowMode;
-	private JCheckBox bShowSwitcher;
-	private JCheckBox bSwitcherShowTitle;
+
+	private JRadioButton bSwitcherShowInBufferList;
+	private JRadioButton bSwitcherShowAsToolBar;
+	private JRadioButton bSwitcherShowNot;
+
 	private JCheckBox bSwitcherAutoSave;
 	private JCheckBox bSwitcherCloseAll;
+	private JCheckBox bSwitcherShowTitle;
 
 }
 

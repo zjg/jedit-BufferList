@@ -80,6 +80,12 @@ public class SessionSwitcher extends JToolBar implements ActionListener {
 		add(saveAs);
 		add(prefs);
 
+		if (jEdit.getProperty("bufferlist.switcher.show", "bufferlist").equals("view")) {
+			// if SessionSwitcher is displayed as View ToolBar, add some glue at the
+			// end of the toolbar, so that the combo box doesn't get too long:
+			add(Box.createGlue());
+		}
+
 		updateComboBox();
 	}
 

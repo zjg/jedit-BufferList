@@ -1,3 +1,15 @@
+VERSION 0.6.1
+
+- SessionSwitcher can now be shown as View ToolBar.
+  So now users can use the session management functions without showing
+  the bufferlist at all!
+- Bugfix: #418299 FileNotFoundException on jEdit clean install
+- Bugfix: All recent files gone if BufferList installed for first time
+- Bugfix: Last open buffer wasn't restored on restart
+- Bugfix: Lists didn't scroll if selection was moved with cursor keys
+- Requires jEdit 3.1final or higher, JDK 1.1 or higher
+
+
 VERSION 0.6
 
 - New option "Check status of recent files"

@@ -97,8 +97,9 @@ public class HelpfulJTable extends JTable {
 
 
 	/**
-	 * if true, columns are autoresized according to the largest display
+	 * If true, columns are autoresized according to the largest display
 	 * width of their contents.
+	 *
 	 * @param  state  whether autoresize is enabled or disabled.
 	 */
 	public void setAutoResizeColumns(boolean state) {
@@ -109,7 +110,7 @@ public class HelpfulJTable extends JTable {
 
 
 	/**
-	 * return the value of the autoResizeColumns property.
+	 * Return the value of the autoResizeColumns property.
 	 * The default is <tt>true</tt>.
 	 */
 	public boolean getAutoResizeColumns() {
@@ -118,8 +119,8 @@ public class HelpfulJTable extends JTable {
 
 
 	/**
-	 * set the sort column.
-	 * This is a bound bean property
+	 * Set the sort column.
+	 * This is a bound bean property.
 	 *
 	 * @param sortColumn  the new sortColumn value.
 	 */
@@ -137,7 +138,7 @@ public class HelpfulJTable extends JTable {
 
 
 	/**
-	 * set whether the current <code>sortColumn</code> should be sorted
+	 * Set whether the current <code>sortColumn</code> should be sorted
 	 *  ascending or descending, or not at all. This is a bound bean property.
 	 *
 	 * @param order  the new sort order, one of SORT_ASCENDING,
@@ -160,7 +161,7 @@ public class HelpfulJTable extends JTable {
 
 
 	/**
-	 * overridden, so that any attempts to set a mode other than
+	 * Overridden, so that any attempts to set a mode other than
 	 * AUTO_RESIZE_OFF are ignored, if autoResizeColumns is on.
 	 */
 	public void setAutoResizeMode(int mode) {
@@ -171,7 +172,7 @@ public class HelpfulJTable extends JTable {
 
 
 	/**
-	 * overridden, so that any attempts to set a TableHeader with
+	 * Overridden, so that any attempts to set a TableHeader with
 	 * <tt>resizingAllowed = true</tt> is set back to <tt>false</tt>.
 	 */
 	public void setTableHeader(JTableHeader th) {
@@ -187,6 +188,11 @@ public class HelpfulJTable extends JTable {
 	}
 
 
+	/**
+	 * Set a new column model.
+	 * This implementation also sets new header renderers that display the
+	 * current sort column with a small icon.
+	 */
 	public void setColumnModel(TableColumnModel tcm) {
 		super.setColumnModel(tcm);
 		// set header renderer for all columns:
@@ -195,13 +201,13 @@ public class HelpfulJTable extends JTable {
 	}
 
 
-	/** add an action listener to this table instance. */
+	/** Add an action listener to this table instance. */
 	public void addActionListener(ActionListener l) {
 		listenerList.add(ActionListener.class, l);
 	}
 
 
-	/** remove an action listener from this table instance. */
+	/** Remove an action listener from this table instance. */
 	public void removeActionListener(ActionListener l) {
 		listenerList.remove(ActionListener.class, l);
 	}
@@ -232,7 +238,7 @@ public class HelpfulJTable extends JTable {
 
 
 	/**
-	 * overridden to return null, if the cell is fully visible, so that
+	 * Overridden to return null, if the cell is fully visible, so that
 	 * ToolTips are only displayed if the cell is partially hidden.
 	 */
 	public final String getToolTipText(MouseEvent evt) {
@@ -244,7 +250,7 @@ public class HelpfulJTable extends JTable {
 
 
 	/**
-	 * overridden to return null, if the cell is fully visible, so that
+	 * Overridden to return null, if the cell is fully visible, so that
 	 * ToolTips are only displayed if the cell is partially hidden.
 	 */
 	public final Point getToolTipLocation(MouseEvent evt) {
@@ -268,6 +274,7 @@ public class HelpfulJTable extends JTable {
 	}
 
 
+	/** Autosizes the specified column to the width of its longest cell. */
 	public void autosizeColumn(int col) {
 		int width = getLongestCellTextWidth(col);
 		if (width >= 0) {
@@ -282,7 +289,7 @@ public class HelpfulJTable extends JTable {
 
 
 	/**
-	 * invoked when the table data has changed, this method autoresizes
+	 * Invoked when the table data has changed, this method autoresizes
 	 * all columns to its longest content length, if autoResizeColumns is on.
 	 */
 	public void tableChanged(TableModelEvent e) {
@@ -308,8 +315,54 @@ public class HelpfulJTable extends JTable {
 	}
 
 
+	/** Overwritten to autoscroll only vertically, not horizontally. */
+	public void changeSelection(int rowIndex, int columnIndex, boolean toggle, boolean extend) {
+		if (getAutoscrolls()) {
+			Rectangle cellRect = getCellRect(rowIndex, columnIndex, false);
+			if (cellRect != null) {
+				cellRect.width = 0;
+				scrollRectToVisible(cellRect);
+			}
+		}
+
+		// Update column selection model:
+		// (private void changeSelectionModel(csm, columnIndex, toggle, extend);)
+		ListSelectionModel csm = getColumnModel().getSelectionModel();
+		if (extend)
+			if (toggle)
+				csm.setAnchorSelectionIndex(columnIndex);
+			else
+				csm.setLeadSelectionIndex(columnIndex);
+		else
+			if (toggle)
+				if (csm.isSelectedIndex(columnIndex))
+					csm.removeSelectionInterval(columnIndex, columnIndex);
+				else
+					csm.addSelectionInterval(columnIndex, columnIndex);
+			else
+				csm.setSelectionInterval(columnIndex, columnIndex);
+
+		// Update row selection model
+		// (private void changeSelectionModel(rsm, rowIndex, toggle, extend);)
+		ListSelectionModel rsm = getSelectionModel();
+		if (extend)
+			if (toggle)
+				rsm.setAnchorSelectionIndex(rowIndex);
+			else
+				rsm.setLeadSelectionIndex(rowIndex);
+		else
+			if (toggle)
+				if (rsm.isSelectedIndex(rowIndex))
+					rsm.removeSelectionInterval(rowIndex, rowIndex);
+				else
+					rsm.addSelectionInterval(rowIndex, rowIndex);
+			else
+				rsm.setSelectionInterval(rowIndex, rowIndex);
+	}
+
+
 	/**
-	 * this method is invoked if the user pressed <b>Enter</b>, <b>Tab</b>
+	 * This method is invoked if the user pressed <b>Enter</b>, <b>Tab</b>
 	 * or <b>Shift-Tab</b> on the table.
 	 */
 	protected void fireActionEvent(ActionEvent evt) {
@@ -322,7 +375,7 @@ public class HelpfulJTable extends JTable {
 
 
 	/**
-	 * return the cell renderer component for the cell at (row,col).
+	 * Return the cell renderer component for the cell at (row,col).
 	 */
 	protected Component getCellRendererComponent(int row, int col) {
 		String value = getValueAt(row, col).toString();
@@ -333,7 +386,7 @@ public class HelpfulJTable extends JTable {
 
 
 	/**
-	 * <p>returns true, if the text of cell (row,col) is fully visible,
+	 * <p>Returns true, if the text of cell (row,col) is fully visible,
 	 * i.e. it is not hidden partially by a ScrollPane and it does not
 	 * display "...", because the column is too small.</p>
 	 */
@@ -347,7 +400,7 @@ public class HelpfulJTable extends JTable {
 
 
 	/**
-	 * computes the length of the text of cell (row,col), in pixels.
+	 * Computes the length of the text of cell (row,col), in pixels.
 	 */
 	private int getCellTextWidth(int row, int col) {
 		String value = getValueAt(row, col).toString();
@@ -371,7 +424,7 @@ public class HelpfulJTable extends JTable {
 
 
 	/**
-	 * gets the longest text width of a column, in pixels.
+	 * Gets the longest text width of a column, in pixels.
 	 */
 	private int getLongestCellTextWidth(int col) {
 		int max = -1;

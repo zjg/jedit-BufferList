@@ -166,7 +166,7 @@ public class SessionManager {
 
 		saveSession(view, name);
 		currentSession = name;
-		jEdit.setProperty("bufferlist.session", currentSession);
+		saveCurrentSessionProperty();
 		jEdit.propertiesChanged();
 	}
 
@@ -174,21 +174,37 @@ public class SessionManager {
 	public void showSessionManagerDialog(View view) {
 		SessionManagerDialog dlg = new SessionManagerDialog(view, currentSession);
 		String newSession = dlg.getSelectedSession();
-		if (newSession != null) {
+		if (newSession != null)
 			setCurrentSession(view, newSession);
-		}
 		jEdit.propertiesChanged();
 	}
 
 
 	/**
+	 * Checks whether the default session file exists; in any case, creates the
+	 * subdir "<em>jedithome</em>/sessions" if it not yet exists.
+	 *
+	 * @return true, if the file <em>jedithome</em>/sessions/default.session
+	 *    exists, false if not.
+	 */
+	 public static boolean defaultSessionExists() {
+		// create directory <jedithome>/sessions if it not yet exists
+		String sessionDir = MiscUtilities.constructPath(jEdit.getSettingsDirectory(), "sessions");
+		File dir = new File(sessionDir);
+		if (!dir.exists())
+			dir.mkdirs();
+
+		String defaultSession = MiscUtilities.constructPath(sessionDir, "default.session");
+		return new File(defaultSession).exists();
+	 }
+
+
+	/**
 	 * Converts a session name (eg, default) to a full path name
-	 * (eg, /home/slava/.jedit/sessions/default.session)
-	 * @since BufferList 0.4.1
+	 * (eg, /home/slava/.jedit/sessions/default.session).
 	 */
 	public static String createSessionFileName(String session) {
-		String filename = MiscUtilities.constructPath(
-			jEdit.getSettingsDirectory(), "sessions", session);
+		String filename = MiscUtilities.constructPath(jEdit.getSettingsDirectory(), "sessions", session);
 
 		if (!filename.toLowerCase().endsWith(".session"))
 			filename = filename + ".session";
@@ -216,9 +232,8 @@ public class SessionManager {
 				// default session always first
 				v.insertElementAt(name, 0);
 				foundDefault = true;
-			} else {
+			} else
 				v.addElement(name);
-			}
 		}
 
 		if (!foundDefault)
@@ -256,9 +271,8 @@ public class SessionManager {
 			}
 		} while (name != null && name.length() == 0);
 
-		if (name != null && name.toLowerCase().endsWith(".session")) {
+		if (name != null && name.toLowerCase().endsWith(".session"))
 			name = name.substring(0, name.length() - 8);
-		}
 
 		return name;
 	}
@@ -271,12 +285,17 @@ public class SessionManager {
 
 	/**
 	 * Loads a session.
+	 * Does nothing, if the a session file with the specified name does not exist.
 	 * @param session The file name, relative to $HOME/.jedit/sessions
 	 *     (.session suffix not required)
-	 * @return the buffer that was used at last in this session, may be null.
+	 * @return the buffer that was used at last in this session, or null if
+	 *     an error occured or there is no last session.
 	 */
 	private Buffer loadSession(String session) {
 		String filename = createSessionFileName(session);
+		if (!new File(filename).exists())
+			return null;
+
 		Buffer buffer = null;
 
 		try {

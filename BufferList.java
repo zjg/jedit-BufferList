@@ -63,7 +63,6 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 
 		table1 = new HelpfulJTable();
 		table1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		table1.setAutoscrolls(false);
 		table1.setAutoCreateColumnsFromModel(false);
 		try { table1.setSortColumn(Integer.parseInt(jEdit.getProperty("bufferlist.table1.sortColumn", "-1"))); }
 		catch (NumberFormatException nfex) {}
@@ -86,7 +85,6 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 
 		table2 = new HelpfulJTable();
 		table2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		table2.setAutoscrolls(false);
 		table2.setAutoCreateColumnsFromModel(false);
 		try { table2.setSortColumn(Integer.parseInt(jEdit.getProperty("bufferlist.table2.sortColumn", "-1"))); }
 		catch (NumberFormatException nfex) {}
@@ -369,15 +367,23 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 
 
 	private void initSessionSwitcher() {
-		if (jEdit.getBooleanProperty("bufferlist.switcher.show", true)) {
-			if (sessionSwitcher != null)
-				remove(sessionSwitcher);
-			sessionSwitcher = new SessionSwitcher(view);
-			add(sessionSwitcher, BorderLayout.NORTH);
-		} else {
-			if (sessionSwitcher != null)
-				remove(sessionSwitcher);
+		String showWhere = jEdit.getProperty("bufferlist.switcher.show", "bufferlist");
+
+		if (sessionSwitcher != null) {
+			view.removeToolBar(sessionSwitcher);
+			remove(sessionSwitcher);
 			sessionSwitcher = null;
+		}
+
+		sessionSwitcher = new SessionSwitcher(view);
+
+		if (showWhere.equals("bufferlist") || showWhere.equals("true")) {
+			// add to BufferList at top:
+			add(sessionSwitcher, BorderLayout.NORTH);
+		}
+		else if (showWhere.equals("view")) {
+			// add to view as new toolbar:
+			view.addToolBar(sessionSwitcher);
 		}
 	}
 
