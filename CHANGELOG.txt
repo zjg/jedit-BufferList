@@ -1,9 +1,17 @@
-TODO
-----
-- handle split views
-- right click popup menu (which entries?)
-- option pane (is this really necessary? don't know...)
-- keyboard navigation
+Version 0.2
+-----------
+- directory now shown in a separate column
+- keyboard navigation: [enter] to open file, [tab] to switch between the
+  two lists, [esc] to close window (if docked)
+- new option pane in the plugin options
+- options to turn off second column and horizontal and vertical lines
+- the two actions are now called "BufferList" (internal name: "bufferlist")
+  and "Bring BufferList to front" (internal name: "bufferlist-to-front").
+  You should assign a keyboard shortcut to "Bring BufferList to front".
+- bugfix: handle split views correctly
+- bugfix: divider position was not set properly on Swing versions < Kestrel
+- bugfix: NPE on "Create New View"
+- requires jEdit 2.6pre7 or higher
 
 
 Version 0.1 (2000/10/23)

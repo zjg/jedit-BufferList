@@ -1,6 +1,6 @@
 plugin.BufferListPlugin.name=BufferList
 plugin.BufferListPlugin.author=Dirk Moebius <dmoebius@gmx.net>
-plugin.BufferListPlugin.version=0.1
+plugin.BufferListPlugin.version=0.2
 plugin.BufferListPlugin.docs=index.html
 plugin.BufferListPlugin.depend.0=jdk 1.1
 plugin.BufferListPlugin.depend.1=jedit 02.06.07.00
@@ -10,10 +10,17 @@ bufferlist.name.label=Buffer List
 bufferlist.title=Buffer List
 
 # actions
-toggle-bufferlist.label=Buffer List
 bufferlist.label=Buffer List
+bufferlist-to-front.label=Bring Buffer List to front
 
 # mics
 bufferlist.openfiles.label=Open Files
 bufferlist.recentfiles.label=Recent Files
+
+# option pane
+options.bufferlist.label=Buffer List
+options.bufferlist.oneColumn=One column layout: filename
+options.bufferlist.twoColumns=Two column layout: filename & location
+options.bufferlist.verticalLines=Show vertical lines
+options.bufferlist.horizontalLines=Show horizontal lines
 

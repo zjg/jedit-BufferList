@@ -14,20 +14,63 @@
 </TABLE>
 
 <UL>
-    <LI><A HREF="#general">Presentation</A>
+    <LI><A HREF="#general">Introduction</A>
     <LI><A HREF="#customization">Customization</A>
+    <LI><A HREF="#comparison">Comparison</A>
     <LI><A HREF="#license">License</A>
     <LI><A HREF="#feedback">Feedback</A>
 </UL>
 
 
-<A NAME="general"></A><H2>Presentation</H2>
+<A NAME="general"></A><H2>Introduction</H2>
 
 <P>
 The Buffer List shows a list of jEdit's open files and a second list
-with recently opened files. Open files on the "open files" list with a
-single mouse click. Open files on the "recent files" list with a 
-double mouse click.
+with recently opened files.
+</P>
+
+<H3>MOUSE ACTIONS</H3>
+
+<P><B>On the open files list:</B></P>
+
+<UL>
+<LI>single click jumps to the selected buffer
+<LI>double click closes the selected buffer
+</UL>
+
+<P><B>On the recent files list:</B></P>
+
+<UL>
+<LI>double click opens the selected buffer
+</UL>
+
+<H3>KEY ACTIONS</H3>
+
+<P>
+Buffer List is fully keyboard navigable. A prerequisite is that you assigned
+a keyboard shortcut to the action <b>"Bring Buffer List to front"</b>, that
+is available after installation of BufferList.
+</P>
+
+<P>You can assign a keyboard shortcut to this action under
+<b>"Utilities -&gt; Global&nbsp;options -&gt; Shortcuts -&gt; Commands"</b>.
+I suggest "A+b".
+</P>
+
+<TABLE BORDER>
+  <TR> <TD><B>Key Shortcut</B></TD> <TD><B>Action</B></TD> </TR>
+  <TR> <TD>[Alt-b]</TD> <TD>Show Buffer List</TD> </TR>
+  <TR> <TD>[Up] / [Down]</TD> <TD>Choose buffer</TD> </TR>
+  <TR> <TD>[Enter] / [Return]</TD> <TD>Jump to/Open selected buffer</TD> </TR>
+  <TR> <TD>[Tab]</TD> <TD>Switch between Open and Recent files list</TD> </TR>
+  <TR> <TD>[Esc]</TD> <TD>Close window (only, if not docked)</TD> </TR>
+</TABLE>
+  
+
+<H3>APPEARANCE</H3>
+
+<P>
+Both lists can be displayed in one-column or two-column layout.
 </P>
 
 <P>
@@ -44,9 +87,29 @@ buffer:
 <LI> the current buffer appears with a <B>bold font</B>
 </UL>
 
+
+<A NAME="customization"></A><H2>Customization</H2>
+
+<H3>APPEARANCE</H3>
+
+<H3>DOCKING</H3>
+
+<P>
+Buffer List may be docked into the view.
+</P>
+
+<P>
+Open <b>"Utilities -&gt; Global&nbsp;options -&gt; Docking"</b> to define
+the position, where Buffer List will be docked.
+</P>
+
+
+<A NAME="comparison"></A><H2>Comparison</H2>
+
 <p>
-Some of you may already have noticed that Buffer List, Buffer Selector and
-BufferTabs do the same thing. Each of them adresses different issues:
+Some of you may already have noticed that jEdit's <b>BufferTabs</b> and the
+plugins <b>Buffer List</b> and <b>Buffer Selector</b> do the same thing. 
+Each of them adresses different issues:
 </p>
 
 <ul>
@@ -62,7 +125,8 @@ attached to the top or bottom of the view and doesn't get in the way.
 <li>
 <em>Buffer List</em> is dockable. That means you can dock it into the current
 jEdit view, for example to the left or right of the text, if you got some
-free space there.
+free space there. The second advantage is, that it is fully keyboard
+navigable.
 </li>
 </ul>
 
@@ -70,14 +134,6 @@ free space there.
 So, basically all three are just three different ways of adressing the same
 problem. Choose the one method that suits you best.
 </p>
-
-
-<A NAME="customization"></A><H2>Customization</H2>
-
-<P>
-Open <b>"Utilities -&gt; Global&nbsp;options -&gt; Docking"</b> to define
-the position, where Browser List will be docked.
-</P>
 
 
 <A NAME="license"></A><H2>License</H2>
@@ -92,7 +148,7 @@ The source code is distributed under the GPL. Please see
 
 <P>
 The preferred way to send bug reports or feature requests is to use the 
-Sourceforge Bug Tracker at 
+<B>Sourceforge Bug Tracker</B> at 
 <A HREF="http://sourceforge.net/bugs/?group_id=588">http://sourceforge.net/bugs/?group_id=588</A>.
 </P>
 
