@@ -6,29 +6,13 @@
 
 	<ACTION NAME="bufferlist-next-buffer">
 		<CODE>
-			DockableWindowManager mgr = view.getDockableWindowManager();
-			bufferlist.BufferList bufferlist = mgr.getDockable("bufferlist");
-			if(bufferlist == null)
-			{
-				mgr.addDockableWindow("bufferlist");
-				bufferlist = mgr.getDockable("bufferlist");
-			}
-
-			bufferlist.nextBuffer();
+			bufferlist.BufferList.getInstanceForView(view).nextBuffer();
 		</CODE>
 	</ACTION>
 
 	<ACTION NAME="bufferlist-previous-buffer">
 		<CODE>
-			DockableWindowManager mgr = view.getDockableWindowManager();
-			bufferlist.BufferList bufferlist = mgr.getDockable("bufferlist");
-			if(bufferlist == null)
-			{
-				mgr.addDockableWindow("bufferlist");
-				bufferlist = mgr.getDockable("bufferlist");
-			}
-
-			bufferlist.previousBuffer();
+			bufferlist.BufferList.getInstanceForView(view).previousBuffer();
 		</CODE>
 	</ACTION>
 
@@ -41,4 +25,12 @@
 		</CODE>
 	</ACTION>
 
+	<ACTION NAME="bufferlist-toggle-display-mode">
+		<CODE>
+			bufferlist.BufferList.getInstanceForView(view).toggleDisplayMode();
+		</CODE>
+		<IS_SELECTED>
+			return bufferlist.BufferList.getDisplayMode(view) == bufferlist.BufferList.DISPLAY_MODE_FLAT_TREE;
+		</IS_SELECTED>
+	</ACTION>
 </ACTIONS>

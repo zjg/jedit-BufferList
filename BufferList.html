@@ -66,6 +66,8 @@ The following menu actions are available in menu
 		internal list.</LI>
 	<LI><B>Go to Previous Buffer in Buffer List</B><BR>
 		Go to the buffer above the current one in the Buffer List.</LI>
+	<LI><B>Flat Tree</B><BR>
+		Toggles the display of BufferList between a flat and hierarchical view.</LI>
 </UL>
 
 
@@ -121,8 +123,9 @@ are available:
 		is opened.</LI>
 	<LI><B>Fully expand directory tree by default</B><BR>
 		If checked, the BufferList tree will be fully expanded when first loaded.</LI>
-	<LI><B>Flat tree</B><BR>
-		Toggles display of BufferList between a flat and hierarchical view.</LI>
+	<LI><B>Use flat tree by default</B><BR>
+		New instances of the BufferList will be displayed in a flat view when checked
+		or in a hierarchical view when not checked.</LI>
 	<LI><B>Clip long paths with "..."</B><BR>
 		Toggles display of long paths between text clipping at end, at start
 		(default) and no clipping. If no clipping is selected, BufferList displays
@@ -175,6 +178,15 @@ You can also write to:
 <H2>Changelog</H2>
 
 <UL>
+	<LI><B>VERSION 1.1 (2005/04/05)</B>
+		<UL>
+			<LI>New action "Flat tree" to switch between flat and hierarchical
+			layout (Karsten Pilz)</LI>
+			<LI>Ability to add custom entries to the context menu by third
+			party plugins through jEdit's Services API (Gerard Smyth)</LI>
+		</UL>
+	</LI>
+
 	<LI><B>VERSION 1.0.1 (2005/03/16)</B>
 		<UL>
 			<LI>Bugfix: StringIndexOutOfBoundsException if the first buffer in list had

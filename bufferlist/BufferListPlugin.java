@@ -59,16 +59,6 @@ public class BufferListPlugin extends EBPlugin {
 		menuExtensions = null;
 	} //}}}
 
-	//{{{ +createMenuItems(Vector) : void
-	public void createMenuItems(Vector menuItems) {
-		// menuItems.addElement(GUIUtilities.loadMenu("bufferlist.menu"));
-	} //}}}
-
-	//{{{ +createOptionPanes(OptionsDialog) : void
-	public void createOptionPanes(OptionsDialog od) {
-		od.addOptionPane(new BufferListOptionPane());
-	} //}}}
-
 	//{{{ +handleMessage(EBMessage) : void
 	public void handleMessage(EBMessage message) {
 		if (message instanceof BufferUpdate) {

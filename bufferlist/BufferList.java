@@ -45,33 +45,25 @@ import org.gjt.sp.util.Log;
  * @author Dirk Moebius
  */
 public class BufferList extends JPanel implements EBComponent {
+	//{{{ display mode constants
+	public static final int DISPLAY_MODE_FLAT_TREE    = 1;
+	public static final int DISPLAY_MODE_HIERARCHICAL = 2;
+	//}}}
+
 	//{{{ instance variables
 	private View view;
-
 	private String position;
-
 	private TextAreaFocusHandler textAreaFocusHandler;
-
 	private JTree tree;
-
 	private JScrollPane scrTree;
-
 	private DefaultTreeModel model;
-
 	private BufferListTreeNode rootNode;
-
 	private boolean sortIgnoreCase;
-
-	private boolean flatTree;
-
+	private int displayMode;
 	private boolean CreateModelPending = false;
-
 	private Hashtable DistinctDirs = null;
-
 	private Buffer lastBuffer = null;
-
 	private JLabel bufferCountsLabel = new JLabel();
-
 	//}}}
 
 	//{{{ +BufferList(View, String) : <init>
@@ -118,6 +110,7 @@ public class BufferList extends JPanel implements EBComponent {
 		panel.add(BorderLayout.CENTER, scrTree);
 		add(panel);
 
+		setDisplayMode(jEdit.getIntegerProperty("bufferlist.displayMode", DISPLAY_MODE_FLAT_TREE));
 		handlePropertiesChanged();
 
 		if (position.equals(DockableWindowManager.FLOATING)) {
@@ -137,6 +130,25 @@ public class BufferList extends JPanel implements EBComponent {
 				hbar.setValue(hbar.getMinimum());
 			} //}}}
 		});
+	} //}}}
+
+	//{{{ +getInstanceForView(View) : BufferList
+	/**
+	 * Helper used by various actions in "actions.xml";
+	 * @since BufferList 1.0.2
+	 * @see actions.xml
+	 */
+	public static BufferList getInstanceForView(View view) {
+			DockableWindowManager mgr = view.getDockableWindowManager();
+
+			BufferList bufferlist = (BufferList)(mgr.getDockable("bufferlist"));
+
+			if (bufferlist == null) {
+				mgr.addDockableWindow("bufferlist");
+				bufferlist = (BufferList)(mgr.getDockable("bufferlist"));
+			}
+
+			return bufferlist;
 	} //}}}
 
 	//{{{ +requestFocusOpenFiles() : void
@@ -171,12 +183,12 @@ public class BufferList extends JPanel implements EBComponent {
 	 */
 	public void nextBuffer() {
 		Buffer buffer = view.getBuffer();
-		Enumeration enum = rootNode.depthFirstEnumeration();
+		Enumeration e = rootNode.depthFirstEnumeration();
 
 		BufferListTreeNode first = null, next = null, node = null;
 
-		while (enum.hasMoreElements()) {
-			node = (BufferListTreeNode) enum.nextElement();
+		while (e.hasMoreElements()) {
+			node = (BufferListTreeNode) e.nextElement();
 			if (first == null && node.isBuffer()) {
 				first = node;
 			}
@@ -184,8 +196,8 @@ public class BufferList extends JPanel implements EBComponent {
 				break;
 		}
 
-		while (enum.hasMoreElements()) {
-			node = (BufferListTreeNode) enum.nextElement();
+		while (e.hasMoreElements()) {
+			node = (BufferListTreeNode) e.nextElement();
 			if (node.isBuffer()) {
 				next = node;
 				break;
@@ -207,12 +219,12 @@ public class BufferList extends JPanel implements EBComponent {
 	 */
 	public void previousBuffer() {
 		Buffer buffer = view.getBuffer();
-		Enumeration enum = rootNode.depthFirstEnumeration();
+		Enumeration e = rootNode.depthFirstEnumeration();
 
 		BufferListTreeNode prev = null, node = null;
 
-		while (enum.hasMoreElements()) {
-			node = (BufferListTreeNode) enum.nextElement();
+		while (e.hasMoreElements()) {
+			node = (BufferListTreeNode) e.nextElement();
 			if (node.getUserObject() == buffer)
 				break;
 			if (node.isBuffer()) {
@@ -221,8 +233,8 @@ public class BufferList extends JPanel implements EBComponent {
 		}
 
 		if (prev == null) {
-			while (enum.hasMoreElements()) {
-				node = (BufferListTreeNode) enum.nextElement();
+			while (e.hasMoreElements()) {
+				node = (BufferListTreeNode) e.nextElement();
 				if (node.isBuffer()) {
 					prev = node;
 				}
@@ -233,6 +245,57 @@ public class BufferList extends JPanel implements EBComponent {
 			Buffer prevBuffer = (Buffer) prev.getUserObject();
 			view.goToBuffer(prevBuffer);
 		}
+	} //}}}
+
+	//{{{ +setDisplayMode(int) : void
+	/**
+	 * Helper function; may be called from "actions.xml";
+	 * set the display mode for this instance.
+	 * @since BufferList 1.0.2
+	 */
+	public void setDisplayMode(int pDisplayMode) {
+		displayMode = pDisplayMode;
+
+		if (displayMode == DISPLAY_MODE_FLAT_TREE) {
+			tree.putClientProperty("JTree.lineStyle", "Horizontal");
+		} else {
+			tree.putClientProperty("JTree.lineStyle", "Angled");
+		}
+		recreateModel();
+	} //}}}
+
+	//{{{ +toggleDisplayMode() : void
+	/**
+	 * Invoked by action "bufferlist-toggle-display-mode" only;
+	 * toggles between DISPLAY_MODE_FLAT_TREE/DISPLAY_MODE_HIERARCHICAL.
+	 * @since BufferList 1.0.2
+	 * @see actions.xml
+	 */
+	public void toggleDisplayMode() {
+		if (displayMode == DISPLAY_MODE_FLAT_TREE) {
+			setDisplayMode(DISPLAY_MODE_HIERARCHICAL);
+		} else {
+			setDisplayMode(DISPLAY_MODE_FLAT_TREE);
+		}
+	} //}}}
+
+	//{{{ +getDisplayMode(View) : int
+	/**
+	 * Used by "bufferlist-toggle-display-mode:IS_SELECTED";
+	 * returns the display mode for the view's bufferlist or
+	 * the current default display mode.
+	 * @since BufferList 1.0.2
+	 * @see actions.xml
+	 */
+	public static int getDisplayMode(View view) {
+			DockableWindowManager mgr = view.getDockableWindowManager();
+			BufferList bufferlist = (BufferList)(mgr.getDockable("bufferlist"));
+
+			if (bufferlist == null) {
+				return jEdit.getIntegerProperty("bufferlist.displayMode", DISPLAY_MODE_FLAT_TREE);
+			} else {
+				return bufferlist.displayMode;
+			}
 	} //}}}
 
 	//{{{ +addNotify() : void
@@ -315,16 +378,6 @@ public class BufferList extends JPanel implements EBComponent {
 	private void handlePropertiesChanged() {
 		boolean modelChanged = false;
 
-		boolean newFlatTree = jEdit.getBooleanProperty("bufferlist.flatTree");
-		if (flatTree != newFlatTree) {
-			modelChanged = true;
-			flatTree = newFlatTree;
-			if (flatTree)
-				tree.putClientProperty("JTree.lineStyle", "Horizontal");
-			else
-				tree.putClientProperty("JTree.lineStyle", "Angled");
-		}
-
 		// if textClipping at start/end then don't show scrollbar
 		if (jEdit.getIntegerProperty("bufferlist.textClipping", 1) == 0) {
 			scrTree.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -378,7 +431,7 @@ public class BufferList extends JPanel implements EBComponent {
 		}
 		if (!node.isConnected()) {
 			BufferListTreeNode parentNode;
-			if (flatTree)
+			if (displayMode == DISPLAY_MODE_FLAT_TREE)
 				parentNode = (BufferListTreeNode) DistinctDirs.get("ROOT");
 			else
 				parentNode = createDirectoryNodes(parent);
@@ -453,16 +506,15 @@ public class BufferList extends JPanel implements EBComponent {
 	 * Saves the expansion state of all directory nodes (within each BufferListTreeNode).
 	 */
 	private void saveExpansionState() {
-		Enumeration enum;
-		enum = DistinctDirs.elements();
-		while (enum.hasMoreElements()) {
-			((BufferListTreeNode) enum.nextElement()).reset();
+		Enumeration e = DistinctDirs.elements();
+		while (e.hasMoreElements()) {
+			((BufferListTreeNode) e.nextElement()).reset();
 		}
 
-		enum = tree.getExpandedDescendants(new TreePath(tree.getModel().getRoot()));
-		if (enum != null) {
-			while (enum.hasMoreElements()) {
-				TreePath expPath = (TreePath) enum.nextElement();
+		e = tree.getExpandedDescendants(new TreePath(tree.getModel().getRoot()));
+		if (e != null) {
+			while (e.hasMoreElements()) {
+				TreePath expPath = (TreePath) e.nextElement();
 				if (expPath.getLastPathComponent() instanceof BufferListTreeNode) {
 					BufferListTreeNode node = (BufferListTreeNode) expPath.getLastPathComponent();
 					node.setExpanded(true);
@@ -476,9 +528,9 @@ public class BufferList extends JPanel implements EBComponent {
 	 * Restrores the expansion state of all directory nodes.
 	 */
 	private void restoreExpansionState() {
-		Enumeration enum = DistinctDirs.elements();
-		while (enum.hasMoreElements()) {
-			BufferListTreeNode node = (BufferListTreeNode) enum.nextElement();
+		Enumeration e = DistinctDirs.elements();
+		while (e.hasMoreElements()) {
+			BufferListTreeNode node = (BufferListTreeNode) e.nextElement();
 			if (node.isExpanded()) {
 				tree.expandPath(new TreePath(node.getPath()));
 			}
@@ -544,9 +596,9 @@ public class BufferList extends JPanel implements EBComponent {
 		// </when used here, BufferListTreeNode reuse is ommited>
 */
 
-		Enumeration enum = DistinctDirs.elements();
-		while (enum.hasMoreElements()) {
-			((BufferListTreeNode) enum.nextElement()).removeAllChildren();
+		Enumeration e = DistinctDirs.elements();
+		while (e.hasMoreElements()) {
+			((BufferListTreeNode) e.nextElement()).removeAllChildren();
 		}
 
 		for (int i = 0; i < buffers.length; ++i) {
@@ -569,9 +621,9 @@ public class BufferList extends JPanel implements EBComponent {
 	 *  cannot be found in the current tree model.
 	 */
 	private BufferListTreeNode getNode(Buffer buffer) {
-		Enumeration enum = rootNode.depthFirstEnumeration();
-		while (enum.hasMoreElements()) {
-			BufferListTreeNode node = (BufferListTreeNode) enum.nextElement();
+		Enumeration e = rootNode.depthFirstEnumeration();
+		while (e.hasMoreElements()) {
+			BufferListTreeNode node = (BufferListTreeNode) e.nextElement();
 			if (node.getUserObject() == buffer)
 				return node;
 		}

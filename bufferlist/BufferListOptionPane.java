@@ -67,8 +67,8 @@ public class BufferListOptionPane extends AbstractOptionPane {
 		bStartExpanded = new JCheckBox(jEdit.getProperty("options.bufferlist.startExpanded"),
 			jEdit.getBooleanProperty("bufferlist.startExpanded", false));
 
-		bFlatTree = new JCheckBox(jEdit.getProperty("options.bufferlist.flatTree"),
-			jEdit.getBooleanProperty("bufferlist.flatTree", true));
+		bFlatTree = new JCheckBox(jEdit.getProperty("options.bufferlist.displayMode"),
+			jEdit.getIntegerProperty("bufferlist.displayMode", BufferList.DISPLAY_MODE_FLAT_TREE) == BufferList.DISPLAY_MODE_FLAT_TREE);
 
 		bShortenHome = new JCheckBox(jEdit.getProperty("options.bufferlist.shortenHome"),
 			jEdit.getBooleanProperty("bufferlist.shortenHome", true));
@@ -105,7 +105,7 @@ public class BufferListOptionPane extends AbstractOptionPane {
 		jEdit.setBooleanProperty("bufferlist.closeFilesOnDoubleClick", bCloseFilesOnDoubleClick.isSelected());
 		jEdit.setBooleanProperty("bufferlist.autoshow", bAutoShow.isSelected());
 		jEdit.setBooleanProperty("bufferlist.startExpanded", bStartExpanded.isSelected());
-		jEdit.setBooleanProperty("bufferlist.flatTree", bFlatTree.isSelected());
+		jEdit.setIntegerProperty("bufferlist.displayMode", bFlatTree.isSelected() ? BufferList.DISPLAY_MODE_FLAT_TREE : BufferList.DISPLAY_MODE_HIERARCHICAL);
 		jEdit.setBooleanProperty("bufferlist.shortenHome", bShortenHome.isSelected());
 		jEdit.setIntegerProperty("bufferlist.textClipping", rbTextClipNone.isSelected() ? 0 : rbTextClipStart.isSelected() ? 1 : 2);
 	} //}}}
