@@ -25,21 +25,13 @@ import java.util.Vector;
 
 // from Swing:
 import javax.swing.*;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableColumnModel;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
+import javax.swing.table.*;
 
 // from jEdit:
 import org.gjt.sp.jedit.*;
 import org.gjt.sp.jedit.gui.*;
 import org.gjt.sp.jedit.io.*;
-import org.gjt.sp.jedit.msg.BufferUpdate;
-import org.gjt.sp.jedit.msg.CreateDockableWindow;
-import org.gjt.sp.jedit.msg.EditPaneUpdate;
-import org.gjt.sp.jedit.msg.PropertiesChanged;
-import org.gjt.sp.jedit.msg.ViewUpdate;
+import org.gjt.sp.jedit.msg.*;
 import org.gjt.sp.util.Log;
 
 
@@ -443,6 +435,8 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
             if (e.getClickCount() == 1) {
                 // single-click: jump to buffer
                 view.setBuffer(buffer);
+                view.toFront();
+                view.getEditPane().requestFocus();
             }
             else if (e.getClickCount() == 2) {
                 // double-click: close buffer
@@ -477,6 +471,8 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
             if (row == -1) return;
             String filename = model2.getFilename(row);
             jEdit.openFile(view, filename);
+            // note: we don't request the focus of the text area here,
+            // because the user may wants to open a series of files.
         }
 
         public void mousePressed(MouseEvent e) {
@@ -520,16 +516,15 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
                     int row = table1.getSelectedRow();
                     String filename = model1.getFilename(row);
                     view.setBuffer(jEdit.getBuffer(filename));
-                    closeWindowIfFloating();
                 } else {
                     // recent files table
-                    int rows[] = table2.getSelectedRows();
-                    for (int i=0; i < rows.length; i++) {
-                        String filename = model2.getFilename(rows[i]);
-                        jEdit.openFile(view, filename);
-                    }
-                    closeWindowIfFloating();
+                    int row = table2.getSelectedRow();
+                    String filename = model2.getFilename(row);
+                    jEdit.openFile(view, filename);
                 }
+                view.toFront();
+                view.getEditPane().requestFocus();
+                closeWindowIfFloating();
             }
             else if (evt.getActionCommand() == "tab-pressed" ||
                      evt.getActionCommand() == "shift-tab-pressed") {

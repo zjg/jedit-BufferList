@@ -1,6 +1,6 @@
 plugin.BufferListPlugin.name=BufferList
 plugin.BufferListPlugin.author=Dirk Moebius <dmoebius@gmx.net>
-plugin.BufferListPlugin.version=0.3
+plugin.BufferListPlugin.version=0.3.1
 plugin.BufferListPlugin.docs=index.html
 plugin.BufferListPlugin.depend.0=jdk 1.1
 plugin.BufferListPlugin.depend.1=jedit 02.07.03.00
