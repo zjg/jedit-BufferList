@@ -32,6 +32,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.tree.*;
 import org.gjt.sp.jedit.*;
+import org.gjt.sp.jedit.io.*;
 import org.gjt.sp.jedit.gui.*;
 import org.gjt.sp.jedit.msg.*;
 import org.gjt.sp.util.Log;
@@ -362,10 +363,11 @@ public class BufferList extends JPanel implements EBComponent {
 		return buffer.getVFS().getParentOfPath(buffer.getPath());
 	} //}}}
 
-	//{{{ -createDirectoryNodes(Buffer, String) : BufferListTreeNode
-	private BufferListTreeNode createDirectoryNodes(Buffer buffer, String path) {
-		String parent = buffer.getVFS().getParentOfPath(path);
-		if (path == parent) {
+	//{{{ -createDirectoryNodes(String) : BufferListTreeNode
+	private BufferListTreeNode createDirectoryNodes(String path) {
+		VFS vfs = VFSManager.getVFSForPath(path);
+		String parent = vfs.getParentOfPath(path);
+		if (path == parent || path.equals(parent)) {
 			return (BufferListTreeNode) DistinctDirs.get("ROOT");
 		}
 
@@ -379,7 +381,7 @@ public class BufferList extends JPanel implements EBComponent {
 			if (flatTree)
 				parentNode = (BufferListTreeNode) DistinctDirs.get("ROOT");
 			else
-				parentNode = createDirectoryNodes(buffer, parent);
+				parentNode = createDirectoryNodes(parent);
 			parentNode.add(node);
 			node.setConnected();
 		}
@@ -549,7 +551,7 @@ public class BufferList extends JPanel implements EBComponent {
 
 		for (int i = 0; i < buffers.length; ++i) {
 			Buffer buffer = buffers[i];
-			BufferListTreeNode dirNode = createDirectoryNodes(buffer, buffer.getVFS().getParentOfPath(buffer.getPath()));
+			BufferListTreeNode dirNode = createDirectoryNodes(buffer.getVFS().getParentOfPath(buffer.getPath()));
 			dirNode.add(new BufferListTreeNode(buffer, false));
 		}
 
