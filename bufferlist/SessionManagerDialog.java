@@ -59,7 +59,7 @@ public class SessionManagerDialog
 		super(view, jEdit.getProperty("bufferlist.manager.title"), true);
 		this.currentSession = currentSession;
 
-		lSessions = new JList(SessionManager.getSessionNames());
+		lSessions = new JList(SessionManager.getInstance().getSessionNames());
 		lSessions.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		lSessions.addListSelectionListener(this);
 		lSessions.addMouseListener(new MouseHandler()); // for double-clicks
@@ -193,7 +193,7 @@ public class SessionManagerDialog
 
 
 	private void setNewListModel() {
-		final Vector listData = SessionManager.getSessionNames();
+		final Vector listData = SessionManager.getInstance().getSessionNames();
 		lSessions.setModel(new AbstractListModel() {
 			public int getSize() { return listData.size(); }
 			public Object getElementAt(int i) { return listData.elementAt(i); }

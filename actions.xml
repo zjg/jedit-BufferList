@@ -61,12 +61,16 @@
 
 	<ACTION NAME="session-save-as">
 		<CODE>
+			import bufferlist.*;
+
 			SessionManager.getInstance().saveCurrentSessionAs(view);
 		</CODE>
 	</ACTION>
 
 	<ACTION NAME="session-manager">
 		<CODE>
+			import bufferlist.*;
+
 			SessionManager.getInstance().showSessionManagerDialog(view);
 		</CODE>
 	</ACTION>

@@ -28,6 +28,8 @@ import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.Vector;
 import javax.swing.*;
 import org.gjt.sp.jedit.jEdit;
@@ -41,7 +43,9 @@ import org.gjt.sp.util.Log;
  *
  * @author Dirk Moebius
  */
-public class SessionSwitcher extends JToolBar implements ActionListener
+public class SessionSwitcher 
+		extends JToolBar 
+		implements ActionListener, ItemListener
 {
 
 	public SessionSwitcher(View view) {
@@ -50,9 +54,10 @@ public class SessionSwitcher extends JToolBar implements ActionListener
 
 		Insets nullInsets = new Insets(0,0,0,0);
 
-		combo = new JComboBox();
+		combo = new JComboBox(SessionManager.getInstance().getSessionNames());
+		combo.setSelectedItem(SessionManager.getInstance().getCurrentSession());
 		combo.setEditable(false);
-		combo.addActionListener(this);
+		combo.addItemListener(this);
 
 		save = new JButton(GUIUtilities.loadIcon("Save24.gif"));
 		save.setMargin(nullInsets);
@@ -98,18 +103,11 @@ public class SessionSwitcher extends JToolBar implements ActionListener
 			// end of the toolbar, so that the combo box doesn't get too long:
 			add(Box.createGlue());
 		}
-
-		updateComboBox();
 	}
 
 
 	public void actionPerformed(ActionEvent evt) {
-		if (evt.getSource() == combo) {
-			Object selectedSession = combo.getSelectedItem();
-			if (selectedSession != null)
-				SessionManager.getInstance().setCurrentSession(view, selectedSession.toString());
-		}
-		else if (evt.getSource() == save)
+		if (evt.getSource() == save)
 			SessionManager.getInstance().saveCurrentSession(view);
 		else if (evt.getSource() == saveAs)
 			SessionManager.getInstance().saveCurrentSessionAs(view);
@@ -120,15 +118,29 @@ public class SessionSwitcher extends JToolBar implements ActionListener
 
 		updateComboBox();
 	}
+	
+	
+	public void itemStateChanged(ItemEvent e) {
+		Object selectedItem = combo.getSelectedItem();
+		if (selectedItem == null)
+			return;
+			
+		String selectedSession = selectedItem.toString();
+		String currentSession = SessionManager.getInstance().getCurrentSession();
+		if (!selectedSession.equals(currentSession))
+			SessionManager.getInstance().setCurrentSession(view, selectedSession);
+	}
 
 
 	private void updateComboBox() {
-		Vector model = SessionManager.getSessionNames();
+		final Vector model = SessionManager.getInstance().getSessionNames();
 
-		combo.removeActionListener(this);
-		combo.setModel(new DefaultComboBoxModel(model));
-		combo.setSelectedItem(SessionManager.getInstance().getCurrentSession());
-		combo.addActionListener(this);
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				combo.setModel(new DefaultComboBoxModel(model));
+				combo.setSelectedItem(SessionManager.getInstance().getCurrentSession());
+			}
+		});
 	}
 
 

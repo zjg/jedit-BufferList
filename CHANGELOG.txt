@@ -1,3 +1,15 @@
+VERSION 0.6.3
+
+- Bugfix: NullPointerException at initialization after clean install.
+- Bugfix: "Save Session as" and "Manage Sessions" threw BeanShell errors.
+- Bugfix: Default session never got autosaved after clean install.
+- Bugfix: "Show vertical/horizonal lines" options had wrong default value
+  in options pane.
+- Bugfix: Sometimes a (harmless) NullPointerException was thrown when switching
+  sessions using the combo box because of a race condition.
+- Requires jEdit 3.2pre2 or higher
+
+
 VERSION 0.6.2
 
 - Now let's jEdit restore the last open session again, subject

@@ -64,6 +64,23 @@ public class SessionManager
 
 
 	/**
+	 * Initialization
+	 */
+	private SessionManager() {
+		// create directory <jedithome>/sessions if it not yet exists
+		String sessionDir = MiscUtilities.constructPath(jEdit.getSettingsDirectory(), "sessions");
+		File dir = new File(sessionDir);
+		if (!dir.exists())
+			dir.mkdirs();
+
+		// create default session file if it not yet exists
+		File defaultSessionFile = new File(createSessionFileName("default"));
+		if (!defaultSessionFile.exists())
+			saveSession(null, "default");
+	}
+
+
+	/**
 	 * Switch to a new session.
 	 * @param view  view for displaying error messages
 	 * @param newSession  the new session name
@@ -203,21 +220,7 @@ public class SessionManager
 	}
 
 
-	/**
-	 * Converts a session name (eg, default) to a full path name
-	 * (eg, /home/slava/.jedit/sessions/default.session).
-	 */
-	public static String createSessionFileName(String session) {
-		String filename = MiscUtilities.constructPath(jEdit.getSettingsDirectory(), "sessions", session);
-
-		if (!filename.toLowerCase().endsWith(".session"))
-			filename = filename + ".session";
-
-		return filename;
-	}
-
-
-	public static Vector getSessionNames() {
+	public Vector getSessionNames() {
 		String path = MiscUtilities.constructPath(jEdit.getSettingsDirectory(), "sessions");
 
 		String[] files = new File(path).list(new FilenameFilter() {
@@ -244,6 +247,20 @@ public class SessionManager
 			v.insertElementAt("default", 0);
 
 		return v;
+	}
+
+
+	/**
+	 * Converts a session name (eg, default) to a full path name
+	 * (eg, /home/slava/.jedit/sessions/default.session).
+	 */
+	public static String createSessionFileName(String session) {
+		String filename = MiscUtilities.constructPath(jEdit.getSettingsDirectory(), "sessions", session);
+
+		if (!filename.toLowerCase().endsWith(".session"))
+			filename = filename + ".session";
+
+		return filename;
 	}
 
 
@@ -279,15 +296,6 @@ public class SessionManager
 			name = name.substring(0, name.length() - 8);
 
 		return name;
-	}
-
-
-	private SessionManager() {
-		// create directory <jedithome>/sessions if it not yet exists
-		String sessionDir = MiscUtilities.constructPath(jEdit.getSettingsDirectory(), "sessions");
-		File dir = new File(sessionDir);
-		if (!dir.exists())
-			dir.mkdirs();
 	}
 
 
@@ -367,17 +375,20 @@ public class SessionManager
 
 	/**
 	 * Saves the session
-	 * @param view The view this is being saved from. The saved caret
-	 *     information and current buffer is taken from this view
+	 * @param view The view this is being saved from. 
+	 *     If non-null, the caret information and current buffer
+	 *     is taken from this view, otherwise this information
+	 *     won't be saved into the session file.
 	 * @param session The file name, relative to $HOME/.jedit/sessions
 	 *     (.session suffix not required)
 	 */
 	private void saveSession(View view, String session) {
-		view.getEditPane().saveCaretInfo();
+		if (view != null)
+			view.getEditPane().saveCaretInfo();
 
 		String lineSep = System.getProperty("line.separator");
 		String filename = createSessionFileName(session);
-		Buffer viewBuffer = view.getBuffer();
+		Buffer viewBuffer = view != null ? view.getBuffer() : null;
 		Buffer buffer = jEdit.getFirstBuffer();
 
 		try {
@@ -398,7 +409,7 @@ public class SessionManager
 		catch (IOException io) {
 			Log.log(Log.ERROR, this, io);
 			String[] args = { io.getMessage() };
-			GUIUtilities.error(null, "ioerror", args);
+			GUIUtilities.error(view, "ioerror", args);
 		}
 	}
 

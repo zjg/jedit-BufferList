@@ -106,10 +106,10 @@ public class BufferListOptionPane extends AbstractOptionPane implements ActionLi
 			jEdit.getBooleanProperty("bufferlist.autoshow", false));
 
 		bVerticalLines = new JCheckBox(jEdit.getProperty("options.bufferlist.verticalLines"),
-			jEdit.getBooleanProperty("bufferlist.verticalLines", true));
+			jEdit.getBooleanProperty("bufferlist.verticalLines", false));
 
 		bHorizontalLines = new JCheckBox(jEdit.getProperty("options.bufferlist.horizontalLines"),
-			jEdit.getBooleanProperty("bufferlist.horizontalLines", true));
+			jEdit.getBooleanProperty("bufferlist.horizontalLines", false));
 
 		// NOTE: for historical reasons, the option "Show absolute filename" is named "showOneColumn":
 		bShowAbsoluteFilename = new JCheckBox(jEdit.getProperty("options.bufferlist.showAbsoluteFilename"),
