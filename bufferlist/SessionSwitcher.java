@@ -2,6 +2,8 @@
  * SessionSwitcher.java - toolbar for switching between jEdit sessions
  * Copyright (c) 2001 Dirk Moebius
  *
+ * :tabSize=4:indentSize=4:noTabs=false:maxLineLen=0:
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -16,6 +18,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
+
+package bufferlist;
 
 
 import java.awt.BorderLayout;
@@ -36,7 +41,8 @@ import org.gjt.sp.util.Log;
  *
  * @author Dirk Moebius
  */
-public class SessionSwitcher extends JToolBar implements ActionListener {
+public class SessionSwitcher extends JToolBar implements ActionListener
+{
 
 	public SessionSwitcher(View view) {
 		super();
@@ -60,6 +66,12 @@ public class SessionSwitcher extends JToolBar implements ActionListener {
 		saveAs.setFocusPainted(false);
 		saveAs.addActionListener(this);
 
+		reload = new JButton(GUIUtilities.loadIcon("Redo24.gif"));
+		reload.setMargin(nullInsets);
+		reload.setToolTipText(jEdit.getProperty("bufferlist.switcher.reload.tooltip"));
+		reload.setFocusPainted(false);
+		reload.addActionListener(this);
+
 		prefs = new JButton(GUIUtilities.loadIcon("Preferences24.gif"));
 		prefs.setMargin(nullInsets);
 		prefs.setToolTipText(jEdit.getProperty("bufferlist.switcher.prefs.tooltip"));
@@ -78,6 +90,7 @@ public class SessionSwitcher extends JToolBar implements ActionListener {
 		addSeparator();
 		add(save);
 		add(saveAs);
+		add(reload);
 		add(prefs);
 
 		if (jEdit.getProperty("bufferlist.switcher.show", "bufferlist").equals("view")) {
@@ -96,15 +109,14 @@ public class SessionSwitcher extends JToolBar implements ActionListener {
 			if (selectedSession != null)
 				SessionManager.getInstance().setCurrentSession(view, selectedSession.toString());
 		}
-		else if (evt.getSource() == save) {
+		else if (evt.getSource() == save)
 			SessionManager.getInstance().saveCurrentSession(view);
-		}
-		else if (evt.getSource() == saveAs) {
+		else if (evt.getSource() == saveAs)
 			SessionManager.getInstance().saveCurrentSessionAs(view);
-		}
-		else if (evt.getSource() == prefs) {
+		else if (evt.getSource() == reload)
+			SessionManager.getInstance().reloadCurrentSession(view);
+		else if (evt.getSource() == prefs)
 			SessionManager.getInstance().showSessionManagerDialog(view);
-		}
 
 		updateComboBox();
 	}
@@ -124,6 +136,7 @@ public class SessionSwitcher extends JToolBar implements ActionListener {
 	private JComboBox combo;
 	private JButton save;
 	private JButton saveAs;
+	private JButton reload;
 	private JButton prefs;
 
 }

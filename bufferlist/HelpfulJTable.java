@@ -2,6 +2,8 @@
  * HelpfulJTable.java - a JTable with additional features.
  * Copyright (c) 2000,2001 Dirk Moebius
  *
+ * :tabSize=4:indentSize=4:noTabs=false:maxLineLen=0:
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -16,6 +18,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
+
+package bufferlist;
 
 
 import java.awt.*;
@@ -64,7 +69,8 @@ import org.gjt.sp.util.Log;
  *
  * @author Dirk Moebius
  */
-public class HelpfulJTable extends JTable {
+public class HelpfulJTable extends JTable
+{
 
 	public final static int SORT_OFF = -1;
 	public final static int SORT_ASCENDING = 1;
@@ -465,7 +471,8 @@ public class HelpfulJTable extends JTable {
 	}
 
 
-	private class KeyHandler implements ActionListener {
+	private class KeyHandler implements ActionListener
+	{
 
 		public void actionPerformed(ActionEvent evt) {
 			fireActionEvent(evt);
@@ -474,7 +481,8 @@ public class HelpfulJTable extends JTable {
 	}
 
 
-	private class TooltipMouseHandler extends MouseAdapter {
+	class TooltipMouseHandler extends MouseAdapter
+	{
 
 		public void mouseEntered(MouseEvent evt) {
 			ToolTipManager ttm = ToolTipManager.sharedInstance();
@@ -484,11 +492,13 @@ public class HelpfulJTable extends JTable {
 			ttm.setReshowDelay(0);
 		}
 
+
 		public void mouseExited(MouseEvent evt) {
 			ToolTipManager ttm = ToolTipManager.sharedInstance();
 			ttm.setInitialDelay(toolTipInitialDelay);
 			ttm.setReshowDelay(toolTipReshowDelay);
 		}
+
 
 		private int toolTipInitialDelay = -1;
 		private int toolTipReshowDelay = -1;
@@ -496,7 +506,8 @@ public class HelpfulJTable extends JTable {
 	}
 
 
-	private class TableHeaderMouseHandler extends MouseAdapter {
+	class TableHeaderMouseHandler extends MouseAdapter
+	{
 
 		public void mouseClicked(MouseEvent evt) {
 			int col = getColumnModel().getColumnIndexAtX(evt.getX());
@@ -538,7 +549,8 @@ public class HelpfulJTable extends JTable {
 	}
 
 
-	private class SortTableHeaderRenderer extends DefaultTableCellRenderer {
+	class SortTableHeaderRenderer extends DefaultTableCellRenderer
+	{
 
 		public SortTableHeaderRenderer(int viewColumn) {
 			super();
@@ -547,6 +559,7 @@ public class HelpfulJTable extends JTable {
 			setHorizontalTextPosition(SwingConstants.LEADING);
 			setBorder(UIManager.getBorder("TableHeader.cellBorder"));
 		}
+
 
 	    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
 			setText(value == null ? "" : value.toString());
@@ -560,6 +573,7 @@ public class HelpfulJTable extends JTable {
 				setIcon(null);
 			return this;
 		}
+
 
 		private int viewColumn;
 

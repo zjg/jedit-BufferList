@@ -2,6 +2,8 @@
  * SessionManager.java
  * Copyright (c) 2001 Dirk Moebius
  *
+ * :tabSize=4:indentSize=4:noTabs=false:maxLineLen=0:
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -16,6 +18,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
+
+package bufferlist;
 
 
 import java.awt.Component;
@@ -36,9 +41,18 @@ import org.gjt.sp.util.Log;
  * A singleton class that holds a current session and has methods to switch
  * between sessions.
  */
-public class SessionManager {
+public class SessionManager
+{
 
 	public final static String SESSION_PROPERTY = "bufferlist.currentSession";
+
+
+	/** The name of the current session. */
+	private String currentSession = jEdit.getProperty(SESSION_PROPERTY, "default");
+
+
+	/** The singleton instance. */
+	private static SessionManager instance = null;
 
 
 	/** Returns the singleton instance */
@@ -105,19 +119,6 @@ public class SessionManager {
 
 
 	/**
-	 * (Re)Loads the last open session.
-	 * This should only be called by the BufferList plugin on jEdit startup.
-	 * @return the last opened buffer in this session.
-	 */
-	public Buffer _loadLastSession() {
-		Log.log(Log.DEBUG, this, "loading last session: " + currentSession);
-		Buffer lastBuffer = loadSession(currentSession);
-		Log.log(Log.DEBUG, this, "done loading last session.");
-		return lastBuffer;
-	}
-
-
-	/**
 	 * Save current session and show a dialog that it has been saved.
 	 * @param view  view for displaying error messages
 	 */
@@ -136,15 +137,6 @@ public class SessionManager {
 		jEdit.setProperty(SESSION_PROPERTY, currentSession);
 		if (!silently)
 			GUIUtilities.message(view, "bufferlist.switcher.save.saved", new Object[] { currentSession });
-	}
-
-
-	/**
-	 * Save current session property only, without saving the current list of
-	 * open files.
-	 */
-	public void saveCurrentSessionProperty() {
-		jEdit.setProperty(SESSION_PROPERTY, currentSession);
 	}
 
 
@@ -171,6 +163,37 @@ public class SessionManager {
 	}
 
 
+	/**
+	 * Reload current session.
+	 * @param view  view for displaying error messages
+	 */
+	public void reloadCurrentSession(View view) {
+		Log.log(Log.DEBUG, this, "reloadCurrentSession: currentSession=" + currentSession);
+
+		// close all open buffers
+		if (!jEdit.closeAllBuffers(view))
+			return; // user cancelled
+
+		VFSManager.waitForRequests();
+		if (VFSManager.errorOccurred())
+			return;
+
+		Buffer buffer = loadSession(currentSession);
+		VFSManager.waitForRequests();
+		if (buffer != null)
+			view.setBuffer(buffer);
+	}
+
+
+	/**
+	 * Save current session property only, without saving the current list of
+	 * open files.
+	 */
+	public void saveCurrentSessionProperty() {
+		jEdit.setProperty(SESSION_PROPERTY, currentSession);
+	}
+
+
 	public void showSessionManagerDialog(View view) {
 		SessionManagerDialog dlg = new SessionManagerDialog(view, currentSession);
 		String newSession = dlg.getSelectedSession();
@@ -178,25 +201,6 @@ public class SessionManager {
 			setCurrentSession(view, newSession);
 		jEdit.propertiesChanged();
 	}
-
-
-	/**
-	 * Checks whether the default session file exists; in any case, creates the
-	 * subdir "<em>jedithome</em>/sessions" if it not yet exists.
-	 *
-	 * @return true, if the file <em>jedithome</em>/sessions/default.session
-	 *    exists, false if not.
-	 */
-	 public static boolean defaultSessionExists() {
-		// create directory <jedithome>/sessions if it not yet exists
-		String sessionDir = MiscUtilities.constructPath(jEdit.getSettingsDirectory(), "sessions");
-		File dir = new File(sessionDir);
-		if (!dir.exists())
-			dir.mkdirs();
-
-		String defaultSession = MiscUtilities.constructPath(sessionDir, "default.session");
-		return new File(defaultSession).exists();
-	 }
 
 
 	/**
@@ -249,7 +253,7 @@ public class SessionManager {
 	 * A session name is valid if it doesn't contains the following characters:
 	 * File.separatorChar, File.pathSeparatorChar and ':'.
 	 *
-	 * @param relativeTo  position the input dialog relative to this component.
+	 * @param relativeTo  the component where the dialog is centered on.
 	 * @param defaultName  a default session name to display in the input dialog; may be null.
 	 * @return the new session name without trailing ".session", or null, if
 	 *     the dialog was cancelled.
@@ -279,7 +283,11 @@ public class SessionManager {
 
 
 	private SessionManager() {
-		 currentSession = jEdit.getProperty(SESSION_PROPERTY, "default");
+		// create directory <jedithome>/sessions if it not yet exists
+		String sessionDir = MiscUtilities.constructPath(jEdit.getSettingsDirectory(), "sessions");
+		File dir = new File(sessionDir);
+		if (!dir.exists())
+			dir.mkdirs();
 	}
 
 
@@ -393,14 +401,6 @@ public class SessionManager {
 			GUIUtilities.error(null, "ioerror", args);
 		}
 	}
-
-
-	/** The name of the current session. */
-	private String currentSession;
-
-
-	/** The singleton instance. */
-	private static SessionManager instance = null;
 
 }
 

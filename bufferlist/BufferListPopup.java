@@ -3,6 +3,8 @@
  * Copyright (c) 2000 Dirk Moebius
  * With inspiration from Jason Ginchereau and Slava Pestov
  *
+ * :tabSize=4:indentSize=4:noTabs=false:maxLineLen=0:
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -17,6 +19,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA	02111-1307, USA.
  */
+
+
+package bufferlist;
 
 
 import java.awt.event.ActionEvent;
@@ -35,7 +40,8 @@ import org.gjt.sp.jedit.View;
  *
  * @author   Dirk Moebius
  */
-public class BufferListPopup extends JPopupMenu {
+public class BufferListPopup extends JPopupMenu
+{
 
 	private View view;
 	private String path;

@@ -2,6 +2,8 @@
  * BufferListOptionPane.java - plugin options pane for BufferList
  * Copyright (c) 2000,2001 Dirk Moebius
  *
+ * :tabSize=4:indentSize=4:noTabs=false:maxLineLen=0:
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -16,6 +18,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
+
+package bufferlist;
 
 
 import java.awt.event.ActionEvent;
@@ -34,7 +39,8 @@ import org.gjt.sp.jedit.gui.VariableGridLayout;
 /**
  * This is the option pane that jEdit displays for BufferList's options.
  */
-public class BufferListOptionPane extends AbstractOptionPane implements ActionListener {
+public class BufferListOptionPane extends AbstractOptionPane implements ActionListener
+{
 
 	public BufferListOptionPane() {
 		super("bufferlist");

@@ -2,6 +2,8 @@
  * SessionManagerDialog.java - a dialog for managing sessions
  * Copyright (c) 2001 Dirk Moebius
  *
+ * :tabSize=4:indentSize=4:noTabs=false:maxLineLen=0:
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -16,6 +18,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
+
+package bufferlist;
 
 
 import java.awt.Component;
@@ -45,7 +50,10 @@ import org.gjt.sp.util.Log;
  *
  * @author Dirk Moebius
  */
-public class SessionManagerDialog extends EnhancedDialog implements ActionListener, ListSelectionListener {
+public class SessionManagerDialog
+		extends EnhancedDialog
+		implements ActionListener, ListSelectionListener
+{
 
 	public SessionManagerDialog(View view, String currentSession) {
 		super(view, jEdit.getProperty("bufferlist.manager.title"), true);
