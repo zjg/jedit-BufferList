@@ -1,3 +1,12 @@
+Version 0.4.1 (2001/03/16)
+--------------------------
+- don't use class org.gjt.sp.jedit.Sessions any more, copied required methods
+  into SessionManager class.
+- bugfix: #407948 BufferList clears 'default.session' file on exit
+- bugfix: same column shown twice after reordering or showing/hiding
+- bugfix: buffer click doesn't work if mouse was moved during click
+
+
 Version 0.4 (2001/03/10)
 ------------------------
 - session management:

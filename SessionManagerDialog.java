@@ -35,7 +35,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.gjt.sp.jedit.jEdit;
 import org.gjt.sp.jedit.GUIUtilities;
-import org.gjt.sp.jedit.Sessions;
 import org.gjt.sp.jedit.View;
 import org.gjt.sp.jedit.gui.EnhancedDialog;
 import org.gjt.sp.util.Log;
@@ -136,8 +135,8 @@ public class SessionManagerDialog extends EnhancedDialog implements ActionListen
 			String oldName = lSessions.getSelectedValue().toString();
 			String newName = SessionManager.inputSessionName(this, oldName);
 			if (newName != null) {
-				File oldFile = new File(Sessions.createSessionFileName(oldName));
-				File newFile = new File(Sessions.createSessionFileName(newName));
+				File oldFile = new File(SessionManager.createSessionFileName(oldName));
+				File newFile = new File(SessionManager.createSessionFileName(newName));
 				boolean ok = oldFile.renameTo(newFile);
 				setNewListModel();
 				if (ok) {
@@ -151,7 +150,7 @@ public class SessionManagerDialog extends EnhancedDialog implements ActionListen
 		}
 		else if (evt.getSource() == bDelete) {
 			String name = lSessions.getSelectedValue().toString();
-			File file = new File(Sessions.createSessionFileName(name));
+			File file = new File(SessionManager.createSessionFileName(name));
 			boolean ok = file.delete();
 			setNewListModel();
 			if (ok) {

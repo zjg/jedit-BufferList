@@ -21,6 +21,7 @@
 // from Java:
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Enumeration;
 import java.util.Vector;
 
 // from Swing:
@@ -141,11 +142,20 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 		jEdit.setProperty("bufferlist.divider", Integer.toString(pane.getDividerLocation()));
 
 		// save column widths and order:
-		saveColumnInfo(table1);
-		saveColumnInfo(table2);
+		TableColumnModel tcm1 = table1.getColumnModel();
+		TableColumnModel tcm2 = table2.getColumnModel();
+		if (tcm1 instanceof PersistentTableColumnModel)
+			((PersistentTableColumnModel)tcm1).save();
+		if (tcm2 instanceof PersistentTableColumnModel)
+			((PersistentTableColumnModel)tcm2).save();
 
-		// save current session silently:
-		SessionManager.getInstance().saveCurrentSession(view, true);
+		// save currently selected session:
+		if (jEdit.getBooleanProperty("bufferlist.switcher.autoSave", true))
+			// FIXME: jEdit bug: list of open buffers is empty if jEdit is exiting
+			// Workaround: until this is fixed (jEdit should send an
+			// EditorIsExiting message), don't save buffer list to the current
+			// session here. Save the currentSession property only.
+			SessionManager.getInstance().saveCurrentSessionProperty();
 	}
 
 
@@ -222,79 +232,34 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 
 	private void setNewColumnModel(HelpfulJTable table, JScrollPane scrTable) {
 		// save old column sizes and order:
-		saveColumnInfo(table);
+		TableColumnModel tcm = table.getColumnModel();
+		if (tcm instanceof PersistentTableColumnModel)
+			((PersistentTableColumnModel)tcm).save();
 
 		// make new column model:
-		DefaultTableColumnModel dtcm = loadColumnInfo(table);
+		PersistentTableColumnModel ptcm = new PersistentTableColumnModel(table == table1 ? 1 : 2, 4);
 
 		// show vertical/horizontal lines
 		boolean verticalLines = jEdit.getBooleanProperty("bufferlist.verticalLines");
 		boolean horizontalLines = jEdit.getBooleanProperty("bufferlist.horizontalLines");
 		table.setShowVerticalLines(verticalLines);
 		table.setShowHorizontalLines(horizontalLines);
-		dtcm.setColumnMargin(verticalLines ? 1 : 0);
+		ptcm.setColumnMargin(verticalLines ? 1 : 0);
 
 		// set table header
 		if (jEdit.getBooleanProperty("bufferlist.headers", false)) {
 			table.setAutoResizeColumns(jEdit.getBooleanProperty("bufferlist.autoresize", true));
-			table.setTableHeader(new JTableHeader(dtcm));
+			table.setTableHeader(new JTableHeader(ptcm));
 		} else {
 			table.setAutoResizeColumns(true);
 			table.setTableHeader(null);
 		}
 
 		// set column model
-		table.setColumnModel(dtcm);
+		table.setColumnModel(ptcm);
 
 		// somehow, the column header view doesn't get updated properly. Do it manually:
 		scrTable.setColumnHeaderView(table.getTableHeader());
-	}
-
-
-	private DefaultTableColumnModel loadColumnInfo(JTable table) {
-		DefaultTableColumnModel dtcm = new DefaultTableColumnModel();
-
-		for (int i = 0; i < 4; i++) {
-			String prefix = "bufferlist.table"+ (table == table1 ? "1" : "2") + ".column" + i;
-
-			// get model index:
-			int modelIndex = i;
-			String sModelIndex = jEdit.getProperty(prefix + ".modelIndex", Integer.toString(i));
-			try { modelIndex = Integer.parseInt(sModelIndex); } catch (NumberFormatException ex) {}
-
-			if (jEdit.getBooleanProperty("bufferlist.showColumn" + modelIndex, true)) {
-				// get column width:
-				int width = 75;
-				String sWidth = jEdit.getProperty(prefix + ".width", "75");
-				try { width = Integer.parseInt(sWidth); } catch (NumberFormatException ex) {}
-
-				// get cell renderer
-				TableCellRenderer tcr =
-					(modelIndex == 0) ? iconRenderer :
-					(modelIndex == 1) ? nameRenderer : toolTipRenderer;
-
-				// add table column
-				TableColumn tc = new TableColumn(modelIndex, width, tcr, null);
-				tc.setHeaderValue(jEdit.getProperty("bufferlist.table.column" + modelIndex));
-				dtcm.addColumn(tc);
-			}
-		}
-
-		return dtcm;
-	}
-
-
-	private void saveColumnInfo(JTable table) {
-		TableColumnModel tcm = table.getColumnModel();
-		if (tcm != null) {
-			for (int i = 0; i < tcm.getColumnCount(); ++i) {
-				int width = tcm.getColumn(i).getWidth();
-				int modelIndex = tcm.getColumn(i).getModelIndex();
-				String prefix = "bufferlist.table" + (table == table1 ? "1" : "2") + ".column" + i;
-				jEdit.setProperty(prefix + ".width", Integer.toString(width));
-				jEdit.setProperty(prefix + ".modelIndex", Integer.toString(modelIndex));
-			}
-		}
 	}
 
 
@@ -430,6 +395,79 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 
 
 	/**
+	 * A table column model for both tables, that stores order and sizes of the
+	 * displayed columns.
+	 */
+	private class PersistentTableColumnModel extends DefaultTableColumnModel {
+
+		public PersistentTableColumnModel(int tableNum, int modelColumnCount) {
+			super();
+			this.modelColumnCount = modelColumnCount;
+			this.tableNum = tableNum;
+
+			for (int i = 0; i < modelColumnCount; i++) {
+				String prefix = "bufferlist.table"+ tableNum + ".column" + i;
+
+				// get model index:
+				int modelIndex = i;
+				String sModelIndex = jEdit.getProperty(prefix + ".modelIndex", Integer.toString(i));
+				try { modelIndex = Integer.parseInt(sModelIndex); } catch (NumberFormatException ex) {}
+
+				if (jEdit.getBooleanProperty("bufferlist.showColumn" + modelIndex, true)) {
+					// get column width:
+					int width = 75;
+					String sWidth = jEdit.getProperty(prefix + ".width", "75");
+					try { width = Integer.parseInt(sWidth); } catch (NumberFormatException ex) {}
+
+					// get cell renderer
+					TableCellRenderer tcr =
+						(modelIndex == 0) ? iconRenderer :
+						(modelIndex == 1) ? nameRenderer : toolTipRenderer;
+
+					// add table column
+					TableColumn tc = new TableColumn(modelIndex, width, tcr, null);
+					tc.setHeaderValue(jEdit.getProperty("bufferlist.table.column" + modelIndex));
+					addColumn(tc);
+				}
+			}
+		}
+
+
+		public void save() {
+			int maxCol = getColumnCount();
+
+			for (int modelIndex = 0; modelIndex < modelColumnCount; modelIndex++) {
+				int colIndex = findColumnForModelIndex(modelIndex);
+				if (colIndex != -1) {
+					TableColumn tc = getColumn(colIndex);
+					String prefix = "bufferlist.table" + tableNum + ".column" + colIndex;
+					jEdit.setProperty(prefix + ".width", Integer.toString(tc.getWidth()));
+					jEdit.setProperty(prefix + ".modelIndex", Integer.toString(modelIndex));
+				} else {
+					String prefix = "bufferlist.table" + tableNum + ".column" + maxCol;
+					jEdit.setProperty(prefix + ".modelIndex", Integer.toString(modelIndex));
+					maxCol++;
+				}
+			}
+		}
+
+
+		private int findColumnForModelIndex(int modelIndex) {
+			Enumeration e = tableColumns.elements();
+			for (int i = 0; e.hasMoreElements(); i++)
+				if (((TableColumn)e.nextElement()).getModelIndex() == modelIndex)
+					return i;
+			return -1;
+		}
+
+
+		private int modelColumnCount;
+		private int tableNum;
+
+	}
+
+
+	/**
 	 * A cell renderer for the first column, displaying the buffer status icon.
 	 */
 	private class IconCellRenderer extends DefaultTableCellRenderer {
@@ -522,39 +560,7 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 	 */
 	private class OpenFilesMouseHandler extends MouseAdapter {
 
-		public void mouseClicked(MouseEvent e) {
-			// only left mb click allowed here:
-			if ((e.getModifiers() & MouseEvent.BUTTON1_MASK) == 0)
-				return;
-
-			// get clicked row
-			int row = table1.rowAtPoint(e.getPoint());
-			if (row == -1)
-				return;
-
-			String filename = model1.getFilename(row);
-			Buffer buffer = jEdit.getBuffer(filename);
-			if (buffer == null)
-				return; // shouldn't be; just in case...
-
-			if (e.getClickCount() == 1) {
-				// single-click: jump to buffer
-				view.setBuffer(buffer);
-				view.toFront();
-				view.getEditPane().requestFocus();
-			}
-			else if (e.getClickCount() == 2) {
-				// double-click: close buffer
-				jEdit.closeBuffer(view, buffer);
-			}
-		}
-
 		public void mousePressed(MouseEvent e) {
-			// only right mb click allowed here:
-			if ((e.getModifiers() & MouseEvent.BUTTON3_MASK) == 0)
-				return;
-
-			// show popup
 			Point p = e.getPoint();
 			int row = table1.rowAtPoint(p);
 			if (row == -1)
@@ -562,12 +568,32 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 
 			String filename = model1.getFilename(row);
 			Buffer buffer = jEdit.getBuffer(filename);
-			boolean isCurrent = false;
-			if (buffer != null && buffer == currentBuffer)
-				isCurrent = true;
-			table1.getSelectionModel().setSelectionInterval(row, row);
-			BufferListPopup popup = new BufferListPopup(view, filename, true, isCurrent);
-			popup.show(table1, p.x+1, p.y+1);
+
+			if ((e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0) {
+				if (e.getClickCount() == 1) {
+					// left mouse single press: switch to buffer
+					if (buffer != null) {
+						view.setBuffer(buffer);
+						view.toFront();
+						view.getEditPane().requestFocus();
+					}
+					e.consume();
+				} else if (e.getClickCount() == 2) {
+					// left mouse double press: close buffer
+					if (buffer != null)
+						jEdit.closeBuffer(view, buffer);
+					e.consume();
+				}
+			}
+			else if ((e.getModifiers() & MouseEvent.BUTTON3_MASK) != 0) {
+				// right mouse press: show popup
+
+				boolean isCurrent = (buffer != null && buffer == currentBuffer);
+				table1.getSelectionModel().setSelectionInterval(row, row);
+				BufferListPopup popup = new BufferListPopup(view, filename, true, isCurrent);
+				popup.show(table1, p.x+1, p.y+1);
+				e.consume();
+			}
 		}
 
 	}

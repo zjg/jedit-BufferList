@@ -93,11 +93,9 @@ public class BufferListOptionPane extends AbstractOptionPane implements ActionLi
 
 		bSwitcherAutoSave = new JCheckBox(jEdit.getProperty("options.bufferlist.switcher.autoSave"));
 		bSwitcherAutoSave.setSelected(jEdit.getBooleanProperty("bufferlist.switcher.autoSave", true));
-		bSwitcherAutoSave.setEnabled(bShowSwitcher.isSelected());
 
 		bSwitcherCloseAll = new JCheckBox(jEdit.getProperty("options.bufferlist.switcher.closeAll"));
 		bSwitcherCloseAll.setSelected(jEdit.getBooleanProperty("bufferlist.switcher.closeAll", true));
-		bSwitcherCloseAll.setEnabled(bShowSwitcher.isSelected());
 
 		addSeparator("options.bufferlist.label");
 		addComponent(bufferListOptions);
@@ -110,6 +108,11 @@ public class BufferListOptionPane extends AbstractOptionPane implements ActionLi
 
 
 	public void _save() {
+		boolean displayedColumnsChanged =
+			jEdit.getBooleanProperty("bufferlist.showColumn0") != bShowStatus.isSelected() ||
+			jEdit.getBooleanProperty("bufferlist.showColumn2") != bShowDir.isSelected() ||
+			jEdit.getBooleanProperty("bufferlist.showColumn3") != bShowMode.isSelected();
+
 		jEdit.setBooleanProperty("bufferlist.showOneColumn", bShowAbsoluteFilename.isSelected());
 
 		jEdit.setBooleanProperty("bufferlist.showColumn0", bShowStatus.isSelected());
@@ -125,6 +128,18 @@ public class BufferListOptionPane extends AbstractOptionPane implements ActionLi
 		jEdit.setBooleanProperty("bufferlist.switcher.showTitle", bSwitcherShowTitle.isSelected());
 		jEdit.setBooleanProperty("bufferlist.switcher.autoSave", bSwitcherAutoSave.isSelected());
 		jEdit.setBooleanProperty("bufferlist.switcher.closeAll", bSwitcherCloseAll.isSelected());
+
+		if (displayedColumnsChanged) {
+			// discard column order:
+			jEdit.unsetProperty("bufferlist.table1.column0.modelIndex");
+			jEdit.unsetProperty("bufferlist.table1.column1.modelIndex");
+			jEdit.unsetProperty("bufferlist.table1.column2.modelIndex");
+			jEdit.unsetProperty("bufferlist.table1.column3.modelIndex");
+			jEdit.unsetProperty("bufferlist.table2.column0.modelIndex");
+			jEdit.unsetProperty("bufferlist.table2.column1.modelIndex");
+			jEdit.unsetProperty("bufferlist.table2.column2.modelIndex");
+			jEdit.unsetProperty("bufferlist.table2.column3.modelIndex");
+		}
 	}
 
 
@@ -140,8 +155,6 @@ public class BufferListOptionPane extends AbstractOptionPane implements ActionLi
 		}
 		else if (e.getSource() == bShowSwitcher) {
 			bSwitcherShowTitle.setEnabled(bShowSwitcher.isSelected());
-			bSwitcherAutoSave.setEnabled(bShowSwitcher.isSelected());
-			bSwitcherCloseAll.setEnabled(bShowSwitcher.isSelected());
 		}
 	}
 

@@ -19,10 +19,9 @@
 
 
 import java.util.Vector;
-import java.awt.*;
-import java.awt.event.*;
 import org.gjt.sp.jedit.*;
-import org.gjt.sp.jedit.gui.*;
+import org.gjt.sp.jedit.gui.DockableWindow;
+import org.gjt.sp.jedit.gui.OptionsDialog;
 import org.gjt.sp.jedit.msg.CreateDockableWindow;
 
 

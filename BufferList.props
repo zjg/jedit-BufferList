@@ -1,7 +1,7 @@
 # General plugin properites
 plugin.BufferListPlugin.name=BufferList
 plugin.BufferListPlugin.author=Dirk Moebius <dmoebius@gmx.net>
-plugin.BufferListPlugin.version=0.4
+plugin.BufferListPlugin.version=0.4.1
 plugin.BufferListPlugin.docs=index.html
 plugin.BufferListPlugin.depend.0=jdk 1.1
 plugin.BufferListPlugin.depend.1=jedit 03.00.99.00
@@ -116,7 +116,7 @@ options.bufferlist.headers=Show column headers
 options.bufferlist.autoresize=Auto-Resize columns
 
 options.bufferlist.switcher.label=Session Switcher
-options.bufferlist.switcher.show=Show Session Switcher
+options.bufferlist.switcher.show=Show Session Switcher toolbar
 options.bufferlist.switcher.showTitle=Show "Session:" label
 options.bufferlist.switcher.autoSave=Autosave sessions (on switch, rename, close)
 options.bufferlist.switcher.closeAll=Close all files before switching to new session
