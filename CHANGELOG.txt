@@ -1,3 +1,9 @@
+VERSION 0.9
+
+- Added option to fully expand tree by default (Lee Turner)
+- Added tooltips to the items in the tree (Lee Turner)
+
+
 VERSION 0.8
 
 - Tree display instead of table display; the files are grouped by directory.

@@ -1,4 +1,4 @@
-/*
+/*{{{ header
  * TreeTools.java - some tools for JTree
  * Copyright (c) 2002 Dirk Moebius
  *
@@ -17,23 +17,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * }}}
  */
-
-
 package bufferlist;
 
-
+//{{{ imports
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import javax.swing.JTree;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
-
+//}}}
 
 public class TreeTools
 {
-
+	//{{{ +expandAll(JTree) : void
 	/**
 	 * Expand all nodes of a tree.
 	 *
@@ -42,9 +41,9 @@ public class TreeTools
 	public static void expandAll(JTree tree)
 	{
 		expandAll(tree, new TreePath(tree.getModel().getRoot()));
-	}
+	} //}}}
 
-
+	//{{{ +collapseAll(JTree) : void
 	/**
 	 * Collapse all nodes of a tree.
 	 *
@@ -56,9 +55,9 @@ public class TreeTools
 		collapseAll(tree, pathToRoot);
 		if(!tree.isRootVisible())
 			tree.expandPath(pathToRoot);
-	}
+	} //}}}
 
-
+	//{{{ +expandAll(JTree, TreePath) : void
 	/**
 	 * Expand a tree node and all its child nodes recursively.
 	 *
@@ -69,18 +68,15 @@ public class TreeTools
 	{
 		Object node = path.getLastPathComponent();
 		TreeModel model = tree.getModel();
-
 		if(model.isLeaf(node))
 			return;
-
 		tree.expandPath(path);
-
 		int num = model.getChildCount(node);
 		for(int i = 0; i < num; i++)
 			expandAll(tree, path.pathByAddingChild(model.getChild(node, i)));
-	}
+	} //}}}
 
-
+	//{{{ +collapseAll(JTree, TreePath) : void
 	/**
 	 * Collapse a tree node and all its child nodes recursively.
 	 *
@@ -91,41 +87,35 @@ public class TreeTools
 	{
 		Object node = path.getLastPathComponent();
 		TreeModel model = tree.getModel();
-
 		if(model.isLeaf(node))
 			return;
-
 		int num = model.getChildCount(node);
 		for(int i = 0; i < num; i++)
 			collapseAll(tree, path.pathByAddingChild(model.getChild(node, i)));
-
 		tree.collapsePath(path);
-	}
+	} //}}}
 
-
+	//{{{ +getExpandedPaths(JTree) : TreePath[]
 	/** Get a copy of the list of expanded tree paths of a tree. */
 	public static TreePath[] getExpandedPaths(JTree tree)
 	{
 		ArrayList expandedPaths = new ArrayList();
 		TreePath rootPath = new TreePath(tree.getModel().getRoot());
 		Enumeration enum = tree.getExpandedDescendants(rootPath);
-
 		if(enum != null)
 			while(enum.hasMoreElements())
 				expandedPaths.add(enum.nextElement());
-
 		TreePath[] array = new TreePath[expandedPaths.size()];
 		expandedPaths.toArray(array);
 		return array;
-	}
+	} //}}}
 
-
+	//{{{ +setExpandedPaths(JTree, TreePath[]) : void
 	/** Expand all the previously remembered expanded paths. */
 	public static void setExpandedPaths(JTree tree, TreePath[] expandedPaths)
 	{
 		if(expandedPaths == null)
 			return;
-
 		for(int i = 0; i < expandedPaths.length; ++i)
 		{
 			TreePath oldPath = expandedPaths[i];
@@ -133,9 +123,9 @@ public class TreeTools
 			if(newPath != null)
 				tree.expandPath(newPath);
 		}
-	}
+	} //}}}
 
-
+	//{{{ +searchPath(TreeModel, TreePath) : TreePath
 	/**
 	 * Search for a path in the specified tree model, whose nodes have
 	 * the same name (compared using <code>equals()</code>)
@@ -149,11 +139,9 @@ public class TreeTools
 		Object treenode = model.getRoot();
 		Object[] oldPathNodes = oldPath.getPath();
 		TreePath newPath = new TreePath(treenode);
-
 		for(int i = 0; i < oldPathNodes.length; ++i)
 		{
 			Object oldPathNode = oldPathNodes[i];
-
 			if(treenode.toString().equals(oldPathNode.toString()))
 			{
 				if(i == oldPathNodes.length - 1)
@@ -166,7 +154,6 @@ public class TreeTools
 					{
 						int count = model.getChildCount(treenode);
 						boolean foundChild = false;
-
 						for(int j = 0; j < count; ++j)
 						{
 							Object child = model.getChild(treenode, j);
@@ -178,15 +165,13 @@ public class TreeTools
 								break;
 							}
 						}
-
 						if(!foundChild)
 							return null; // couldn't find child with same name
 					}
 				}
 			}
 		}
-
 		return null;
-	}
-
+	} //}}}
 }
+

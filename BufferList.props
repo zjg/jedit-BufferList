@@ -1,48 +1,38 @@
 #
 # General plugin properites
 #
-
 plugin.bufferlist.BufferListPlugin.name=BufferList
 plugin.bufferlist.BufferListPlugin.author=Dirk Moebius
-plugin.bufferlist.BufferListPlugin.version=0.8
+plugin.bufferlist.BufferListPlugin.version=0.9
 plugin.bufferlist.BufferListPlugin.docs=BufferList.html
 plugin.bufferlist.BufferListPlugin.depend.0=jedit 04.00.99.00
-
 
 #
 # dockable name
 #
-
 bufferlist.name.label=Buffer List
 bufferlist.title=Buffer List
-
 
 #
 # menu
 #
-
 bufferlist.menu=bufferlist-toggle - bufferlist-to-front bufferlist-next-buffer bufferlist-previous-buffer
 bufferlist.menu.label=Buffer List
-
 
 #
 # actions
 #
-
 bufferlist.label=Buffer List
 bufferlist-toggle.label=Toggle Buffer List
 bufferlist-to-front.label=Go to Buffer List
 bufferlist-next-buffer.label=Go to Next Buffer in Buffer List
 bufferlist-previous-buffer.label=Go to Previous Buffer in Buffer List
 
-
 #
 # popup menu
 #
-
 bufferlist.popup.title.allFiles=All Files:
 bufferlist.popup.title.multipleSelection=Multiple Files:
-
 bufferlist.popup.goto.label=Goto
 bufferlist.popup.open-in-new-view.label=Open In New View
 bufferlist.popup.close.label=Close
@@ -55,29 +45,22 @@ bufferlist.popup.expand-all.label=Expand All
 bufferlist.popup.collapse-all.label=Collapse All
 bufferlist.popup.copy-paths.label=Copy to Clipboard
 
-
 #
 # BufferList panel
 #
-
 bufferlist.openfiles.label=Open Files
-
 
 #
 # Option pane
 #
-
 options.bufferlist.label=Buffer List
-
 options.bufferlist.font=Font:\ 
 options.bufferlist.autoshow=Auto-Show on buffer change
 options.bufferlist.closeFilesOnDoubleClick=Close files on double click
-
+options.bufferlist.startExpanded=Fully expand directory tree by default
 
 #
 # Error and message dialogs
 #
-
 bufferlist.error.tooMuchSelection.title=Error
 bufferlist.error.tooMuchSelection.message=Please select only one buffer.
-

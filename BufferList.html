@@ -7,17 +7,17 @@
 
 
 <TABLE BGCOLOR="#CCCCFF" BORDER="0" CELLSPACING="0" CELLPADDING="5"
-       WIDTH="100%">
-  <TR>
-    <TD>
-      <H1>BufferList Plugin</H1>
-    </TD>
-    <TD ALIGN="right">
-        <SMALL>By Dirk M&ouml;bius<BR>
-        <A HREF="mailto:dmoebius@gmx.net"><EM>dmoebius@gmx.net</EM></A>
-        </SMALL>
-    </TD>
-  </TR>
+			 WIDTH="100%">
+	<TR>
+		<TD>
+			<H1>BufferList Plugin</H1>
+		</TD>
+		<TD ALIGN="right">
+				<SMALL>By Dirk M&ouml;bius<BR>
+				<A HREF="mailto:dmoebius@gmx.net"><EM>dmoebius@gmx.net</EM></A>
+				</SMALL>
+		</TD>
+	</TR>
 </TABLE>
 
 
@@ -36,11 +36,11 @@ right-clicking an entry.
 <H3>Mouse Actions</H3>
 
 <UL>
-  <LI><B>single click</B> jumps to the selected buffer</LI>
-  <LI><B>double click</B> closes the selected buffer (<I>this may be
-      disabled in the options pane, see below</I>)</LI>
-  <LI><B>shift click</B> selects multiple entries</LI>
-  <LI><B>right click</B> opens a popup with some buffer related actions</LI>
+	<LI><B>single click</B> jumps to the selected buffer</LI>
+	<LI><B>double click</B> closes the selected buffer (<I>this may be
+			disabled in the options pane, see below</I>)</LI>
+	<LI><B>shift click</B> selects multiple entries</LI>
+	<LI><B>right click</B> opens a popup with some buffer related actions</LI>
 </UL>
 
 <H3>Menu Actions</H3>
@@ -51,17 +51,17 @@ The following menu actions are available in menu
 <P>
 
 <UL>
-  <LI><B>Buffer List (Toggle)</B><BR>
-      Show/Hide the Buffer List.
-  <LI><B>Go to Buffer List</B><BR>
-      Show the Buffer List and set the focus on the current buffer entry.
-  <LI><B>Go to Next Buffer in Buffer List</B><BR>
-      Go to the buffer below the current one in the Buffer List.
-      This is different from <B>View&gt;Go to Next Buffer</B>,
-      because the Buffer List might be sorted differently than jEdit's
-      internal list.
-  <LI><B>Go to Previous Buffer in Buffer List</B><BR>
-      Go to the buffer above the current one in the Buffer List.
+	<LI><B>Buffer List (Toggle)</B><BR>
+			Show/Hide the Buffer List.
+	<LI><B>Go to Buffer List</B><BR>
+			Show the Buffer List and set the focus on the current buffer entry.
+	<LI><B>Go to Next Buffer in Buffer List</B><BR>
+			Go to the buffer below the current one in the Buffer List.
+			This is different from <B>View&gt;Go to Next Buffer</B>,
+			because the Buffer List might be sorted differently than jEdit's
+			internal list.
+	<LI><B>Go to Previous Buffer in Buffer List</B><BR>
+			Go to the buffer above the current one in the Buffer List.
 </UL>
 
 
@@ -79,14 +79,14 @@ A prerequisite is that you assigned a keyboard shortcut to the plugin action
 </P>
 
 <TABLE BORDER>
-  <TR> <TD><B>Key Shortcut</B></TD> <TD><B>Action</B></TD>                             </TR>
-  <TR> <TD>[Alt-b]</TD>             <TD>Show Buffer List</TD>                          </TR>
-  <TR> <TD>[Up] / [Down]</TD>       <TD>Choose buffer</TD>                             </TR>
-  <TR> <TD>[Right]</TD>             <TD>Expand a directory entry</TD>                  </TR>
-  <TR> <TD>[Left]</TD>              <TD>Collapse a directory entry</TD>                </TR>
-  <TR> <TD>[Tab]</TD>               <TD>Switch between Open and Recent files list</TD> </TR>
-  <TR> <TD>[Enter] / [Return]</TD>  <TD>Jump to/Open selected buffer</TD>              </TR>
-  <TR> <TD>[Esc]</TD>               <TD>Return to text area</TD>                       </TR>
+	<TR> <TD><B>Key Shortcut</B></TD> <TD><B>Action</B></TD>                             </TR>
+	<TR> <TD>[Alt-b]</TD>             <TD>Show Buffer List</TD>                          </TR>
+	<TR> <TD>[Up] / [Down]</TD>       <TD>Choose buffer</TD>                             </TR>
+	<TR> <TD>[Right]</TD>             <TD>Expand a directory entry</TD>                  </TR>
+	<TR> <TD>[Left]</TD>              <TD>Collapse a directory entry</TD>                </TR>
+	<TR> <TD>[Tab]</TD>               <TD>Switch between Open and Recent files list</TD> </TR>
+	<TR> <TD>[Enter] / [Return]</TD>  <TD>Jump to/Open selected buffer</TD>              </TR>
+	<TR> <TD>[Esc]</TD>               <TD>Return to text area</TD>                       </TR>
 </TABLE>
 
 <BR>
@@ -104,18 +104,20 @@ The following options are available:
 </P>
 
 <UL>
-  <LI><B>Font</B><BR>
-      The base font of bufferlist entries.<BR>
-      The current buffer will be shown <B>bold</B>.
-      All entries will be shown with a color that matches one of the regular
-      expressions in
-      <B>Utilities&gt;Global&nbsp;options&gt;File&nbsp;System&nbsp;Browser&gt;Colors</B>.</LI>
-  <LI><B>Auto-Show on buffer change</B><BR>
-      If checked, the Buffer List is automatically shown, if the current buffer
-      has been changed.</LI>
-  <LI><B>Close files on double click</B><BR>
-      If checked, a buffer that has been double clicked is closed. Otherwise it
-      is opened.</LI>
+	<LI><B>Font</B><BR>
+			The base font of bufferlist entries.<BR>
+			The current buffer will be shown <B>bold</B>.
+			All entries will be shown with a color that matches one of the regular
+			expressions in
+			<B>Utilities&gt;Global&nbsp;options&gt;File&nbsp;System&nbsp;Browser&gt;Colors</B>.</LI>
+	<LI><B>Auto-Show on buffer change</B><BR>
+			If checked, the Buffer List is automatically shown, if the current buffer
+			has been changed.</LI>
+	<LI><B>Close files on double click</B><BR>
+			If checked, a buffer that has been double clicked is closed. Otherwise it
+			is opened.</LI>
+	<LI><B>Fully expand directory tree by default</B><BR>
+			If checked, the BufferList tree will be fully expanded when first loaded.</LI>
 </UL>
 
 <H3>Docking</H3>
@@ -154,9 +156,9 @@ You can also write to:
 </P>
 
 <UL>
-    <LI>Dirk M&ouml;bius <a href="mailto:dmoebius@gmx.net"><EM>&lt;dmoebius@gmx.net&gt;</EM></a>, or
-    <LI>jEdit-users mailing-list <a href="mailto:jedit-users@lists.sourceforge.net"><EM>&lt;jedit-users@lists.sourceforge.net&gt;</EM></a>, or
-    <LI>jEdit-devel mailing-list <a href="mailto:jedit-devel@lists.sourceforge.net"><EM>&lt;jedit-devel@lists.sourceforge.net&gt;</EM></a>.
+		<LI>Dirk M&ouml;bius <a href="mailto:dmoebius@gmx.net"><EM>&lt;dmoebius@gmx.net&gt;</EM></a>, or
+		<LI>jEdit-users mailing-list <a href="mailto:jedit-users@lists.sourceforge.net"><EM>&lt;jedit-users@lists.sourceforge.net&gt;</EM></a>, or
+		<LI>jEdit-devel mailing-list <a href="mailto:jedit-devel@lists.sourceforge.net"><EM>&lt;jedit-devel@lists.sourceforge.net&gt;</EM></a>.
 </UL>
 
 

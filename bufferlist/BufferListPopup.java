@@ -1,8 +1,8 @@
-/*
+/*{{{ header
  * BufferListPopup.java - provides popup actions for BufferList
  * Copyright (c) 2000-2002 Dirk Moebius
  *
- * :tabSize=4:indentSize=4:noTabs=false:maxLineLen=0:
+ * :tabSize=4:indentSize=4:noTabs=false:maxLineLen=0:folding=explicit:collapseFolds=1:
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,12 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * }}}
  */
-
-
 package bufferlist;
 
-
+//{{{ imports
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
@@ -41,7 +40,7 @@ import org.gjt.sp.jedit.browser.VFSBrowser;
 import org.gjt.sp.jedit.search.DirectoryListSet;
 import org.gjt.sp.jedit.search.SearchAndReplace;
 import org.gjt.sp.jedit.search.SearchDialog;
-
+//}}}
 
 /**
  * A popup menu for BufferList.
@@ -50,13 +49,14 @@ import org.gjt.sp.jedit.search.SearchDialog;
  */
 public class BufferListPopup extends JPopupMenu
 {
-
+	//{{{ instance variables
 	private View view;
 	private JTree tree;
 	private TreePath[] sel;
 	private String dir;
+	//}}}
 
-
+	//{{{ +BufferListPopup(View, JTree, TreePath[]) : <init>
 	public BufferListPopup(View view, JTree tree, TreePath[] sel)
 	{
 		this.view = view;
@@ -145,9 +145,9 @@ public class BufferListPopup extends JPopupMenu
 			addSeparator();
 			add(createMenuItem("copy-paths"));
 		}
-	}
+	} //}}}
 
-
+	//{{{ -createMenuItem(String) : JMenuItem
 	private JMenuItem createMenuItem(String name)
 	{
 		String label = jEdit.getProperty("bufferlist.popup." + name + ".label");
@@ -155,11 +155,12 @@ public class BufferListPopup extends JPopupMenu
 		mi.setActionCommand(name);
 		mi.addActionListener(new ActionHandler());
 		return mi;
-	}
+	} //}}}
 
-
-	class ActionHandler implements ActionListener
+	//{{{ -class ActionHandler
+	private class ActionHandler implements ActionListener
 	{
+		//{{{ +actionPerformed(ActionEvent) : void
 		public void actionPerformed(ActionEvent evt)
 		{
 			String actionCommand = evt.getActionCommand();
@@ -216,8 +217,7 @@ public class BufferListPopup extends JPopupMenu
 			view = null;
 			tree = null;
 			sel = null;
-		}
-	}
-
+		} //}}}
+	} //}}}
 }
 

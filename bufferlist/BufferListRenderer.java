@@ -1,8 +1,8 @@
-/*
+/*{{{ header
  * BufferListRenderer.java
  * Copyright (c) 2000-2002 Dirk Moebius
  *
- * :tabSize=4:indentSize=4:noTabs=false:maxLineLen=0:
+ * :tabSize=4:indentSize=4:noTabs=false:maxLineLen=0:folding=explicit:collapseFolds=1:
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,12 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * }}}
  */
-
-
 package bufferlist;
 
-
+//{{{ imports
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
@@ -40,29 +39,32 @@ import org.gjt.sp.jedit.Buffer;
 import org.gjt.sp.jedit.MiscUtilities;
 import org.gjt.sp.jedit.View;
 import org.gjt.sp.util.Log;
-
+//}}}
 
 public class BufferListRenderer extends DefaultTreeCellRenderer
 {
+	//{{{ instance variables
+	private View view;
+	private Vector colors;
+	private Hashtable name2color;
+	private Color colNormal = UIManager.getColor("Tree.foreground");
+	private Color colSelected = UIManager.getColor("Tree.selectionForeground");
+	private Font font = jEdit.getFontProperty("bufferlist.font", UIManager.getFont("Tree.font"));
+	private Font fontNormal = font.deriveFont(Font.PLAIN);
+	private Font fontSelected = font.deriveFont(Font.BOLD);
+	private static Object LOCK = new Object();
+	//}}}
 
+	//{{{ +BufferListRenderer(View) : <init>
 	public BufferListRenderer(View view)
 	{
 		this.view = view;
-	}
+	} //}}}
 
-
-	public Component getTreeCellRendererComponent(
-		JTree tree,
-		Object value,
-		boolean isSelected,
-		boolean isExpanded,
-		boolean isLeaf,
-		int row,
-		boolean hasFocus)
+	//{{{ +getTreeCellRendererComponent(JTree, Object, boolean, boolean, boolean, int, boolean) : Component
+	public Component getTreeCellRendererComponent(JTree tree, Object value, boolean isSelected,	boolean isExpanded,	boolean isLeaf,	int row, boolean hasFocus)
 	{
-		JLabel comp = (JLabel) super.getTreeCellRendererComponent(tree,
-			value, isSelected, isExpanded, isLeaf, row, hasFocus);
-
+		JLabel comp = (JLabel) super.getTreeCellRendererComponent(tree, value, isSelected, isExpanded, isLeaf, row, hasFocus);
 		Object obj = ((DefaultMutableTreeNode)value).getUserObject();
 		if(obj instanceof Buffer)
 		{
@@ -70,6 +72,7 @@ public class BufferListRenderer extends DefaultTreeCellRenderer
 			Buffer buffer = (Buffer) obj;
 			String name = buffer.getName();
 			comp.setText(name);
+			comp.setToolTipText(name);
 			comp.setIcon(buffer.getIcon());
 			comp.setFont(buffer == view.getBuffer() ? fontSelected : fontNormal);
 			comp.setForeground(isSelected ? colSelected : getColor(name));
@@ -78,26 +81,23 @@ public class BufferListRenderer extends DefaultTreeCellRenderer
 		{
 			// Directory entry
 			comp.setText(obj != null ? obj.toString() : "");
+			comp.setToolTipText(obj == null ? "" : obj.toString());
 			comp.setIcon(null);
 			comp.setFont(fontNormal);
 			comp.setForeground(isSelected ? colSelected : colNormal);
 		}
-
 		return comp;
-	}
+	} //}}}
 
-
+	//{{{ -getColor(String) : Color
 	private Color getColor(String name)
 	{
 		if(name2color == null)
 			name2color = new Hashtable();
-
 		Color col = (Color) name2color.get(name);
 		if(col != null)
 			return col;
-
 		loadColors();
-
 		for(int i = 0; i < colors.size(); i++)
 		{
 			ColorEntry entry = (ColorEntry)colors.elementAt(i);
@@ -107,23 +107,19 @@ public class BufferListRenderer extends DefaultTreeCellRenderer
 				return entry.color;
 			}
 		}
-
 		return colNormal;
-	}
+	} //}}}
 
-
+	//{{{ -loadColors() : void
 	private void loadColors()
 	{
 		if(colors != null)
 			return;
-
 		synchronized(LOCK)
 		{
 			colors = new Vector();
-
 			if(!jEdit.getBooleanProperty("vfs.browser.colorize"))
 				return;
-
 			try
 			{
 				String glob;
@@ -144,33 +140,18 @@ public class BufferListRenderer extends DefaultTreeCellRenderer
 				Log.log(Log.ERROR, BufferList.class, e);
 			}
 		}
-	}
+	} //}}}
 
-
-	static class ColorEntry
+	//{{{ +class ColorEntry
+	public static class ColorEntry
 	{
 		RE re;
 		Color color;
-
 		ColorEntry(RE re, Color color)
 		{
 			this.re = re;
 			this.color = color;
 		}
-	}
-
-
-	private View view;
-	private Vector colors;
-	private Hashtable name2color;
-	private Color colNormal = UIManager.getColor("Tree.foreground");
-	private Color colSelected = UIManager.getColor("Tree.selectionForeground");
-	private Font font = jEdit.getFontProperty("bufferlist.font", UIManager.getFont("Tree.font"));
-	private Font fontNormal = font.deriveFont(Font.PLAIN);
-	private Font fontSelected = font.deriveFont(Font.BOLD);
-
-	private static Object LOCK = new Object();
-
+	} //}}}
 }
-
 

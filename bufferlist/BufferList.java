@@ -1,8 +1,8 @@
-/*
+/*{{{ header
  * BufferList.java
  * Copyright (c) 2000-2002 Dirk Moebius
  *
- * :tabSize=4:indentSize=4:noTabs=false:maxLineLen=0:
+ * :tabSize=4:indentSize=4:noTabs=false:maxLineLen=0:folding=explicit:collapseFolds=1:
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,12 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ *}}}
  */
-
-
 package bufferlist;
 
-
+//{{{ imports
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Enumeration;
@@ -33,7 +32,7 @@ import org.gjt.sp.jedit.*;
 import org.gjt.sp.jedit.gui.*;
 import org.gjt.sp.jedit.msg.*;
 import org.gjt.sp.util.Log;
-
+//}}}
 
 /**
  * A dockable panel that contains a list of open files.
@@ -42,7 +41,7 @@ import org.gjt.sp.util.Log;
  */
 public class BufferList extends JPanel implements EBComponent
 {
-
+	//{{{ instance variables
 	private View view;
 	private String position;
 	private TextAreaFocusHandler textAreaFocusHandler;
@@ -51,8 +50,10 @@ public class BufferList extends JPanel implements EBComponent
 	private DefaultTreeModel model;
 	private DefaultMutableTreeNode rootNode;
 	private boolean sortIgnoreCase;
+	private Buffer lastBuffer = null;
+	//}}}
 
-
+	//{{{ +BufferList(View, String) : <init>
 	public BufferList(View view, final String position)
 	{
 		super(new BorderLayout(0, 5));
@@ -71,6 +72,7 @@ public class BufferList extends JPanel implements EBComponent
 		tree.addMouseListener(new MouseHandler());
 		tree.addKeyListener(new KeyHandler());
 		createModel();
+		ToolTipManager.sharedInstance().registerComponent(tree);
 
 		// scrollpane for tree:
 		scrTree = new JScrollPane(tree);
@@ -89,18 +91,23 @@ public class BufferList extends JPanel implements EBComponent
 
 		currentBufferChanged();
 
+		if(jEdit.getBooleanProperty("bufferlist.startExpanded"))
+		{
+			TreeTools.expandAll(tree);
+		}
 		// move tree scrollbar to the left, ie. show left side of the tree:
 		SwingUtilities.invokeLater(new Runnable()
 		{
+			//{{{ +run() : void
 			public void run()
 			{
 				JScrollBar hbar = scrTree.getHorizontalScrollBar();
 				hbar.setValue(hbar.getMinimum());
-			}
+			} //}}}
 		});
-	}
+	} //}}}
 
-
+	//{{{ +requestFocusOpenFiles() : void
 	/**
 	 * Invoked by action "bufferlist-to-front" only;
 	 * sets the focus on the table of open files.
@@ -114,9 +121,9 @@ public class BufferList extends JPanel implements EBComponent
 		tree.requestFocus();
 		tree.expandPath(path);
 		tree.setSelectionPath(path);
-	}
+	} //}}}
 
-
+	//{{{ +getCurrentBuffer() : Buffer
 	/**
 	 * @deprecated use @link{org.gjt.sp.jedit.View#getBuffer()} instead.
 	 * @return the current buffer.
@@ -125,9 +132,9 @@ public class BufferList extends JPanel implements EBComponent
 	public Buffer getCurrentBuffer()
 	{
 		return view.getBuffer();
-	}
+	} //}}}
 
-
+	//{{{ +nextBuffer() : void
 	/**
 	 * Go to next buffer in open files list.
 	 * @since BufferList 0.5
@@ -148,9 +155,9 @@ public class BufferList extends JPanel implements EBComponent
 
 		Buffer nextBuffer = (Buffer) next.getUserObject();
 		view.setBuffer(nextBuffer);
-	}
+	} //}}}
 
-
+	//{{{ +previousBuffer() : void
 	/**
 	 * Go to previous buffer in open files list.
 	 * @since BufferList 0.5
@@ -171,9 +178,9 @@ public class BufferList extends JPanel implements EBComponent
 
 		Buffer prevBuffer = (Buffer) prev.getUserObject();
 		view.setBuffer(prevBuffer);
-	}
+	} //}}}
 
-
+	//{{{ +addNotify() : void
 	/**
 	 * Invoked when the component is created;
 	 * adds focus event handlers to all EditPanes of the View
@@ -190,9 +197,9 @@ public class BufferList extends JPanel implements EBComponent
 			for(int i = 0; i < editPanes.length; i++)
 				editPanes[i].getTextArea().addFocusListener(textAreaFocusHandler);
 		}
-	}
+	} //}}}
 
-
+	//{{{ +removeNotify() : void
 	/**
 	 * Invoked when the component is removed;
 	 * removes the focus event handlers from all EditPanes.
@@ -210,9 +217,9 @@ public class BufferList extends JPanel implements EBComponent
 			for(int i = 0; i < editPanes.length; i++)
 				editPanes[i].getTextArea().removeFocusListener(textAreaFocusHandler);
 		}
-	}
+	} //}}}
 
-
+	//{{{ +handleMessage(EBMessage) : void
 	/** Handle jEdit EditBus messages */
 	public void handleMessage(EBMessage message)
 	{
@@ -222,9 +229,9 @@ public class BufferList extends JPanel implements EBComponent
 			handleEditPaneUpdate((EditPaneUpdate)message);
 		else if(message instanceof PropertiesChanged)
 			handlePropertiesChanged();
-	}
+	} //}}}
 
-
+	//{{{ -handleBufferUpdate(BufferUpdate) : void
 	private void handleBufferUpdate(BufferUpdate bu)
 	{
 		if(bu.getWhat() == BufferUpdate.CREATED)
@@ -239,9 +246,9 @@ public class BufferList extends JPanel implements EBComponent
 			createModel();
 			TreeTools.setExpandedPaths(tree, expandedPaths);
 		}
-	}
+	} //}}}
 
-
+	//{{{ -handleEditPaneUpdate(EditPaneUpdate) : void
 	private void handleEditPaneUpdate(EditPaneUpdate epu)
 	{
 		View v = ((EditPane) epu.getSource()).getView();
@@ -254,9 +261,9 @@ public class BufferList extends JPanel implements EBComponent
 			epu.getEditPane().getTextArea().removeFocusListener(textAreaFocusHandler);
 		else if(epu.getWhat() == EditPaneUpdate.BUFFER_CHANGED)
 			currentBufferChanged();
-	}
+	} //}}}
 
-
+	//{{{ -handlePropertiesChanged() : void
 	private void handlePropertiesChanged()
 	{
 		boolean newSortIgnoreCase = jEdit.getBooleanProperty("vfs.browser.sortIgnoreCase");
@@ -268,15 +275,15 @@ public class BufferList extends JPanel implements EBComponent
 
 		// set new cell renderer to change fonts:
 		tree.setCellRenderer(new BufferListRenderer(view));
-	}
+	} //}}}
 
-
+	//{{{ -getDir(Buffer) : String
 	private static String getDir(Buffer buffer)
 	{
 		return buffer.getVFS().getParentOfPath(buffer.getPath());
-	}
+	} //}}}
 
-
+	//{{{ -createModel() : void
 	/**
 	 * Sets a new tree model.
 	 */
@@ -332,9 +339,9 @@ public class BufferList extends JPanel implements EBComponent
 
 		model = new DefaultTreeModel(rootNode);
 		tree.setModel(model);
-	}
+	} //}}}
 
-
+	//{{{ -getNode(Buffer) : DefaultMutableTreeNode
 	/**
 	 * @return the tree node for the jEdit buffer, or null if the buffer
 	 *  cannot be found in the current tree model.
@@ -349,9 +356,9 @@ public class BufferList extends JPanel implements EBComponent
 				return node;
 		}
 		return null;
-	}
+	} //}}}
 
-
+	//{{{ -insertNode(Buffer) : void
 	private void insertNode(Buffer buffer)
 	{
 		String dir = getDir(buffer);
@@ -396,9 +403,9 @@ public class BufferList extends JPanel implements EBComponent
 		// expand the new directory node:
 		TreePath path = new TreePath(newNode.getPath());
 		tree.makeVisible(path);
-	}
+	} //}}}
 
-
+	//{{{ -removeNode(Buffer) : void
 	private void removeNode(Buffer buffer)
 	{
 		DefaultMutableTreeNode node = getNode(buffer);
@@ -418,9 +425,9 @@ public class BufferList extends JPanel implements EBComponent
 		}
 		else
 			model.nodesWereRemoved(parent, new int[] { index }, new Object[] { node });
-	}
+	} //}}}
 
-
+	//{{{ -updateNode(Buffer) : void
 	private void updateNode(Buffer buffer)
 	{
 		DefaultMutableTreeNode node = getNode(buffer);
@@ -428,10 +435,9 @@ public class BufferList extends JPanel implements EBComponent
 			return;
 
 		model.nodeChanged(node);
-	}
+	} //}}}
 
-
-
+	//{{{ -currentBufferChanged() : void
 	/**
 	 * Called after the current buffer has changed; notifies the cell
 	 * renderer and makes sure the current buffer is visible.
@@ -456,15 +462,15 @@ public class BufferList extends JPanel implements EBComponent
 		// only.
 		tree.makeVisible(path);
 		Rectangle bounds = tree.getPathBounds(path);
-	    if(bounds != null)
+		if(bounds != null)
 		{
 			bounds.width = 0;
 			bounds.x = 0;
 			tree.scrollRectToVisible(bounds);
-	    }
-	}
+		}
+	} //}}}
 
-
+	//{{{ -closeWindowAndFocusEditPane() : void
 	private void closeWindowAndFocusEditPane()
 	{
 		if(position.equals(DockableWindowManager.FLOATING))
@@ -473,18 +479,16 @@ public class BufferList extends JPanel implements EBComponent
 			wm.removeDockableWindow("bufferlist");
 		}
 		view.getTextArea().requestFocus();
-	}
+	} //}}}
 
-
-	Buffer lastBuffer = null;
-
-
+	//{{{ -class TextAreaFocusHandler
 	/**
 	 * Listens for a TextArea to get focus, to make the appropiate buffer
 	 * in the BufferList bold.
 	 */
-	class TextAreaFocusHandler extends FocusAdapter
+	private class TextAreaFocusHandler extends FocusAdapter
 	{
+		//{{{ +focusGained(FocusEvent) : void
 		public void focusGained(FocusEvent evt)
 		{
 			Component comp = SwingUtilities.getAncestorOfClass(EditPane.class, (Component) evt.getSource());
@@ -494,15 +498,16 @@ public class BufferList extends JPanel implements EBComponent
 			Buffer buffer = ((EditPane)comp).getBuffer();
 			if(buffer != lastBuffer)
 				currentBufferChanged();
-		}
-	}
+		} //}}}
+	} //}}}
 
-
+	//{{{ -class MouseHandler
 	/**
 	 * A mouse listener for the buffer list.
 	 */
-	class MouseHandler extends MouseAdapter
+	private class MouseHandler extends MouseAdapter
 	{
+		//{{{ +mouseClicked(MouseEvent) : void
 		/**
 		 * invoked when the mouse button has been clicked (pressed and
 		 * released) on the buffer list.
@@ -545,20 +550,23 @@ public class BufferList extends JPanel implements EBComponent
 				view.toFront();
 				view.getEditPane().requestFocus();
 			}
-		}
+		} //}}}
 
+		//{{{ +mousePressed(MouseEvent) : void
 		public void mousePressed(MouseEvent e)
 		{
 			if(e.isPopupTrigger())
 				showPopup(e);
-		}
+		} //}}}
 
+		//{{{ +mouseReleased(MouseEvent) : void
 		public void mouseReleased(MouseEvent e)
 		{
 			if(e.isPopupTrigger())
 				showPopup(e);
-		}
+		} //}}}
 
+		//{{{ -showPopup(MouseEvent) : void
 		private void showPopup(MouseEvent e)
 		{
 			e.consume();
@@ -605,15 +613,16 @@ public class BufferList extends JPanel implements EBComponent
 			paths = tree.getSelectionPaths();
 			BufferListPopup popup = new BufferListPopup(view, tree, paths);
 			popup.show(tree, e.getX() + 1, e.getY() + 1);
-		}
-	}
+		} //}}}
+	} //}}}
 
-
+	//{{{ -class KeyHandler
 	/**
 	 * A key handler for the buffer list.
 	 */
-	class KeyHandler extends KeyAdapter
+	private class KeyHandler extends KeyAdapter
 	{
+		//{{{ +keyPressed(KeyEvent) : void
 		public void keyPressed(KeyEvent evt)
 		{
 			if(evt.isConsumed())
@@ -647,7 +656,6 @@ public class BufferList extends JPanel implements EBComponent
 				}
 				closeWindowAndFocusEditPane();
 			}
-		}
-	}
-
+		} //}}}
+	} //}}}
 }

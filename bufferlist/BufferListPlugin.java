@@ -1,8 +1,8 @@
-/*
+/*{{{ header
  * BufferListPlugin.java
  * Copyright (c) 2000-2002 Dirk Moebius
  *
- * :tabSize=4:indentSize=4:noTabs=false:maxLineLen=0:
+ * :tabSize=4:indentSize=4:noTabs=false:maxLineLen=0:folding=explicit:collapseFolds=1:
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,12 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ *}}}
  */
-
-
 package bufferlist;
 
-
+//{{{ imports
 import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.JCheckBox;
@@ -31,7 +30,7 @@ import org.gjt.sp.jedit.*;
 import org.gjt.sp.jedit.gui.OptionsDialog;
 import org.gjt.sp.jedit.msg.*;
 import org.gjt.sp.util.Log;
-
+//}}}
 
 /**
  * The BufferList plugin.
@@ -40,25 +39,25 @@ import org.gjt.sp.util.Log;
  */
 public class BufferListPlugin extends EBPlugin
 {
-
+	//{{{ +start() : void
 	public void start()
 	{
 		// nothing to do...
-	}
+	} //}}}
 
-
+	//{{{ +createMenuItems(Vector) : void
 	public void createMenuItems(Vector menuItems)
 	{
 		menuItems.addElement(GUIUtilities.loadMenu("bufferlist.menu"));
-	}
+	} //}}}
 
-
+	//{{{ +createOptionPanes(OptionsDialog) : void
 	public void createOptionPanes(OptionsDialog od)
 	{
 		od.addOptionPane(new BufferListOptionPane());
-	}
+	} //}}}
 
-
+	//{{{ +handleMessage(EBMessage) : void
 	public void handleMessage(EBMessage message)
 	{
 		if(message instanceof BufferUpdate)
@@ -82,6 +81,6 @@ public class BufferListPlugin extends EBPlugin
 					view.getDockableWindowManager().addDockableWindow("bufferlist");
 			}
 		}
-	}
+	} //}}}
 }
 
