@@ -1,0 +1,57 @@
+# jmk makefile for the BufferList plugin
+# To recompile this plugin, start jmk in the plugin's source directory.
+
+NAME = "BufferList";
+
+# compiler:
+#javac = "javac";
+#javaflags =  "-g" "-deprecation"; 
+javac = "jikes";
+javaflags =  "+E" "-g" "-deprecation"; 
+
+# directories to compile and include:
+pkgs = ".";
+
+# target jar filename:
+jarfile = (cat "../" NAME ".jar");
+
+# jar tool:
+jar = "jar";
+jarflags = "cfM0";
+
+
+##########################################################################
+
+srcs = (subst ".java", ".class", (glob (join pkgs, "/*.java")));
+
+"all": jarfile;
+
+"%.class" : "%.java";
+{
+    exec javac javaflags <;
+}
+
+jarfile: srcs;
+{
+    exec jar jarflags @
+        (glob 
+            (join pkgs, "/*.class")
+            (join pkgs, "/*.gif")
+            (join pkgs, "/*.html")
+            (join pkgs, "/*.props"));
+}
+
+"jar": jarfile;
+
+"clean":;
+{
+    -delete
+        (glob 
+            (join pkgs, "/*.class")
+            (join pkgs, "/*~")
+            (join pkgs, "/*.bak"));
+}
+
+
+".PHONY": "all" "jar" "clean";
+

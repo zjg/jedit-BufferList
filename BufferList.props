@@ -1,0 +1,19 @@
+plugin.BufferListPlugin.name=BufferList
+plugin.BufferListPlugin.author=Dirk Moebius <dmoebius@gmx.net>
+plugin.BufferListPlugin.version=0.1
+plugin.BufferListPlugin.docs=index.html
+plugin.BufferListPlugin.depend.0=jdk 1.1
+plugin.BufferListPlugin.depend.1=jedit 02.06.07.00
+
+# dockable name
+bufferlist.name.label=Buffer List
+bufferlist.title=Buffer List
+
+# actions
+toggle-bufferlist.label=Buffer List
+bufferlist.label=Buffer List
+
+# mics
+bufferlist.openfiles.label=Open Files
+bufferlist.recentfiles.label=Recent Files
+

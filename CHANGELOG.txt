@@ -1,0 +1,13 @@
+TODO
+----
+- handle split views
+- right click popup menu (which entries?)
+- option pane (is this really necessary? don't know...)
+- keyboard navigation
+
+
+Version 0.1 (2000/10/23)
+------------------------
+- initial release
+- requires jEdit 2.6pre7 or higher
+

@@ -1,0 +1,112 @@
+<HTML>
+<HEAD>
+<TITLE>Buffer List plugin</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+
+<TABLE BGCOLOR="#CCCCFF" BORDER="0" CELLSPACING="0" CELLPADDING="3"
+       WIDTH="100%" SUMMARY="Buffer List page header">
+    <TR WIDTH="100%">
+    <TD><BIG><BIG>Buffer List plugin</BIG></BIG></TD>
+    <TD ALIGU="right"><small>By Dirk M&ouml;bius<BR>
+<EM>dmoebius@gmx.net</EM></SMALL></TD></TR>
+</TABLE>
+
+<UL>
+    <LI><A HREF="#general">Presentation</A>
+    <LI><A HREF="#customization">Customization</A>
+    <LI><A HREF="#license">License</A>
+    <LI><A HREF="#feedback">Feedback</A>
+</UL>
+
+
+<A NAME="general"></A><H2>Presentation</H2>
+
+<P>
+The Buffer List shows a list of jEdit's open files and a second list
+with recently opened files. Open files on the "open files" list with a
+single mouse click. Open files on the "recent files" list with a 
+double mouse click.
+</P>
+
+<P>
+The appearance of each entry in the buffer list depends on the state of its
+buffer:
+</P>
+
+<UL>
+<LI> a unmodified buffer appears with a small grey orb
+<LI> a modified buffer appears with a small orange orb
+<LI> a new buffer appears with a small green orb
+<LI> a new and modified buffer appears with a small yellow orb 
+<LI> a read-only buffer appears with <FONT COLOR="#666666">grey text</FONT>
+<LI> the current buffer appears with a <B>bold font</B>
+</UL>
+
+<p>
+Some of you may already have noticed that Buffer List, Buffer Selector and
+BufferTabs do the same thing. Each of them adresses different issues:
+</p>
+
+<ul>
+<li>
+<em>BufferTabs</em> are jEdit's default way of switching buffers with the mouse.
+Chances are, that they are no longer implemented using Tabs in future
+jEdit versions because of it's inherent navigational disadvantages.
+</li>
+<li>
+<em>Buffer Selector</em>'s main goal is saving screen space. It is a small toolbar
+attached to the top or bottom of the view and doesn't get in the way.
+</li>
+<li>
+<em>Buffer List</em> is dockable. That means you can dock it into the current
+jEdit view, for example to the left or right of the text, if you got some
+free space there.
+</li>
+</ul>
+
+<p>
+So, basically all three are just three different ways of adressing the same
+problem. Choose the one method that suits you best.
+</p>
+
+
+<A NAME="customization"></A><H2>Customization</H2>
+
+<P>
+Open <b>"Utilities -&gt; Global&nbsp;options -&gt; Docking"</b> to define
+the position, where Browser List will be docked.
+</P>
+
+
+<A NAME="license"></A><H2>License</H2>
+
+<P>
+The source code is distributed under the GPL. Please see
+<A HREF="http://www.fsf.org/copyleft/gpl.html">http://www.fsf.org/copyleft/gpl.html</A>
+</P>
+
+
+<A NAME="feedback"></A><H2>Feedback</H2>
+
+<P>
+The preferred way to send bug reports or feature requests is to use the 
+Sourceforge Bug Tracker at 
+<A HREF="http://sourceforge.net/bugs/?group_id=588">http://sourceforge.net/bugs/?group_id=588</A>.
+</P>
+
+<P>
+You can also write to:
+</P>
+
+<UL>
+<LI>Dirk M&ouml;bius <a href="mailto:dmoebius@gmx.net"><EM>&lt;dmoebius@gmx.net&gt;</EM></a>, or
+<LI>jEdit-users mailing-list <a href="mailto:jedit-users@lists.sourceforge.net"><EM>&lt;jedit-users@lists.sourceforge.net&gt;</EM></a>, or
+<LI>jEdit-devel mailing-list <a href="mailto:jedit-devel@lists.sourceforge.net"><EM>&lt;jedit-devel@lists.sourceforge.net&gt;</EM></a>.
+</UL>
+
+
+</BODY>
+</HTML>
+
