@@ -21,6 +21,9 @@
 // from Java:
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -60,21 +63,50 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 
 		table1 = new HelpfulJTable();
 		table1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		table1.setAutoscrolls(false);
 		table1.setAutoCreateColumnsFromModel(false);
+		try { table1.setSortColumn(Integer.parseInt(jEdit.getProperty("bufferlist.table1.sortColumn", "-1"))); }
+		catch (NumberFormatException nfex) {}
+		try { table1.setSortOrder(Integer.parseInt(jEdit.getProperty("bufferlist.table1.sortOrder", "-1"))); }
+		catch (NumberFormatException nfex) {}
 		table1.addMouseListener(new OpenFilesMouseHandler());
 		table1.addActionListener(actionhandler);
 		table1.addKeyListener(keyhandler);
 		table1.addFocusListener(focushandler);
-		table1.getSelectionModel().setSelectionInterval(0, 0);
+		table1.addPropertyChangeListener(new PropertyChangeListener() {
+			public void propertyChange(PropertyChangeEvent evt) {
+				String prop = evt.getPropertyName();
+				if (prop.equals("sortColumn") || prop.equals("sortOrder")) {
+					jEdit.setProperty("bufferlist.table1.sortColumn", String.valueOf(table1.getSortColumn()));
+					jEdit.setProperty("bufferlist.table1.sortOrder", String.valueOf(table1.getSortOrder()));
+					setNewModels();
+				}
+			}
+		});
 
 		table2 = new HelpfulJTable();
 		table2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		table2.setAutoscrolls(false);
 		table2.setAutoCreateColumnsFromModel(false);
+		try { table2.setSortColumn(Integer.parseInt(jEdit.getProperty("bufferlist.table2.sortColumn", "-1"))); }
+		catch (NumberFormatException nfex) {}
+		try { table2.setSortOrder(Integer.parseInt(jEdit.getProperty("bufferlist.table2.sortOrder", "-1"))); }
+		catch (NumberFormatException nfex) {}
 		table2.addMouseListener(new RecentFilesMouseHandler());
 		table2.addActionListener(actionhandler);
 		table2.addKeyListener(keyhandler);
 		table2.addFocusListener(focushandler);
-		table2.getSelectionModel().setSelectionInterval(0, 0);
+
+		table2.addPropertyChangeListener(new PropertyChangeListener() {
+			public void propertyChange(PropertyChangeEvent evt) {
+				String prop = evt.getPropertyName();
+				if (prop.equals("sortColumn") || prop.equals("sortOrder")) {
+					jEdit.setProperty("bufferlist.table2.sortColumn", String.valueOf(table2.getSortColumn()));
+					jEdit.setProperty("bufferlist.table2.sortOrder", String.valueOf(table2.getSortOrder()));
+					setNewModels();
+				}
+			}
+		});
 
 		scrTable1 = new JScrollPane(table1);
 		scrTable1.getViewport().setBackground(labelBackgrndColor);
@@ -105,7 +137,7 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 
 		add(pane, BorderLayout.CENTER);
 
-		initSessionSwitcher();
+		propertiesChanged();
 
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -116,27 +148,70 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 	}
 
 
+	/** DockableWindow implementation */
 	public String getName() {
 		return BufferListPlugin.NAME;
 	}
 
 
+	/** DockableWindow implementation */
 	public Component getComponent() {
 		return this;
 	}
 
 
-	public void addNotify() {
-		super.addNotify();
-		EditBus.addToBus(this);
-		addHandlers();
+	public void requestFocusOpenFiles() {
+		table1.requestFocus();
 	}
 
 
+	/** go to next buffer in open files list */
+	public void nextBuffer() {
+		int row = model1.getCurrentBufferRow();
+		Buffer next = model1.getBuffer(row == model1.getRowCount()-1 ? 0 : row + 1);
+		view.setBuffer(next);
+	}
+
+
+	/** go to previous buffer in open files list */
+	public void previousBuffer() {
+		int row = model1.getCurrentBufferRow();
+		Buffer prev = model1.getBuffer(row == 0 ? model1.getRowCount()-1 : row - 1);
+		view.setBuffer(prev);
+	}
+
+
+	/**
+	 * Invoked when the component is created; adds focus event handlers to all
+	 * EditPanes of the View associated with this BufferList.
+	 */
+	public void addNotify() {
+		super.addNotify();
+		EditBus.addToBus(this);
+
+		if (view != null) {
+			EditPane[] editPanes = view.getEditPanes();
+			for (int i = 0; i < editPanes.length; i++)
+				editPanes[i].getTextArea().addFocusListener(textAreaFocusHandler);
+		}
+	}
+
+
+	/**
+	 * Invoked when the component is removed; saves some properties and removes
+	 * the focus event handlers from the EditPanes.
+	 */
 	public void removeNotify() {
 		super.removeNotify();
 		EditBus.removeFromBus(this);
-		removeHandlers();
+
+		// removes focus event handlers from all EditPanes of the View
+		// associated with this BufferList:
+		if (view != null) {
+			EditPane[] editPanes = view.getEditPanes();
+			for (int i = 0; i < editPanes.length; i++)
+				editPanes[i].getTextArea().removeFocusListener(textAreaFocusHandler);
+		}
 
 		// save divider location:
 		jEdit.setProperty("bufferlist.divider", Integer.toString(pane.getDividerLocation()));
@@ -184,34 +259,8 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 			}
 		}
 		else if (message instanceof PropertiesChanged) {
-			setNewColumnModel(table1, scrTable1);
-			setNewColumnModel(table2, scrTable2);
-			initSessionSwitcher();
+			propertiesChanged();
 		}
-	}
-
-
-	/**
-	 * adds focus event handlers to all EditPanes of the View associated
-	 * with this BufferList.
-	 */
-	private void addHandlers() {
-		if (view == null) return;
-		EditPane[] editPanes = view.getEditPanes();
-		for (int i = 0; i < editPanes.length; i++)
-			editPanes[i].getTextArea().addFocusListener(textAreaFocusHandler);
-	}
-
-
-	/**
-	 * removes focus event handlers from all EditPanes of the View
-	 * associated with this BufferList.
-	 */
-	private void removeHandlers() {
-		if (view == null) return;
-		EditPane[] editPanes = view.getEditPanes();
-		for (int i = 0; i < editPanes.length; i++)
-			editPanes[i].getTextArea().removeFocusListener(textAreaFocusHandler);
 	}
 
 
@@ -223,49 +272,69 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 		model2 = new BufferListModel(BufferHistory.getBufferHistory());
 		table1.setModel(model1);
 		table2.setModel(model2);
-		setNewColumnModel(table1, scrTable1);
-		setNewColumnModel(table2, scrTable2);
+		setNewColumnModel(table1);
+		setNewColumnModel(table2);
 		currentBuffer = view.getBuffer();
 		refresh();
 	}
 
 
-	private void setNewColumnModel(HelpfulJTable table, JScrollPane scrTable) {
+	private void setNewColumnModel(HelpfulJTable table) {
 		// save old column sizes and order:
 		TableColumnModel tcm = table.getColumnModel();
 		if (tcm instanceof PersistentTableColumnModel)
 			((PersistentTableColumnModel)tcm).save();
-
 		// make new column model:
 		PersistentTableColumnModel ptcm = new PersistentTableColumnModel(table == table1 ? 1 : 2, 4);
-
-		// show vertical/horizontal lines
 		boolean verticalLines = jEdit.getBooleanProperty("bufferlist.verticalLines");
-		boolean horizontalLines = jEdit.getBooleanProperty("bufferlist.horizontalLines");
-		table.setShowVerticalLines(verticalLines);
-		table.setShowHorizontalLines(horizontalLines);
 		ptcm.setColumnMargin(verticalLines ? 1 : 0);
-
-		// set table header
-		if (jEdit.getBooleanProperty("bufferlist.headers", false)) {
-			table.setAutoResizeColumns(jEdit.getBooleanProperty("bufferlist.autoresize", true));
-			table.setTableHeader(new JTableHeader(ptcm));
-		} else {
-			table.setAutoResizeColumns(true);
-			table.setTableHeader(null);
-		}
-
 		// set column model
 		table.setColumnModel(ptcm);
-
-		// somehow, the column header view doesn't get updated properly. Do it manually:
-		scrTable.setColumnHeaderView(table.getTableHeader());
 	}
 
 
 	private void refresh() {
 		model1.fireTableDataChanged();
 		model2.fireTableDataChanged();
+
+		int row = model1.getCurrentBufferRow();
+		int col = table1.getColumnModel().getColumnCount() - 1;
+	    Rectangle cellRect = table1.getCellRect(row, col, false);
+	    if (cellRect != null) {
+			cellRect.x = 0;
+			table1.scrollRectToVisible(cellRect);
+		}
+	}
+
+
+	private void propertiesChanged() {
+		setNewColumnModel(table1);
+		setNewColumnModel(table2);
+
+		// show/hide table headers:
+		if (jEdit.getBooleanProperty("bufferlist.headers", false)) {
+			boolean autoresize = jEdit.getBooleanProperty("bufferlist.autoresize", true);
+			table1.setAutoResizeColumns(autoresize);
+			table2.setAutoResizeColumns(autoresize);
+			table1.setTableHeader(new JTableHeader(table1.getColumnModel()));
+			table2.setTableHeader(new JTableHeader(table2.getColumnModel()));
+		} else {
+			table1.setAutoResizeColumns(true);
+			table2.setAutoResizeColumns(true);
+			table1.setTableHeader(null);
+			table2.setTableHeader(null);
+		}
+
+		// show/hide vertical & horizontal lines:
+		boolean verticalLines = jEdit.getBooleanProperty("bufferlist.verticalLines");
+		boolean horizontalLines = jEdit.getBooleanProperty("bufferlist.horizontalLines");
+		table1.setShowVerticalLines(verticalLines);
+		table2.setShowVerticalLines(verticalLines);
+		table1.setShowHorizontalLines(horizontalLines);
+		table2.setShowHorizontalLines(horizontalLines);
+
+		// show/hide SessionSwitcher:
+		initSessionSwitcher();
 	}
 
 
@@ -320,6 +389,8 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 	private static Color labelDisabledColor;
 	private static Color labelBackgrndColor;
 
+
+	// initialize static members
 	static {
 		headerNormalFont = new Font("Dialog", Font.PLAIN, 12);
 		headerBoldFont = new Font("Dialog", Font.BOLD, 12);
@@ -348,6 +419,8 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 				arr[i][2] = bufferarr[i].getMode().getName();
 				arr[i][3] = bufferarr[i];
 			}
+
+			sort(table1, 1);
 		}
 
 
@@ -363,19 +436,18 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 				arr[i][2] = "(unknown)";
 				arr[i][3] = null;
 			}
+
+			sort(table2, 2);
 		}
 
 
 		public Object getValueAt(int row, int col) {
-			if (col == 0)
-				return "";
-			else if (col == 1)
-				if (jEdit.getBooleanProperty("bufferlist.showOneColumn"))
-					return getFilename(row);
-				else
-					return arr[row][0];
-			else
-				return arr[row][col - 1];
+			switch (col) {
+				case 0: default: return "";
+				case 1: return showOneColumn ? getFilename(row) : arr[row][0];
+				case 2: return arr[row][1];
+				case 3: return arr[row][2];
+			}
 		}
 
 
@@ -389,7 +461,108 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 		public String getFilename(int row) { return arr[row][1].toString() + arr[row][0].toString(); }
 
 
+		public int getCurrentBufferRow() {
+			for (int i = 0; i < arr.length; i++)
+				if (arr[i][3] == currentBuffer)
+					return i;
+			return -1;
+		}
+
+
+		public Icon getBufferIcon(int row) {
+			return getIconForRow(arr[row]);
+		}
+
+
+		private Icon getIconForRow(Object[] rowValues) {
+			Icon icon = GUIUtilities.NORMAL_BUFFER_ICON;
+			Buffer buffer = (Buffer) rowValues[3];
+			if (buffer != null)
+				icon = buffer.getIcon();
+			else {
+				// don't has a buffer (=recent file list), check FS:
+				String path = rowValues[1].toString() + rowValues[0].toString();
+				VFS vfs = VFSManager.getVFSForPath(path);
+				if (vfs != null && vfs instanceof FileVFS) {
+					File file = new File(path);
+					if (!file.exists())
+						icon = GUIUtilities.NEW_BUFFER_ICON;
+					else if (!file.canWrite())
+						icon = GUIUtilities.READ_ONLY_BUFFER_ICON;
+				}
+			}
+			return icon;
+		}
+
+
+		private void sort(JTable table, int tableNum) {
+			String sSortColumn = jEdit.getProperty("bufferlist.table" + tableNum + ".sortColumn", (String)null);
+			String sSortOrder = jEdit.getProperty("bufferlist.table" + tableNum + ".sortOrder", (String)null);
+			if (sSortColumn != null && sSortOrder != null) {
+				try {
+					int sortColumn = Integer.parseInt(sSortColumn);
+					int sortOrder = Integer.parseInt(sSortOrder);
+					int modelColumn = table.getColumnCount() > 0 ? table.convertColumnIndexToModel(sortColumn) : -1;
+					if (modelColumn >= 0 && sortOrder != HelpfulJTable.SORT_OFF)
+						MiscUtilities.quicksort(arr, new ColumnSorter(modelColumn, sortOrder == HelpfulJTable.SORT_ASCENDING));
+				}
+				catch (NumberFormatException nfex) {
+					Log.log(Log.WARNING, this, "Error getting sort information for table " + tableNum + "; sortColumn: " + sSortColumn + " sortOrder=" + sSortOrder);
+				}
+			}
+		}
+
+
 		private Object[][] arr;
+		private boolean showOneColumn = jEdit.getBooleanProperty("bufferlist.showOneColumn");
+
+
+		private class ColumnSorter implements MiscUtilities.Compare {
+
+			public ColumnSorter(int sortColumn, boolean ascending) {
+				this.sortColumn = sortColumn;
+				this.ascending = ascending;
+			}
+
+			public int compare(Object obj1, Object obj2) {
+				// The objects to compare should be two one-dimensional arrays, otherwise it's an error.
+				Object[] arr1 = (Object[]) obj1;
+				Object[] arr2 = (Object[]) obj2;
+				int cmp = 0;
+
+				if (arr1 == arr2)
+					return 0;
+
+				if (sortColumn == 0) {
+					// special case: sort by status icon
+					int val1 = getIconValue(getIconForRow(arr1));
+					int val2 = getIconValue(getIconForRow(arr2));
+					cmp = val1 - val2;
+				} else {
+					String s1 = arr1[sortColumn-1].toString().toLowerCase();
+					String s2 = arr2[sortColumn-1].toString().toLowerCase();
+					cmp = s1.compareTo(s2);
+				}
+
+				return ascending ? cmp : -cmp;
+			}
+
+			private int getIconValue(Icon icon) {
+				if (icon == GUIUtilities.NEW_BUFFER_ICON)
+					return 4;
+				else if (icon == GUIUtilities.DIRTY_BUFFER_ICON)
+					return 3;
+				else if (icon == GUIUtilities.NORMAL_BUFFER_ICON)
+					return 2;
+				else if (icon == GUIUtilities.READ_ONLY_BUFFER_ICON)
+					return 1;
+				else
+					return 0;
+			}
+
+			private int sortColumn;
+			private boolean ascending;
+		}
 
 	}
 
@@ -480,9 +653,10 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 				table, value, isSelected, hasFocus, row, col
 			);
 
+			// determine the icon:
 			BufferListModel model = (BufferListModel) table.getModel();
-			Buffer buffer = model.getBuffer(row);
-			comp.setIcon(buffer != null ? buffer.getIcon() : GUIUtilities.NORMAL_BUFFER_ICON);
+			Icon icon = model.getBufferIcon(row);
+			comp.setIcon(icon);
 
 			return comp;
 		}
@@ -505,9 +679,12 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow {
 
 			BufferListModel model = (BufferListModel) table.getModel();
 			Buffer buffer = model.getBuffer(row);
+
 			if (buffer != null) {
 				comp.setForeground(buffer.isReadOnly() ? labelDisabledColor : labelNormalColor);
 				comp.setFont(buffer == currentBuffer ? labelBoldFont : labelNormalFont);
+			} else {
+				comp.setForeground(labelNormalColor);
 			}
 
 			return comp;

@@ -22,7 +22,9 @@ import java.util.Vector;
 import org.gjt.sp.jedit.*;
 import org.gjt.sp.jedit.gui.DockableWindow;
 import org.gjt.sp.jedit.gui.OptionsDialog;
+import org.gjt.sp.jedit.msg.BufferUpdate;
 import org.gjt.sp.jedit.msg.CreateDockableWindow;
+import org.gjt.sp.jedit.msg.EditPaneUpdate;
 
 
 /**
@@ -54,10 +56,31 @@ public class BufferListPlugin extends EBPlugin {
 		if (message instanceof CreateDockableWindow) {
 			CreateDockableWindow cmsg = (CreateDockableWindow)message;
 			if (cmsg.getDockableWindowName().equals(NAME)) {
-				cmsg.setDockableWindow(new BufferList(cmsg.getView(),
-					cmsg.getPosition()));
+				cmsg.setDockableWindow(new BufferList(cmsg.getView(), cmsg.getPosition()));
+			}
+		}
+		else if (message instanceof BufferUpdate) {
+			BufferUpdate bu = (BufferUpdate) message;
+			if (bu.getWhat() == BufferUpdate.CREATED || bu.getWhat() == BufferUpdate.CLOSED) {
+				if (jEdit.getBooleanProperty("bufferlist.autoshow", false)) {
+					// FIXME: how to get the view the cursor is in?
+					View view = jEdit.getFirstView();
+					if (view != null)
+						view.getDockableWindowManager().addDockableWindow(NAME);
+				}
+			}
+		}
+		else if (message instanceof EditPaneUpdate) {
+			EditPaneUpdate epu = (EditPaneUpdate) message;
+			if (epu.getWhat() == EditPaneUpdate.BUFFER_CHANGED) {
+				if (jEdit.getBooleanProperty("bufferlist.autoshow", false)) {
+					View view = ((EditPane) epu.getSource()).getView();
+					if (view != null)
+						view.getDockableWindowManager().addDockableWindow(NAME);
+				}
 			}
 		}
 	}
+
 }
 

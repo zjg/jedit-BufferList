@@ -1,7 +1,7 @@
 # General plugin properites
 plugin.BufferListPlugin.name=BufferList
 plugin.BufferListPlugin.author=Dirk Moebius <dmoebius@gmx.net>
-plugin.BufferListPlugin.version=0.4.1
+plugin.BufferListPlugin.version=0.5
 plugin.BufferListPlugin.docs=index.html
 plugin.BufferListPlugin.depend.0=jdk 1.1
 plugin.BufferListPlugin.depend.1=jedit 03.00.99.00
@@ -13,12 +13,14 @@ bufferlist.title=Buffer List
 
 
 # menu
-bufferlist.menu=bufferlist - bufferlist-to-front - session-save session-save-as session-manager
+bufferlist.menu=bufferlist - bufferlist-next-buffer bufferlist-previous-buffer bufferlist-to-front - session-save session-save-as session-manager
 bufferlist.menu.label=Buffer List
 
 
 # actions
 bufferlist.label=Buffer List
+bufferlist-next-buffer.label=Go to Next Buffer in Buffer List
+bufferlist-previous-buffer.label=Go to Previous Buffer in Buffer List
 bufferlist-to-front.label=Bring Buffer List to front
 session-save.label=Save Session
 session-save-as.label=Save Session As...
@@ -104,16 +106,17 @@ bufferlist.manager.error.delete.message=\
 # option pane
 options.bufferlist.label=Buffer List
 
+options.bufferlist.autoshow=Auto-Show on buffer change
+options.bufferlist.verticalLines=Show vertical lines
+options.bufferlist.horizontalLines=Show horizontal lines
+options.bufferlist.showAbsoluteFilename=Show absolute pathname in filename column
+options.bufferlist.headers=Show column headers
+options.bufferlist.autoresize=Auto-Resize columns
+
 options.bufferlist.showColumns=Show Columns:
 options.bufferlist.showStatus=Status icon
 options.bufferlist.showDir=Directory
 options.bufferlist.showMode=Mode
-
-options.bufferlist.showAbsoluteFilename=Show absolute pathname in filename column
-options.bufferlist.verticalLines=Show vertical lines
-options.bufferlist.horizontalLines=Show horizontal lines
-options.bufferlist.headers=Show column headers
-options.bufferlist.autoresize=Auto-Resize columns
 
 options.bufferlist.switcher.label=Session Switcher
 options.bufferlist.switcher.show=Show Session Switcher toolbar

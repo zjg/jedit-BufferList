@@ -10,9 +10,9 @@
        WIDTH="100%">
   <TR>
     <TD>
-      <BIG><BIG>Buffer List plugin</BIG></BIG>
+      <H1>Buffer List plugin</H1>
     </TD>
-    <TD ALIGU="right">
+    <TD ALIGN="right">
         <SMALL>By Dirk M&ouml;bius<BR>
         <A HREF="mailto:dmoebius@gmx.net"><EM>dmoebius@gmx.net</EM></A>
         </SMALL>
@@ -37,7 +37,7 @@
 <P>
 The Buffer List maintains lists of open files - called a <EM>session</EM> aka
 <EM>workspace</EM> - and offers some functions to switch between them.
-The current list of open files and the list of recently opened files is shown
+The current list of open files and the list of recently opened files are shown
 in a dockable window that can be placed permanently in jEdit's view.
 </P>
 
@@ -95,6 +95,44 @@ This can be configured to some extent in the Global Options. See
         (<EM>open, open in new view</EM>)
 </UL>
 
+<P><B>On both lists:</B></P>
+
+<UL>
+    <LI>If the column headers are displayed (see <EM>Global Options</EM>),
+        single-clicking a column header sorts the list by this by this
+        column, in ascending order.<BR>
+        Clicking it again sorts the list in descending order.<BR>
+        Clicking it again turns sorting off and reverts to jEdit's sort order.
+    <LI>If the column headers are displayed, double-clicking on a column
+        header edge auto-resizes the column to the size of the largest
+        cell in that column.<BR>
+        This only works if auto-resizing of columns is turned off in the
+        <EM>Global options</EM>.
+</UL>
+
+
+<H3>Menu Actions</H3>
+
+<P>
+The following menu actions are available in the menu
+<EM>Plugins&nbsp;-&gt;Buffer&nbsp;List</EM>:
+<P>
+
+<UL>
+        <LI><B>Buffer List</B><BR>
+               Show/Hide the Buffer List.
+        <LI><B>Go to Next Buffer in Buffer List</B><BR>
+               ...
+        <LI><B>Go to Previous Buffer in Buffer List</B><BR>
+               ...
+        <LI><B>Save Session</B><BR>
+               ...
+        <LI><B>Save Session As...</B><BR>
+               ...
+        <LI><B>Manage Sessions...</B><BR>
+               ...
+</UL>
+
 
 <H3>Key Actions</H3>
 
@@ -137,6 +175,9 @@ The following options are available:
 <OL>
 <LI><B>Buffer List Options</B>
     <UL>
+        <LI><B>Auto-Show on buffer change</B><BR>
+            If enabled, the Buffer List is automatically shown, if the buffer
+            has been changed.
         <LI><B>Show vertical lines</B>
         <LI><B>Show horizontal lines</B>
         <LI><B>Show column headers</B><BR>

@@ -1,5 +1,22 @@
-Version 0.4.1 (2001/03/16)
---------------------------
+VERSION 0.5 (2001/03/24)
+
+- Sort a column by clicking on the table header (cycling through ascending,
+  descending and jEdit's sort order).
+- New actions "Go to Next Buffer in Buffer List" and "Go to Previous Buffer
+  in Buffer List" to cycle through the buffers in the same order as displayed
+  in Buffer List.
+- New option "Auto-Show on buffer change" (default: off).
+- Show the right status icon (read-only/not exist) in recent file list.
+- Bugfix: if last entry in open files list was grey, all entries in recent
+  files were grey, too.
+- Bugfix: "Bring Buffer List to front" didn't work right if window was docked.
+- Bugfix: lists no longer autoscrolls to the selected cell, was irritating.
+- Bugfix: some redraw problems.
+- Requires jEdit 3.0final or higher, JDK 1.1 or higher
+
+
+VERSION 0.4.1 (2001/03/16)
+
 - don't use class org.gjt.sp.jedit.Sessions any more, copied required methods
   into SessionManager class.
 - bugfix: #407948 BufferList clears 'default.session' file on exit
@@ -7,8 +24,8 @@ Version 0.4.1 (2001/03/16)
 - bugfix: buffer click doesn't work if mouse was moved during click
 
 
-Version 0.4 (2001/03/10)
-------------------------
+VERSION 0.4 (2001/03/10)
+
 - session management:
   * session switcher
   * session manager dialog
@@ -20,15 +37,14 @@ Version 0.4 (2001/03/10)
 - requires jEdit 3.0final or higher, JDK 1.1 or higher
 
 
-Version 0.3.1 (20001/01/06)
---------------------------
+VERSION 0.3.1 (20001/01/06)
+
 - bugfix: if a buffer is selected from the "Open Files" list,
   the focus is set to the buffer now.
 - requires jEdit 2.7pre3 or higher
 
 
-Version 0.3 (2000/12/31)
-------------------------
+VERSION 0.3 (2000/12/31)
 
 - added right click popup menus
 - bugfix: BufferList didn't recognize filename changes on "Save As"
@@ -36,8 +52,7 @@ Version 0.3 (2000/12/31)
 - requires jEdit 2.7pre3 or higher
 
 
-Version 0.2.1 (2000/12/2)
--------------------------
+VERSION 0.2.1 (2000/12/2)
 
 - put together by Slava Pestov <sp@gjt.org>.
 - bugfix: BufferList threw exceptions with FTP buffers
@@ -46,8 +61,7 @@ Version 0.2.1 (2000/12/2)
 - requires jEdit 2.7pre3 or higher
 
 
-Version 0.2
------------
+VERSION 0.2
 
 - directory now shown in a separate column
 - keyboard navigation: [enter] to open file, [tab] to switch between the
@@ -63,8 +77,8 @@ Version 0.2
 - requires jEdit 2.6pre7 or higher
 
 
-Version 0.1 (2000/10/23)
-------------------------
+VERSION 0.1 (2000/10/23)
+
 - initial release
 - requires jEdit 2.6pre7 or higher
 

@@ -39,6 +39,28 @@ public class BufferListOptionPane extends AbstractOptionPane implements ActionLi
 
 	public void _init() {
 		// BufferList options:
+
+		bAutoShow = new JCheckBox(jEdit.getProperty("options.bufferlist.autoshow"));
+		bAutoShow.setSelected(jEdit.getBooleanProperty("bufferlist.autoshow", false));
+
+		bVerticalLines = new JCheckBox(jEdit.getProperty("options.bufferlist.verticalLines"));
+		bVerticalLines.setSelected(jEdit.getBooleanProperty("bufferlist.verticalLines", true));
+
+		bHorizontalLines = new JCheckBox(jEdit.getProperty("options.bufferlist.horizontalLines"));
+		bHorizontalLines.setSelected(jEdit.getBooleanProperty("bufferlist.horizontalLines", true));
+
+		// NOTE: for historical reasons, the option "Show absolute filename" is named "showOneColumn":
+		bShowAbsoluteFilename = new JCheckBox(jEdit.getProperty("options.bufferlist.showAbsoluteFilename"));
+		bShowAbsoluteFilename.setSelected(jEdit.getBooleanProperty("bufferlist.showOneColumn", false));
+
+		bHeaders = new JCheckBox(jEdit.getProperty("options.bufferlist.headers"));
+		bHeaders.setSelected(jEdit.getBooleanProperty("bufferlist.headers", false));
+		bHeaders.addActionListener(this);
+
+		bAutoResize = new JCheckBox(jEdit.getProperty("options.bufferlist.autoresize"));
+		bAutoResize.setSelected(jEdit.getBooleanProperty("bufferlist.autoresize", true));
+		bAutoResize.setEnabled(bHeaders.isSelected());
+
 		JLabel lbShowColumns = new JLabel(jEdit.getProperty("options.bufferlist.showColumns"));
 
 		bShowStatus = new JCheckBox(jEdit.getProperty("options.bufferlist.showStatus"));
@@ -50,39 +72,21 @@ public class BufferListOptionPane extends AbstractOptionPane implements ActionLi
 		bShowMode = new JCheckBox(jEdit.getProperty("options.bufferlist.showMode"));
 		bShowMode.setSelected(jEdit.getBooleanProperty("bufferlist.showColumn3", true));
 
-		// NOTE: for historical reasons, the option "Show absolute filename" is named "showOneColumn":
-		bShowAbsoluteFilename = new JCheckBox(jEdit.getProperty("options.bufferlist.showAbsoluteFilename"));
-		bShowAbsoluteFilename.setSelected(jEdit.getBooleanProperty("bufferlist.showOneColumn", false));
-
-		bVerticalLines = new JCheckBox(jEdit.getProperty("options.bufferlist.verticalLines"));
-		bVerticalLines.setSelected(jEdit.getBooleanProperty("bufferlist.verticalLines", true));
-
-		bHorizontalLines = new JCheckBox(jEdit.getProperty("options.bufferlist.horizontalLines"));
-		bHorizontalLines.setSelected(jEdit.getBooleanProperty("bufferlist.horizontalLines", true));
-
-		bHeaders = new JCheckBox(jEdit.getProperty("options.bufferlist.headers"));
-		bHeaders.setSelected(jEdit.getBooleanProperty("bufferlist.headers", false));
-		bHeaders.addActionListener(this);
-
-		bAutoResize = new JCheckBox(jEdit.getProperty("options.bufferlist.autoresize"));
-		bAutoResize.setSelected(jEdit.getBooleanProperty("bufferlist.autoresize", true));
-		bAutoResize.setEnabled(bHeaders.isSelected());
-
-		JPanel bufferListOptions = new JPanel(
-			new VariableGridLayout(
-				VariableGridLayout.FIXED_NUM_COLUMNS, 2, 15, 0));
-
-		bufferListOptions.add(bVerticalLines);
+		JPanel bufferListOptions = new JPanel(new VariableGridLayout(	VariableGridLayout.FIXED_NUM_COLUMNS, 2, 15, 0));
+		bufferListOptions.add(bAutoShow);
 		bufferListOptions.add(lbShowColumns);
-		bufferListOptions.add(bHorizontalLines);
+		bufferListOptions.add(bVerticalLines);
 		bufferListOptions.add(bShowStatus);
-		bufferListOptions.add(bShowAbsoluteFilename);
+		bufferListOptions.add(bHorizontalLines);
 		bufferListOptions.add(bShowDir);
-		bufferListOptions.add(bHeaders);
+		bufferListOptions.add(bShowAbsoluteFilename);
 		bufferListOptions.add(bShowMode);
+		bufferListOptions.add(bHeaders);
+		bufferListOptions.add(new JPanel()); // empty cell
 		bufferListOptions.add(bAutoResize);
 
 		// SessionSwitcher options:
+
 		bShowSwitcher = new JCheckBox(jEdit.getProperty("options.bufferlist.switcher.show"));
 		bShowSwitcher.setSelected(jEdit.getBooleanProperty("bufferlist.switcher.show", true));
 		bShowSwitcher.addActionListener(this);
@@ -113,16 +117,17 @@ public class BufferListOptionPane extends AbstractOptionPane implements ActionLi
 			jEdit.getBooleanProperty("bufferlist.showColumn2") != bShowDir.isSelected() ||
 			jEdit.getBooleanProperty("bufferlist.showColumn3") != bShowMode.isSelected();
 
+
+		jEdit.setBooleanProperty("bufferlist.autoshow", bAutoShow.isSelected());
+		jEdit.setBooleanProperty("bufferlist.verticalLines", bVerticalLines.isSelected());
+		jEdit.setBooleanProperty("bufferlist.horizontalLines", bHorizontalLines.isSelected());
 		jEdit.setBooleanProperty("bufferlist.showOneColumn", bShowAbsoluteFilename.isSelected());
+		jEdit.setBooleanProperty("bufferlist.headers", bHeaders.isSelected());
+		jEdit.setBooleanProperty("bufferlist.autoresize", bAutoResize.isSelected());
 
 		jEdit.setBooleanProperty("bufferlist.showColumn0", bShowStatus.isSelected());
 		jEdit.setBooleanProperty("bufferlist.showColumn2", bShowDir.isSelected());
 		jEdit.setBooleanProperty("bufferlist.showColumn3", bShowMode.isSelected());
-
-		jEdit.setBooleanProperty("bufferlist.verticalLines", bVerticalLines.isSelected());
-		jEdit.setBooleanProperty("bufferlist.horizontalLines", bHorizontalLines.isSelected());
-		jEdit.setBooleanProperty("bufferlist.headers", bHeaders.isSelected());
-		jEdit.setBooleanProperty("bufferlist.autoresize", bAutoResize.isSelected());
 
 		jEdit.setBooleanProperty("bufferlist.switcher.show", bShowSwitcher.isSelected());
 		jEdit.setBooleanProperty("bufferlist.switcher.showTitle", bSwitcherShowTitle.isSelected());
@@ -159,14 +164,15 @@ public class BufferListOptionPane extends AbstractOptionPane implements ActionLi
 	}
 
 
+	private JCheckBox bAutoShow;
+	private JCheckBox bVerticalLines;
+	private JCheckBox bHorizontalLines;
+	private JCheckBox bShowAbsoluteFilename;
+	private JCheckBox bHeaders;
+	private JCheckBox bAutoResize;
 	private JCheckBox bShowStatus;
 	private JCheckBox bShowDir;
 	private JCheckBox bShowMode;
-	private JCheckBox bShowAbsoluteFilename;
-	private JCheckBox bVerticalLines;
-	private JCheckBox bHorizontalLines;
-	private JCheckBox bHeaders;
-	private JCheckBox bAutoResize;
 	private JCheckBox bShowSwitcher;
 	private JCheckBox bSwitcherShowTitle;
 	private JCheckBox bSwitcherAutoSave;

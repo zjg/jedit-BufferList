@@ -20,17 +20,20 @@
 
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.*;
+import java.net.URL;
 import javax.swing.*;
+import javax.swing.border.EtchedBorder;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.*;
 import org.gjt.sp.util.Log;
 
 
 /**
- * <p>An extension of the default Swing JTable, that passes action key events,
- * displays tooltips and autoresizes columns.</p>
+ * An extension of the default Swing JTable, that passes action key events,
+ * displays tooltips and autoresizes columns.<p>
  *
- * <p>In detail, the following features are provided:<p>
+ * In detail, the following features are provided:<p>
  *
  * <ul>
  * <li>
@@ -54,34 +57,50 @@ import org.gjt.sp.util.Log;
  * with a String cell renderer, nothing complicated as a JList. (Complex
  * components may be used a CellEditor, however).
  * </li>
- * </ul>
+ * </ul><p>
  *
- * <p>Only the default constructor of <code>JTable</code> is provided.
- * Please use <code>setModel(TableModel)</code> to set another model.</p>
+ * Only the default constructor of <code>JTable</code> is provided.
+ * Please use <code>setModel(TableModel)</code> to set another model.
  *
  * @author Dirk Moebius
  */
 public class HelpfulJTable extends JTable {
 
+	public final static int SORT_OFF = -1;
+	public final static int SORT_ASCENDING = 1;
+	public final static int SORT_DESCENDING = 2;
+
+
 	public HelpfulJTable() {
 		super();
 		super.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
 		KeyStroke enter = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
 		KeyStroke tab = KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0);
 		KeyStroke shifttab = KeyStroke.getKeyStroke(KeyEvent.VK_TAB, InputEvent.SHIFT_MASK);
+
 		this.unregisterKeyboardAction(enter);
 		this.unregisterKeyboardAction(tab);
-		HelpfulKeyActionListener kh = new HelpfulKeyActionListener();
+
+		KeyHandler kh = new KeyHandler();
+
 		this.registerKeyboardAction(kh, "enter-pressed", enter, JComponent.WHEN_FOCUSED);
 		this.registerKeyboardAction(kh, "tab-pressed", tab, JComponent.WHEN_FOCUSED);
 		this.registerKeyboardAction(kh, "shift-tab-pressed", shifttab, JComponent.WHEN_FOCUSED);
-		this.addMouseListener(new HelpfulTooltipMouseListener());
+
+		this.addMouseListener(new TooltipMouseHandler());
+
 		if (this.getTableHeader() != null) {
 			this.getTableHeader().setResizingAllowed(false);
 		}
 	}
 
 
+	/**
+	 * if true, columns are autoresized according to the largest display
+	 * width of their contents.
+	 * @param  state  whether autoresize is enabled or disabled.
+	 */
 	public void setAutoResizeColumns(boolean state) {
 		autoResizeColumns = state;
 		if (tableHeader != null && autoResizeColumns)
@@ -95,6 +114,48 @@ public class HelpfulJTable extends JTable {
 	 */
 	public boolean getAutoResizeColumns() {
 		return autoResizeColumns;
+	}
+
+
+	/**
+	 * set the sort column.
+	 * This is a bound bean property
+	 *
+	 * @param sortColumn  the new sortColumn value.
+	 */
+	public void setSortColumn(int sortColumn) {
+		int oldSortColumn = this.sortColumn;
+		this.sortColumn = sortColumn;
+		if (oldSortColumn != this.sortColumn)
+			propertySupport.firePropertyChange("sortColumn", new Integer(oldSortColumn), new Integer(this.sortColumn));
+	}
+
+
+	public int getSortColumn() {
+		return sortColumn;
+	}
+
+
+	/**
+	 * set whether the current <code>sortColumn</code> should be sorted
+	 *  ascending or descending, or not at all. This is a bound bean property.
+	 *
+	 * @param order  the new sort order, one of SORT_ASCENDING,
+	 *               SORT_DESCENDING, SORT_OFF.
+	 */
+	public void setSortOrder(int order) {
+		if (order != SORT_ASCENDING && order != SORT_DESCENDING && order != SORT_OFF)
+			throw new IllegalArgumentException("sortOrder must be one of: SORT_ASCENDING, SORT_DESCENDING, SORT_OFF");
+
+		int oldSortOrder = this.sortOrder;
+		this.sortOrder = order;
+		if (oldSortOrder != this.sortOrder)
+			propertySupport.firePropertyChange("sortOrder", new Integer(oldSortOrder), new Integer(this.sortOrder));
+	}
+
+
+	public int getSortOrder() {
+		return sortOrder;
 	}
 
 
@@ -114,9 +175,23 @@ public class HelpfulJTable extends JTable {
 	 * <tt>resizingAllowed = true</tt> is set back to <tt>false</tt>.
 	 */
 	public void setTableHeader(JTableHeader th) {
-		if (th != null && autoResizeColumns)
-			th.setResizingAllowed(false);
 		super.setTableHeader(th);
+		if (th != null) {
+			// remove resizing allowed, if neccessary:
+			if (autoResizeColumns)
+				th.setResizingAllowed(false);
+			// set mouse listener
+			th.addMouseListener(new TableHeaderMouseHandler());
+		}
+		super.configureEnclosingScrollPane();
+	}
+
+
+	public void setColumnModel(TableColumnModel tcm) {
+		super.setColumnModel(tcm);
+		// set header renderer for all columns:
+		for (int i = 0, cc = columnModel.getColumnCount(); i < cc; i++)
+			columnModel.getColumn(i).setHeaderRenderer(new SortTableHeaderRenderer(i));
 	}
 
 
@@ -129,6 +204,30 @@ public class HelpfulJTable extends JTable {
 	/** remove an action listener from this table instance. */
 	public void removeActionListener(ActionListener l) {
 		listenerList.remove(ActionListener.class, l);
+	}
+
+
+	/**
+	 * Adds a <code>PropertyChangeListener</code> to the listener list.
+	 * The listener is registered for all properties.
+	 * A <code>PropertyChangeEvent</code> will get fired in response to an
+	 * explicit call to <code>setSortColumn</code> and
+	 * <code>setSortOrder</code> on the current component.
+	 *
+	 * @param  listener  the listener to be added
+	 */
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		propertySupport.addPropertyChangeListener(listener);
+	}
+
+
+	/**
+	 * Removes a <code>PropertyChangeListener</code> from the listener list.
+	 *
+	 * @param  listener  the listener to be removed
+	 */
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		propertySupport.removePropertyChangeListener(listener);
 	}
 
 
@@ -169,6 +268,19 @@ public class HelpfulJTable extends JTable {
 	}
 
 
+	public void autosizeColumn(int col) {
+		int width = getLongestCellTextWidth(col);
+		if (width >= 0) {
+			TableColumn tc = columnModel.getColumn(col);
+			tc.setPreferredWidth(width);
+			resizeAndRepaint();
+			if (tableHeader != null)
+				tableHeader.resizeAndRepaint();
+		}
+	}
+
+
+
 	/**
 	 * invoked when the table data has changed, this method autoresizes
 	 * all columns to its longest content length, if autoResizeColumns is on.
@@ -179,25 +291,20 @@ public class HelpfulJTable extends JTable {
 		if (!autoResizeColumns)
 			return;
 
-		int numCols = columnModel.getColumnCount() - 1;
-
-		for (int col = numCols; col >= 0; col--) {
+		int cc = columnModel.getColumnCount() - 1;
+		for (int col = cc; col >= 0; col--) {
 			int width = getLongestCellTextWidth(col);
-			if (width < 0) continue;
-			TableColumnModel tcm = getColumnModel();
-			if (tcm == null) continue;
-			TableColumn tc = tcm.getColumn(col);
-			if (tc == null) continue;
-			tc.setPreferredWidth(width);
-			tc.setMinWidth(width);
-			tc.setMaxWidth(width);
+			if (width > 0) {
+				TableColumn tc = columnModel.getColumn(col);
+				tc.setPreferredWidth(width);
+				//tc.setMinWidth(width);
+				//tc.setMaxWidth(width);
+			}
 		}
 
 		resizeAndRepaint();
-
-		JTableHeader th = getTableHeader();
-		if (th != null)
-			th.resizeAndRepaint();
+		if (tableHeader != null)
+			tableHeader.resizeAndRepaint();
 	}
 
 
@@ -245,8 +352,7 @@ public class HelpfulJTable extends JTable {
 	private int getCellTextWidth(int row, int col) {
 		String value = getValueAt(row, col).toString();
 		Component comp = getCellRendererComponent(row, col);
-		Font f = comp.getFont();
-		FontMetrics fm = Toolkit.getDefaultToolkit().getFontMetrics(f);
+		FontMetrics fm = comp.getFontMetrics(comp.getFont());
 		int insetwidth = 0;
 
 		if (comp instanceof JComponent) {
@@ -281,13 +387,32 @@ public class HelpfulJTable extends JTable {
 	}
 
 
-	// private members:
 	private boolean autoResizeColumns = true;
+	private int sortColumn = -1;
+	private int sortOrder = SORT_OFF;
+	private PropertyChangeSupport propertySupport = new PropertyChangeSupport(this);
 
 
-	// private helper classes:
+	private static Icon SORT_UP;
+	private static Icon SORT_DOWN;
 
-	private class HelpfulKeyActionListener implements ActionListener {
+
+	static {
+		URL urlSortUp = HelpfulJTable.class.getResource("sort_up.gif");
+		if (urlSortUp != null)
+			SORT_UP = new ImageIcon(urlSortUp);
+		else
+			Log.log(Log.ERROR, HelpfulJTable.class, "Error fetching image sort_up.gif");
+
+		URL urlSortDown = HelpfulJTable.class.getResource("sort_down.gif");
+		if (urlSortDown != null)
+			SORT_DOWN = new ImageIcon(urlSortDown);
+		else
+			Log.log(Log.ERROR, HelpfulJTable.class, "Error fetching image sort_down.gif");
+	}
+
+
+	private class KeyHandler implements ActionListener {
 
 		public void actionPerformed(ActionEvent evt) {
 			fireActionEvent(evt);
@@ -296,7 +421,7 @@ public class HelpfulJTable extends JTable {
 	}
 
 
-	private class HelpfulTooltipMouseListener extends MouseAdapter {
+	private class TooltipMouseHandler extends MouseAdapter {
 
 		public void mouseEntered(MouseEvent evt) {
 			ToolTipManager ttm = ToolTipManager.sharedInstance();
@@ -314,6 +439,87 @@ public class HelpfulJTable extends JTable {
 
 		private int toolTipInitialDelay = -1;
 		private int toolTipReshowDelay = -1;
+
+	}
+
+
+	private class TableHeaderMouseHandler extends MouseAdapter {
+
+		public void mouseClicked(MouseEvent evt) {
+			int col = getColumnModel().getColumnIndexAtX(evt.getX());
+			if (col < 0)
+				return;
+
+			if (evt.getClickCount() == 1) {
+				// single-click on header: change sort column/order
+				evt.consume();
+				if (col == sortColumn) {
+					switch (sortOrder) {
+						case SORT_ASCENDING: setSortOrder(SORT_DESCENDING); break;
+						case SORT_DESCENDING: setSortOrder(SORT_OFF); break;
+						default: setSortOrder(SORT_ASCENDING); break;
+					}
+				} else {
+					setSortColumn(col);
+					setSortOrder(SORT_ASCENDING);
+				}
+			}
+			else if (evt.getClickCount() == 2 && getTableHeader().getResizingAllowed()) {
+				// double click on header: autoresize column
+				evt.consume();
+				Point p = evt.getPoint();
+				Rectangle r = getTableHeader().getHeaderRect(col);
+
+				r.grow(-3, 0);
+				if (r.contains(p))
+					return; // not on the edge
+
+				int midPoint = r.x + r.width/2;
+				int resizeCol = (p.x < midPoint) ? col - 1 : col;
+
+				if (resizeCol >= 0)
+					autosizeColumn(resizeCol);
+			}
+		}
+
+	}
+
+
+	private class SortTableHeaderRenderer extends DefaultTableCellRenderer {
+
+		public SortTableHeaderRenderer(int viewColumn) {
+			super();
+			this.viewColumn = viewColumn;
+			setHorizontalAlignment(SwingConstants.LEADING);
+			setHorizontalTextPosition(SwingConstants.LEADING);
+			setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+		}
+
+	    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
+			//super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+			/*
+			if (table != null) {
+				JTableHeader header = table.getTableHeader();
+				if (header != null) {
+					setForeground(header.getForeground());
+					setBackground(header.getBackground());
+					setFont(header.getFont());
+				}
+			}
+			*/
+			setText(value == null ? "" : value.toString());
+			if (viewColumn == sortColumn)
+				switch (sortOrder) {
+					case SORT_ASCENDING: 	setIcon(SORT_UP); break;
+					case SORT_DESCENDING: setIcon(SORT_DOWN); break;
+					default: setIcon(null); break;
+				}
+			else
+				setIcon(null);
+			return this;
+		}
+
+		private int viewColumn;
 
 	}
 
