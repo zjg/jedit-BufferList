@@ -39,7 +39,7 @@ import org.gjt.sp.util.Log;
  *
  * @author Dirk Moebius
  */
-public class BufferList extends JPanel implements EBComponent
+public class BufferList extends JPanel implements EBComponent 
 {
 	//{{{ instance variables
 	private View view;
@@ -51,6 +51,7 @@ public class BufferList extends JPanel implements EBComponent
 	private DefaultMutableTreeNode rootNode;
 	private boolean sortIgnoreCase;
 	private Buffer lastBuffer = null;
+	private JLabel bufferCountsLabel = new JLabel();
 	//}}}
 
 	//{{{ +BufferList(View, String) : <init>
@@ -78,16 +79,18 @@ public class BufferList extends JPanel implements EBComponent
 		scrTree = new JScrollPane(tree);
 
 		// overall layout:
-		JLabel header = new JLabel(jEdit.getProperty("bufferlist.openfiles.label"));
+		updateBufferCounts();
 		JPanel panel = new JPanel(new BorderLayout());
-		panel.add(BorderLayout.NORTH, header);
+		panel.add(BorderLayout.NORTH, bufferCountsLabel);
 		panel.add(BorderLayout.CENTER, scrTree);
 		add(panel);
 
 		handlePropertiesChanged();
 
 		if(position.equals(DockableWindowManager.FLOATING))
+		{
 			requestFocusOpenFiles();
+		}
 
 		currentBufferChanged();
 
@@ -154,7 +157,7 @@ public class BufferList extends JPanel implements EBComponent
 		}
 
 		Buffer nextBuffer = (Buffer) next.getUserObject();
-		view.setBuffer(nextBuffer);
+		view.goToBuffer(nextBuffer);
 	} //}}}
 
 	//{{{ +previousBuffer() : void
@@ -172,12 +175,14 @@ public class BufferList extends JPanel implements EBComponent
 			DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
 			DefaultMutableTreeNode prevParent = parent.getPreviousSibling();
 			if(prevParent == null)
+			{
 				prevParent = (DefaultMutableTreeNode) rootNode.getLastChild();
+			}
 			prev = (DefaultMutableTreeNode) prevParent.getLastChild();
 		}
 
 		Buffer prevBuffer = (Buffer) prev.getUserObject();
-		view.setBuffer(prevBuffer);
+		view.goToBuffer(prevBuffer);
 	} //}}}
 
 	//{{{ +addNotify() : void
@@ -224,43 +229,65 @@ public class BufferList extends JPanel implements EBComponent
 	public void handleMessage(EBMessage message)
 	{
 		if(message instanceof BufferUpdate)
+		{
 			handleBufferUpdate((BufferUpdate)message);
+		}
 		else if(message instanceof EditPaneUpdate)
+		{
 			handleEditPaneUpdate((EditPaneUpdate)message);
+		}
 		else if(message instanceof PropertiesChanged)
+		{
 			handlePropertiesChanged();
+		}
 	} //}}}
 
 	//{{{ -handleBufferUpdate(BufferUpdate) : void
 	private void handleBufferUpdate(BufferUpdate bu)
 	{
 		if(bu.getWhat() == BufferUpdate.CREATED)
+		{
 			insertNode(bu.getBuffer());
+		}
 		else if(bu.getWhat() == BufferUpdate.CLOSED)
+		{
 			removeNode(bu.getBuffer());
+		}
 		else if(bu.getWhat() == BufferUpdate.DIRTY_CHANGED)
+		{
 			updateNode(bu.getBuffer());
+		}
 		else if(bu.getWhat() == BufferUpdate.SAVED)
 		{
 			TreePath[] expandedPaths = TreeTools.getExpandedPaths(tree);
 			createModel();
 			TreeTools.setExpandedPaths(tree, expandedPaths);
 		}
+
+		updateBufferCounts();
 	} //}}}
 
 	//{{{ -handleEditPaneUpdate(EditPaneUpdate) : void
 	private void handleEditPaneUpdate(EditPaneUpdate epu)
 	{
-		View v = ((EditPane) epu.getSource()).getView();
+		// View v = ((EditPane) epu.getSource()).getView();
+		View v = epu.getEditPane().getView();
 		if(v != view)
 			return; // not for this BufferList instance
 
 		if(epu.getWhat() == EditPaneUpdate.CREATED)
+		{
 			epu.getEditPane().getTextArea().addFocusListener(textAreaFocusHandler);
+		}
 		else if(epu.getWhat() == EditPaneUpdate.DESTROYED)
+		{
 			epu.getEditPane().getTextArea().removeFocusListener(textAreaFocusHandler);
+		}
 		else if(epu.getWhat() == EditPaneUpdate.BUFFER_CHANGED)
+		{
 			currentBufferChanged();
+		}
+
 	} //}}}
 
 	//{{{ -handlePropertiesChanged() : void
@@ -277,7 +304,23 @@ public class BufferList extends JPanel implements EBComponent
 		tree.setCellRenderer(new BufferListRenderer(view));
 	} //}}}
 
-	//{{{ -getDir(Buffer) : String
+	//{{{ -updateBufferCounts() : void
+	private void updateBufferCounts()
+	{
+		int dirtyBuffers = 0;
+		Buffer buffers[] = jEdit.getBuffers();
+		for(int i = 0; i < buffers.length; i++)
+		{
+			if(buffers[i].isDirty())
+			{
+				dirtyBuffers++;
+			}
+		}
+		bufferCountsLabel.setText(jEdit.getProperty("bufferlist.openfiles.label") + jEdit.getBufferCount() + " " + jEdit.getProperty("bufferlist.dirtyfiles.label") + dirtyBuffers);
+
+	} //}}}
+
+	//{{{ -_getDir(Buffer)_ : String
 	private static String getDir(Buffer buffer)
 	{
 		return buffer.getVFS().getParentOfPath(buffer.getPath());
@@ -537,8 +580,7 @@ public class BufferList extends JPanel implements EBComponent
 				return;
 
 			Buffer buffer = (Buffer) obj;
-			if(e.getClickCount() == 2
-				&& jEdit.getBooleanProperty("bufferlist.closeFilesOnDoubleClick", true))
+			if(e.getClickCount() == 2 && jEdit.getBooleanProperty("bufferlist.closeFilesOnDoubleClick", true))
 			{
 				// left mouse double press: close buffer
 				jEdit.closeBuffer(view, buffer);
@@ -546,9 +588,7 @@ public class BufferList extends JPanel implements EBComponent
 			else
 			{
 				// left mouse single press: open buffer
-				view.setBuffer(buffer);
-				view.toFront();
-				view.getEditPane().requestFocus();
+				view.goToBuffer(buffer);
 			}
 		} //}}}
 

@@ -1,36 +1,53 @@
+# {{{ header
+# :tabSize=4:indentSize=4:noTabs=false:folding=explicit:collapseFolds=1:
 #
-# General plugin properites
+# BufferList.props - Properties file for the BufferList plugin
 #
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# }}}
+
+#{{{ general plugin properites
+plugin.bufferlist.BufferListPlugin.activate=defer
 plugin.bufferlist.BufferListPlugin.name=BufferList
 plugin.bufferlist.BufferListPlugin.author=Dirk Moebius
-plugin.bufferlist.BufferListPlugin.version=0.9
+plugin.bufferlist.BufferListPlugin.version=0.10
 plugin.bufferlist.BufferListPlugin.docs=BufferList.html
-plugin.bufferlist.BufferListPlugin.depend.0=jedit 04.00.99.00
+plugin.bufferlist.BufferListPlugin.depend.0=jdk 1.3
+plugin.bufferlist.BufferListPlugin.depend.1=jedit 04.02.05.00
+# }}}
 
-#
-# dockable name
-#
+#{{{ dockable name
 bufferlist.name.label=Buffer List
 bufferlist.title=Buffer List
+#}}}
 
-#
-# menu
-#
-bufferlist.menu=bufferlist-toggle - bufferlist-to-front bufferlist-next-buffer bufferlist-previous-buffer
-bufferlist.menu.label=Buffer List
+#{{{ menu
+plugin.bufferlist.BufferListPlugin.menu=bufferlist-toggle \
+	- \
+	bufferlist-to-front bufferlist-next-buffer bufferlist-previous-buffer
+# }}}
 
-#
-# actions
-#
+#{{{ actions
 bufferlist.label=Buffer List
 bufferlist-toggle.label=Toggle Buffer List
 bufferlist-to-front.label=Go to Buffer List
 bufferlist-next-buffer.label=Go to Next Buffer in Buffer List
 bufferlist-previous-buffer.label=Go to Previous Buffer in Buffer List
+#}}}
 
-#
-# popup menu
-#
+#{{{ popup menu
 bufferlist.popup.title.allFiles=All Files:
 bufferlist.popup.title.multipleSelection=Multiple Files:
 bufferlist.popup.goto.label=Goto
@@ -44,23 +61,24 @@ bufferlist.popup.search.label=Search Directory...
 bufferlist.popup.expand-all.label=Expand All
 bufferlist.popup.collapse-all.label=Collapse All
 bufferlist.popup.copy-paths.label=Copy to Clipboard
+#}}}
 
-#
-# BufferList panel
-#
-bufferlist.openfiles.label=Open Files
+#{{{ bufferList panel
+bufferlist.openfiles.label=Open:
+bufferlist.dirtyfiles.label=Unsaved:
+#}}}
 
-#
-# Option pane
-#
+#{{{ option pane
+plugin.bufferlist.BufferListPlugin.option-pane=bufferlist
+options.bufferlist.code=new bufferlist.BufferListOptionPane();
 options.bufferlist.label=Buffer List
 options.bufferlist.font=Font:\ 
 options.bufferlist.autoshow=Auto-Show on buffer change
 options.bufferlist.closeFilesOnDoubleClick=Close files on double click
 options.bufferlist.startExpanded=Fully expand directory tree by default
+#}}}
 
-#
-# Error and message dialogs
-#
+#{{{ error and message dialogs
 bufferlist.error.tooMuchSelection.title=Error
 bufferlist.error.tooMuchSelection.message=Please select only one buffer.
+#}}}

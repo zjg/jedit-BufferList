@@ -48,7 +48,7 @@ public class BufferListPlugin extends EBPlugin
 	//{{{ +createMenuItems(Vector) : void
 	public void createMenuItems(Vector menuItems)
 	{
-		menuItems.addElement(GUIUtilities.loadMenu("bufferlist.menu"));
+		// menuItems.addElement(GUIUtilities.loadMenu("bufferlist.menu"));
 	} //}}}
 
 	//{{{ +createOptionPanes(OptionsDialog) : void

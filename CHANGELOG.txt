@@ -1,3 +1,7 @@
+VERSION 0.10
+- Updated to jEdit 4.2 API (Lee Turner)
+- Added open buffer and unsaved buffer counts (Lee Turner)
+
 VERSION 0.9
 
 - Added option to fully expand tree by default (Lee Turner)
