@@ -1,3 +1,16 @@
+VERSION 0.8
+
+- Tree display instead of table display; the files are grouped by directory.
+- Removed list of recent files
+- Entries are shown in the color specified by File System Browser colors.
+- Allow multiple selections of open buffers: popup operations are: save, close
+  and reload. This allows you to close, for example, all files of one directory
+  at once.
+- Bugfix: bufferlist showed up on buffer change even if "Auto-show on buffer
+  change" was off
+- Requires jEdit 4.0final or higher
+
+
 VERSION 0.7.1
 
 - New option to disable "Close files on double click" (Lee Turner)

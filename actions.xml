@@ -6,29 +6,38 @@
 
 	<ACTION NAME="bufferlist-next-buffer">
 		<CODE>
-			import bufferlist.BufferList;
-
 			DockableWindowManager mgr = view.getDockableWindowManager();
-			DockableWindow win = mgr.getDockableWindow("bufferlist");
-			if (win == null)
+			bufferlist.BufferList bufferlist = mgr.getDockable("bufferlist");
+			if(bufferlist == null)
+			{
 				mgr.addDockableWindow("bufferlist");
+				bufferlist = mgr.getDockable("bufferlist");
+			}
 
-			BufferList bufferlist = (BufferList) mgr.getDockable("bufferlist");
 			bufferlist.nextBuffer();
 		</CODE>
 	</ACTION>
 
 	<ACTION NAME="bufferlist-previous-buffer">
 		<CODE>
-			import bufferlist.BufferList;
-
 			DockableWindowManager mgr = view.getDockableWindowManager();
-			DockableWindow win = mgr.getDockableWindow("bufferlist");
-			if (win == null)
+			bufferlist.BufferList bufferlist = mgr.getDockable("bufferlist");
+			if(bufferlist == null)
+			{
 				mgr.addDockableWindow("bufferlist");
+				bufferlist = mgr.getDockable("bufferlist");
+			}
 
-			BufferList bufferlist = (BufferList) mgr.getDockable("bufferlist");
 			bufferlist.previousBuffer();
+		</CODE>
+	</ACTION>
+
+	<ACTION NAME="bufferlist-to-front">
+		<CODE>
+			DockableWindowManager mgr = view.getDockableWindowManager();
+			mgr.showDockableWindow("bufferlist");
+			bufferlist.BufferList bufferlist = mgr.getDockable("bufferlist");
+			bufferlist.requestFocusOpenFiles();
 		</CODE>
 	</ACTION>
 

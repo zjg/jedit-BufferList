@@ -1,8 +1,7 @@
 TODO
 ====
 
-- ability to switch between table view and tree view
-- allow multiple selections and operations on them (close all, save all etc.)
-- sort by dir should sort by 1) dir, 2) name
-- sort by mode should sort by 1) mode, 2) dir, 3) name
+- show status of directory entries: sum of all buffer status
+- new option: collapse inactive directories after n seconds
+- update docs
 

@@ -1,6 +1,6 @@
 /*
  * BufferList.java
- * Copyright (c) 2000,2001 Dirk Moebius
+ * Copyright (c) 2000-2002 Dirk Moebius
  *
  * :tabSize=4:indentSize=4:noTabs=false:maxLineLen=0:
  *
@@ -16,7 +16,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
 
@@ -25,128 +25,77 @@ package bufferlist;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Enumeration;
 import javax.swing.*;
-import javax.swing.table.*;
+import javax.swing.event.*;
+import javax.swing.tree.*;
 import org.gjt.sp.jedit.*;
 import org.gjt.sp.jedit.gui.*;
 import org.gjt.sp.jedit.msg.*;
 import org.gjt.sp.util.Log;
-import common.gui.HelpfulJTable;
-import bufferlist.table.BufferListModel;
-import bufferlist.table.PersistentTableColumnModel;
 
 
 /**
- * A dockable panel that contains two tables of open and recent files.
+ * A dockable panel that contains a list of open files.
  *
  * @author Dirk Moebius
  */
 public class BufferList extends JPanel implements EBComponent
 {
 
-	public BufferList(View view, final String position) {
+	private View view;
+	private String position;
+	private TextAreaFocusHandler textAreaFocusHandler;
+	private JTree tree;
+	private JScrollPane scrTree;
+	private DefaultTreeModel model;
+	private DefaultMutableTreeNode rootNode;
+	private boolean sortIgnoreCase;
+
+
+	public BufferList(View view, final String position)
+	{
 		super(new BorderLayout(0, 5));
-		
+
 		this.view = view;
 		this.position = position;
-		this.currentBuffer = view.getBuffer();
 		this.textAreaFocusHandler = new TextAreaFocusHandler();
-		
-		ActionHandler actionhandler = new ActionHandler();
-		KeyHandler keyhandler = new KeyHandler();
-		FocusHandler focushandler = new FocusHandler();
+		this.sortIgnoreCase = jEdit.getBooleanProperty("vfs.browser.sortIgnoreCase");
 
-		// open files table:
-		table1 = new HelpfulJTable();
-		table1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		table1.setAutoCreateColumnsFromModel(false);
-		table1.addMouseListener(new OpenFilesMouseHandler());
-		table1.addActionListener(actionhandler);
-		table1.addKeyListener(keyhandler);
-		table1.addFocusListener(focushandler);
+		// tree:
+		tree = new JTree();
+		tree.putClientProperty("JTree.lineStyle", "Angled");
+		tree.putClientProperty("JTree.lineStyle", "Horizontal");
+		tree.setRootVisible(false);
+		tree.setShowsRootHandles(true);
+		tree.addMouseListener(new MouseHandler());
+		tree.addKeyListener(new KeyHandler());
+		createModel();
 
-		try { table1.setSortColumn(Integer.parseInt(jEdit.getProperty("bufferlist.table1.sortColumn", "-1"))); }
-		catch (NumberFormatException nfex) {}
-		try { table1.setSortOrder(Integer.parseInt(jEdit.getProperty("bufferlist.table1.sortOrder", "-1"))); }
-		catch (NumberFormatException nfex) {}
+		// scrollpane for tree:
+		scrTree = new JScrollPane(tree);
 
-		table1.addPropertyChangeListener(new PropertyChangeListener() {
-			public void propertyChange(PropertyChangeEvent evt) {
-				String prop = evt.getPropertyName();
-				if (prop.equals("sortColumn") || prop.equals("sortOrder")) {
-					jEdit.setProperty("bufferlist.table1.sortColumn", String.valueOf(table1.getSortColumn()));
-					jEdit.setProperty("bufferlist.table1.sortOrder", String.valueOf(table1.getSortOrder()));
-					setNewModels();
-				}
-			}
-		});
+		// overall layout:
+		JLabel header = new JLabel(jEdit.getProperty("bufferlist.openfiles.label"));
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.add(BorderLayout.NORTH, header);
+		panel.add(BorderLayout.CENTER, scrTree);
+		add(panel);
 
-		// recent files table:
-		table2 = new HelpfulJTable();
-		table2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		table2.setAutoCreateColumnsFromModel(false);
-		table2.addMouseListener(new RecentFilesMouseHandler());
-		table2.addActionListener(actionhandler);
-		table2.addKeyListener(keyhandler);
-		table2.addFocusListener(focushandler);
+		handlePropertiesChanged();
 
-		try { table2.setSortColumn(Integer.parseInt(jEdit.getProperty("bufferlist.table2.sortColumn", "-1"))); }
-		catch (NumberFormatException nfex) {}
-		try { table2.setSortOrder(Integer.parseInt(jEdit.getProperty("bufferlist.table2.sortOrder", "-1"))); }
-		catch (NumberFormatException nfex) {}
+		if(position.equals(DockableWindowManager.FLOATING))
+			requestFocusOpenFiles();
 
-		table2.addPropertyChangeListener(new PropertyChangeListener() {
-			public void propertyChange(PropertyChangeEvent evt) {
-				String prop = evt.getPropertyName();
-				if (prop.equals("sortColumn") || prop.equals("sortOrder")) {
-					jEdit.setProperty("bufferlist.table2.sortColumn", String.valueOf(table2.getSortColumn()));
-					jEdit.setProperty("bufferlist.table2.sortOrder", String.valueOf(table2.getSortOrder()));
-					setNewModels();
-				}
-			}
-		});
+		currentBufferChanged();
 
-		scrTable1 = new JScrollPane(table1);
-		scrTable1.getViewport().setBackground(labelBackgrndColor);
-		scrTable2 = new JScrollPane(table2);
-		scrTable2.getViewport().setBackground(labelBackgrndColor);
-
-		setNewModels();
-
-		header1 = new JLabel(jEdit.getProperty("bufferlist.openfiles.label"));
-		header2 = new JLabel(jEdit.getProperty("bufferlist.recentfiles.label"));
-
-		JPanel top = new JPanel(new BorderLayout());
-		JPanel bottom = new JPanel(new BorderLayout());
-		top.add(BorderLayout.NORTH, header1);
-		top.add(BorderLayout.CENTER, scrTable1);
-		bottom.add(BorderLayout.NORTH, header2);
-		bottom.add(BorderLayout.CENTER, scrTable2);
-
-		int splitmode =
-			(position.equals(DockableWindowManager.TOP) ||
-			 position.equals(DockableWindowManager.BOTTOM))
-			? JSplitPane.HORIZONTAL_SPLIT
-			: JSplitPane.VERTICAL_SPLIT;
-
-		pane = new JSplitPane(splitmode, true, top, bottom);
-		pane.setOneTouchExpandable(true);
-
-		if (jEdit.getBooleanProperty("bufferlist.showRecentFiles", true))
-			add(pane, BorderLayout.CENTER);
-		else
-			add(top);
-
-		propertiesChanged();
-
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				if (position.equals(DockableWindowManager.FLOATING))
-					table1.requestFocus();
-				pane.setDividerLocation(Integer.parseInt(jEdit.getProperty("bufferlist.divider", "300")));
+		// move tree scrollbar to the left, ie. show left side of the tree:
+		SwingUtilities.invokeLater(new Runnable()
+		{
+			public void run()
+			{
+				JScrollBar hbar = scrTree.getHorizontalScrollBar();
+				hbar.setValue(hbar.getMinimum());
 			}
 		});
 	}
@@ -155,222 +104,371 @@ public class BufferList extends JPanel implements EBComponent
 	/**
 	 * Invoked by action "bufferlist-to-front" only;
 	 * sets the focus on the table of open files.
+	 * @since BufferList 0.5
 	 * @see actions.xml
 	 */
-	public void requestFocusOpenFiles() {
-		int row = model1.getRowOf(currentBuffer);
-		table1.requestFocus();
-		table1.setRowSelectionInterval(row, row);
+	public void requestFocusOpenFiles()
+	{
+		DefaultMutableTreeNode node = getNode(view.getBuffer());
+		TreePath path = new TreePath(node.getPath());
+		tree.requestFocus();
+		tree.expandPath(path);
+		tree.setSelectionPath(path);
 	}
 
 
 	/**
+	 * @deprecated use @link{org.gjt.sp.jedit.View#getBuffer()} instead.
 	 * @return the current buffer.
 	 * @since BufferList 0.6.2
 	 */
-	public Buffer getCurrentBuffer() {
-		return currentBuffer;
-	}
-
-
-	/** Go to next buffer in open files list */
-	public void nextBuffer() {
-		int row = model1.getRowOf(currentBuffer);
-		Buffer next = model1.getBuffer(row == model1.getRowCount() - 1 ? 0 : row + 1);
-		view.setBuffer(next);
-	}
-
-
-	/** Go to previous buffer in open files list */
-	public void previousBuffer() {
-		int row = model1.getRowOf(currentBuffer);
-		Buffer prev = model1.getBuffer(row == 0 ? model1.getRowCount() - 1 : row - 1);
-		view.setBuffer(prev);
+	public Buffer getCurrentBuffer()
+	{
+		return view.getBuffer();
 	}
 
 
 	/**
-	 * Invoked when the component is created; adds focus event handlers to all
-	 * EditPanes of the View associated with this BufferList.
+	 * Go to next buffer in open files list.
+	 * @since BufferList 0.5
 	 */
-	public void addNotify() {
+	public void nextBuffer()
+	{
+		Buffer buffer = view.getBuffer();
+		DefaultMutableTreeNode node = getNode(buffer);
+		DefaultMutableTreeNode next = node.getNextSibling();
+		if(next == null)
+		{
+			DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
+			DefaultMutableTreeNode nextParent = parent.getNextSibling();
+			if(nextParent == null)
+				nextParent = (DefaultMutableTreeNode) rootNode.getFirstChild();
+			next = (DefaultMutableTreeNode) nextParent.getFirstChild();
+		}
+
+		Buffer nextBuffer = (Buffer) next.getUserObject();
+		view.setBuffer(nextBuffer);
+	}
+
+
+	/**
+	 * Go to previous buffer in open files list.
+	 * @since BufferList 0.5
+	 */
+	public void previousBuffer()
+	{
+		Buffer buffer = view.getBuffer();
+		DefaultMutableTreeNode node = getNode(buffer);
+		DefaultMutableTreeNode prev = node.getPreviousSibling();
+		if(prev == null)
+		{
+			DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
+			DefaultMutableTreeNode prevParent = parent.getPreviousSibling();
+			if(prevParent == null)
+				prevParent = (DefaultMutableTreeNode) rootNode.getLastChild();
+			prev = (DefaultMutableTreeNode) prevParent.getLastChild();
+		}
+
+		Buffer prevBuffer = (Buffer) prev.getUserObject();
+		view.setBuffer(prevBuffer);
+	}
+
+
+	/**
+	 * Invoked when the component is created;
+	 * adds focus event handlers to all EditPanes of the View
+	 * associated with this BufferList.
+	 */
+	public void addNotify()
+	{
 		super.addNotify();
 		EditBus.addToBus(this);
 
-		if (view != null) {
+		if(view != null)
+		{
 			EditPane[] editPanes = view.getEditPanes();
-			for (int i = 0; i < editPanes.length; i++)
+			for(int i = 0; i < editPanes.length; i++)
 				editPanes[i].getTextArea().addFocusListener(textAreaFocusHandler);
 		}
 	}
 
 
 	/**
-	 * Invoked when the component is removed; saves some properties and removes
-	 * the focus event handlers from the EditPanes.
+	 * Invoked when the component is removed;
+	 * removes the focus event handlers from all EditPanes.
 	 */
-	public void removeNotify() {
+	public void removeNotify()
+	{
 		super.removeNotify();
 		EditBus.removeFromBus(this);
 
 		// removes focus event handlers from all EditPanes of the View
 		// associated with this BufferList:
-		if (view != null) {
+		if(view != null)
+		{
 			EditPane[] editPanes = view.getEditPanes();
-			for (int i = 0; i < editPanes.length; i++)
+			for(int i = 0; i < editPanes.length; i++)
 				editPanes[i].getTextArea().removeFocusListener(textAreaFocusHandler);
 		}
-
-		// save divider location:
-		jEdit.setProperty("bufferlist.divider", Integer.toString(pane.getDividerLocation()));
-
-		// save column widths and order:
-		TableColumnModel tcm1 = table1.getColumnModel();
-		TableColumnModel tcm2 = table2.getColumnModel();
-		if (tcm1 instanceof PersistentTableColumnModel)
-			((PersistentTableColumnModel)tcm1).save();
-		if (tcm2 instanceof PersistentTableColumnModel)
-			((PersistentTableColumnModel)tcm2).save();
 	}
 
 
-	public void handleMessage(EBMessage message) {
-		if (message instanceof BufferUpdate) {
-			BufferUpdate bu = (BufferUpdate) message;
-			if (bu.getWhat() == BufferUpdate.CREATED ||
-				bu.getWhat() == BufferUpdate.CLOSED ||
-				bu.getWhat() == BufferUpdate.DIRTY_CHANGED ||
-				bu.getWhat() == BufferUpdate.MODE_CHANGED) {
-				setNewModels();
-			}
+	/** Handle jEdit EditBus messages */
+	public void handleMessage(EBMessage message)
+	{
+		if(message instanceof BufferUpdate)
+			handleBufferUpdate((BufferUpdate)message);
+		else if(message instanceof EditPaneUpdate)
+			handleEditPaneUpdate((EditPaneUpdate)message);
+		else if(message instanceof PropertiesChanged)
+			handlePropertiesChanged();
+	}
+
+
+	private void handleBufferUpdate(BufferUpdate bu)
+	{
+		if(bu.getWhat() == BufferUpdate.CREATED)
+			insertNode(bu.getBuffer());
+		else if(bu.getWhat() == BufferUpdate.CLOSED)
+			removeNode(bu.getBuffer());
+		else if(bu.getWhat() == BufferUpdate.DIRTY_CHANGED)
+			updateNode(bu.getBuffer());
+		else if(bu.getWhat() == BufferUpdate.SAVED)
+		{
+			TreePath[] expandedPaths = TreeTools.getExpandedPaths(tree);
+			createModel();
+			TreeTools.setExpandedPaths(tree, expandedPaths);
 		}
-		else if (message instanceof EditPaneUpdate) {
-			EditPaneUpdate epu = (EditPaneUpdate) message;
-			View v = ((EditPane) epu.getSource()).getView();
-			if (v == view) {
-				if (epu.getWhat() == EditPaneUpdate.CREATED) {
-					epu.getEditPane().getTextArea().addFocusListener(textAreaFocusHandler);
-				} else if (epu.getWhat() == EditPaneUpdate.DESTROYED) {
-					epu.getEditPane().getTextArea().removeFocusListener(textAreaFocusHandler);
-				} else if (epu.getWhat() == EditPaneUpdate.BUFFER_CHANGED) {
-					currentBuffer = epu.getEditPane().getBuffer();
-					currentBufferChanged();
+	}
+
+
+	private void handleEditPaneUpdate(EditPaneUpdate epu)
+	{
+		View v = ((EditPane) epu.getSource()).getView();
+		if(v != view)
+			return; // not for this BufferList instance
+
+		if(epu.getWhat() == EditPaneUpdate.CREATED)
+			epu.getEditPane().getTextArea().addFocusListener(textAreaFocusHandler);
+		else if(epu.getWhat() == EditPaneUpdate.DESTROYED)
+			epu.getEditPane().getTextArea().removeFocusListener(textAreaFocusHandler);
+		else if(epu.getWhat() == EditPaneUpdate.BUFFER_CHANGED)
+			currentBufferChanged();
+	}
+
+
+	private void handlePropertiesChanged()
+	{
+		boolean newSortIgnoreCase = jEdit.getBooleanProperty("vfs.browser.sortIgnoreCase");
+		if(sortIgnoreCase != newSortIgnoreCase)
+		{
+			sortIgnoreCase = newSortIgnoreCase;
+			createModel();
+		}
+
+		// set new cell renderer to change fonts:
+		tree.setCellRenderer(new BufferListRenderer(view));
+	}
+
+
+	private static String getDir(Buffer buffer)
+	{
+		return buffer.getVFS().getParentOfPath(buffer.getPath());
+	}
+
+
+	/**
+	 * Sets a new tree model.
+	 */
+	private void createModel()
+	{
+		Buffer[] buffers = jEdit.getBuffers();
+
+		MiscUtilities.quicksort(buffers, new MiscUtilities.Compare()
+		{
+			public int compare(Object obj1, Object obj2)
+			{
+				if(obj1 == obj2)
+					return 0;
+				else
+				{
+					Buffer buf1 = (Buffer) obj1;
+					Buffer buf2 = (Buffer) obj2;
+					String dir1 = getDir(buf1);
+					String dir2 = getDir(buf2);
+					int cmpDir = MiscUtilities.compareStrings(dir1, dir2, sortIgnoreCase);
+					if(cmpDir == 0)
+						return MiscUtilities.compareStrings(buf1.getName(), buf2.getName(), sortIgnoreCase);
+					else
+						return cmpDir;
 				}
 			}
+		});
+
+		final Object root = new Object()
+		{
+			public String toString()
+			{
+				return "ROOT";
+			}
+		};
+
+		rootNode = new DefaultMutableTreeNode(root);
+		DefaultMutableTreeNode dirNode = null;
+		String lastDir = null;
+
+		for(int i = 0; i < buffers.length; ++i)
+		{
+			Buffer buffer = buffers[i];
+			String dir = getDir(buffer);
+			if(lastDir == null || dirNode == null || !dir.equals(lastDir))
+			{
+				dirNode = new DefaultMutableTreeNode(dir, true);
+				rootNode.add(dirNode);
+				lastDir = dir;
+			}
+			dirNode.add(new DefaultMutableTreeNode(buffer, false));
 		}
-		else if (message instanceof PropertiesChanged) {
-			propertiesChanged();
-		}
+
+		model = new DefaultTreeModel(rootNode);
+		tree.setModel(model);
 	}
 
 
 	/**
-	 * Overwritten so that changes to the current look and feel take effect.
-	 * @see javax.swing.JComponent#updateUI()
+	 * @return the tree node for the jEdit buffer, or null if the buffer
+	 *  cannot be found in the current tree model.
 	 */
-	public void updateUI() {
-		initFontsAndColors();
-		super.updateUI();
+	private DefaultMutableTreeNode getNode(Buffer buffer)
+	{
+		Enumeration enum = rootNode.depthFirstEnumeration();
+		while(enum.hasMoreElements())
+		{
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode) enum.nextElement();
+			if(node.getUserObject() == buffer)
+				return node;
+		}
+		return null;
 	}
 
 
-	/**
-	 * Sets new table models and table column models for both tables.
-	 */
-	private void setNewModels() {
-		model1 = new BufferListModel(this, table1, jEdit.getBuffers());
-		model2 = new BufferListModel(this, table2, BufferHistory.getBufferHistory());
-		table1.setModel(model1);
-		table2.setModel(model2);
-		setNewColumnModel(table1);
-		setNewColumnModel(table2);
+	private void insertNode(Buffer buffer)
+	{
+		String dir = getDir(buffer);
+		String name = buffer.getName();
+		DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(buffer);
 
-		// mark new current buffer:
-		currentBuffer = view.getBuffer();
-		currentBufferChanged();
+		// search for the right place to insert:
+		Enumeration dirs = rootNode.children();
+		int dirNo = 0;
+		while(dirs.hasMoreElements())
+		{
+			DefaultMutableTreeNode dirNode = (DefaultMutableTreeNode) dirs.nextElement();
+			int cmp = MiscUtilities.compareStrings(dirNode.getUserObject().toString(), dir, sortIgnoreCase);
+			if(cmp == 0)
+			{
+				// found directory node; insert at the right place in the node's children
+				Enumeration children = dirNode.children();
+				int childNo = 0;
+				while(children.hasMoreElements())
+				{
+					DefaultMutableTreeNode nextNode = (DefaultMutableTreeNode) children.nextElement();
+					String nodeName = ((Buffer)nextNode.getUserObject()).getName();
+					if(MiscUtilities.compareStrings(nodeName, name, sortIgnoreCase) >= 0)
+						break;
+					++childNo;
+				}
+				dirNode.insert(newNode, childNo);
+				model.nodesWereInserted(dirNode, new int[] { childNo });
+				return;
+			}
+			else if(cmp > 0)
+				break;
+			++dirNo;
+		}
+
+		// directory node not yet there; create one:
+		DefaultMutableTreeNode newDirNode = new DefaultMutableTreeNode(dir);
+		newDirNode.insert(newNode, 0);
+		rootNode.insert(newDirNode, dirNo);
+		model.nodesWereInserted(rootNode, new int[] { dirNo });
+
+		// expand the new directory node:
+		TreePath path = new TreePath(newNode.getPath());
+		tree.makeVisible(path);
 	}
 
 
-	private void setNewColumnModel(HelpfulJTable table) {
-		// save old column sizes and order:
-		TableColumnModel tcm = table.getColumnModel();
-		if (tcm instanceof PersistentTableColumnModel)
-			((PersistentTableColumnModel)tcm).save();
-		// make new column model:
-		PersistentTableColumnModel ptcm = new PersistentTableColumnModel(table == table1 ? 1 : 2, 4);
-		boolean verticalLines = jEdit.getBooleanProperty("bufferlist.verticalLines");
-		ptcm.setColumnMargin(verticalLines ? 1 : 0);
-		// set column model
-		table.setColumnModel(ptcm);
+	private void removeNode(Buffer buffer)
+	{
+		DefaultMutableTreeNode node = getNode(buffer);
+		if(node == null)
+			return;
 
-		// bugfix: the table background colors are reverted to default after
-		// the models are changed; need to set it again:
-		scrTable1.getViewport().setBackground(labelBackgrndColor);
-		scrTable2.getViewport().setBackground(labelBackgrndColor);
+		DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
+		int index = parent.getIndex(node);
+		parent.remove(index);
+
+		// if parent directory node has no children, remove that node, too:
+		if(parent.getChildCount() == 0)
+		{
+			int parentIndex = rootNode.getIndex(parent);
+			rootNode.remove(parentIndex);
+			model.nodesWereRemoved(rootNode, new int[] { parentIndex }, new Object[] { parent });
+		}
+		else
+			model.nodesWereRemoved(parent, new int[] { index }, new Object[] { node });
 	}
+
+
+	private void updateNode(Buffer buffer)
+	{
+		DefaultMutableTreeNode node = getNode(buffer);
+		if(node == null)
+			return;
+
+		model.nodeChanged(node);
+	}
+
 
 
 	/**
 	 * Called after the current buffer has changed; notifies the cell
-	 * renderers and makes sure the current buffer is visible in the open
-	 * files list.
+	 * renderer and makes sure the current buffer is visible.
 	 */
-	private void currentBufferChanged() {
-		model1.fireTableDataChanged();
-		model2.fireTableDataChanged();
+	private void currentBufferChanged()
+	{
+		Buffer buffer = view.getBuffer();
+		DefaultMutableTreeNode node = getNode(buffer);
+		if(node == null)
+			return;
 
-		int row = model1.getRowOf(currentBuffer);
-		int col = table1.getColumnModel().getColumnCount() - 1;
-	    Rectangle cellRect = table1.getCellRect(row, col, false);
-	    if (cellRect != null) {
-			cellRect.x = 0;
-			table1.scrollRectToVisible(cellRect);
-		}
+		// Expand tree to show current buffer
+		TreePath path = new TreePath(node.getPath());
+		tree.expandPath(path);
+
+		// Set new cell renderer to draw to current buffer bold
+		tree.setCellRenderer(new BufferListRenderer(view));
+
+		// Make sure path is visible.
+		// Note: can't use tree.scrollPathToVisible(path) here, because it moves
+		// the enclosing JScrollPane horizontally; but we want vertical movement
+		// only.
+		tree.makeVisible(path);
+		Rectangle bounds = tree.getPathBounds(path);
+	    if(bounds != null)
+		{
+			bounds.width = 0;
+			bounds.x = 0;
+			tree.scrollRectToVisible(bounds);
+	    }
 	}
 
 
-	private void propertiesChanged() {
-		boolean showAbsoluteOld = model1.isShowingAbsoluteFilename();
-		boolean showAbsoluteNew = jEdit.getBooleanProperty("bufferlist.showOneColumn");
-		int recentFilesOld = model2.getRowCount();
-		int recentFilesNew = BufferHistory.getBufferHistory().size();
-
-		// if the property "showOneColumn" or the number of recent files have
-		// changed, we need to update the models:
-		if (showAbsoluteOld != showAbsoluteNew || recentFilesOld != recentFilesNew) {
-			setNewModels();
-		} else {
-			// otherwise we only need to update the column models, which is faster:
-			setNewColumnModel(table1);
-			setNewColumnModel(table2);
-		}
-
-		// show/hide table headers:
-		if (jEdit.getBooleanProperty("bufferlist.headers", false)) {
-			boolean autoresize = jEdit.getBooleanProperty("bufferlist.autoresize", true);
-			table1.setAutoResizeColumns(autoresize);
-			table2.setAutoResizeColumns(autoresize);
-			table1.setTableHeader(new JTableHeader(table1.getColumnModel()));
-			table2.setTableHeader(new JTableHeader(table2.getColumnModel()));
-		} else {
-			table1.setAutoResizeColumns(true);
-			table2.setAutoResizeColumns(true);
-			table1.setTableHeader(null);
-			table2.setTableHeader(null);
-		}
-
-		// show/hide vertical & horizontal lines:
-		boolean verticalLines = jEdit.getBooleanProperty("bufferlist.verticalLines");
-		boolean horizontalLines = jEdit.getBooleanProperty("bufferlist.horizontalLines");
-		table1.setShowVerticalLines(verticalLines);
-		table2.setShowVerticalLines(verticalLines);
-		table1.setShowHorizontalLines(horizontalLines);
-		table2.setShowHorizontalLines(horizontalLines);
-	}
-
-
-	private void closeWindowAndFocusEditPane() {
-		if (position.equals(DockableWindowManager.FLOATING)) {
+	private void closeWindowAndFocusEditPane()
+	{
+		if(position.equals(DockableWindowManager.FLOATING))
+		{
 			DockableWindowManager wm = view.getDockableWindowManager();
 			wm.removeDockableWindow("bufferlist");
 		}
@@ -378,37 +476,7 @@ public class BufferList extends JPanel implements EBComponent
 	}
 
 
-	private View view;
-	private Buffer currentBuffer;
-	private String position;
-	private TextAreaFocusHandler textAreaFocusHandler;
-	private HelpfulJTable table1;
-	private HelpfulJTable table2;
-	private BufferListModel model1;
-	private BufferListModel model2;
-	private JScrollPane scrTable1;
-	private JScrollPane scrTable2;
-	private JLabel header1;
-	private JLabel header2;
-	private JSplitPane pane;
-
-	private static Font fontHeaderNormal;
-	private static Font fontHeaderSelected;
-	private static Color labelBackgrndColor;
-
-
-	private static void initFontsAndColors() {
-		Font labelFont = UIManager.getFont("Label.font");
-		fontHeaderNormal = new Font(labelFont.getName(), Font.PLAIN, labelFont.getSize());
-		fontHeaderSelected = new Font(labelFont.getName(), Font.BOLD, labelFont.getSize());
-		labelBackgrndColor = UIManager.getColor("Table.background");
-	}
-
-
-	// initialize static members
-	static {
-		initFontsAndColors();
-	}
+	Buffer lastBuffer = null;
 
 
 	/**
@@ -417,175 +485,166 @@ public class BufferList extends JPanel implements EBComponent
 	 */
 	class TextAreaFocusHandler extends FocusAdapter
 	{
-		public void focusGained(FocusEvent evt) {
+		public void focusGained(FocusEvent evt)
+		{
 			Component comp = SwingUtilities.getAncestorOfClass(EditPane.class, (Component) evt.getSource());
-			if (comp == null)
+			if(comp == null)
 				return;
 
-			Buffer newBuffer = ((EditPane)comp).getBuffer();
-			if (newBuffer != currentBuffer) {
-				currentBuffer = newBuffer;
+			Buffer buffer = ((EditPane)comp).getBuffer();
+			if(buffer != lastBuffer)
 				currentBufferChanged();
-			}
 		}
 	}
 
 
 	/**
-	 * A mouse listener for the open files table.
+	 * A mouse listener for the buffer list.
 	 */
-	class OpenFilesMouseHandler extends MouseAdapter
+	class MouseHandler extends MouseAdapter
 	{
-		public void mousePressed(MouseEvent e) {
-			Point p = e.getPoint();
-			int row = table1.rowAtPoint(p);
-			if (row == -1)
+		/**
+		 * invoked when the mouse button has been clicked (pressed and
+		 * released) on the buffer list.
+		 */
+		public void mouseClicked(MouseEvent e)
+		{
+			// first exclude what we don't handle
+			if((e.getModifiers() & MouseEvent.BUTTON2_MASK) != 0)
+				return;
+			if((e.getModifiers() & MouseEvent.BUTTON3_MASK) != 0)
+				return;
+			if(e.isAltDown() || e.isAltGraphDown() || e.isMetaDown()
+				|| e.isShiftDown() || e.isControlDown())
+				return;
+			if(e.getClickCount() > 2)
 				return;
 
-			String filename = model1.getFilename(row);
-			Buffer buffer = model1.getBuffer(row);
+			e.consume();
 
-			if ((e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0) {
-				if (e.getClickCount() == 1) {
-					// left mouse single press: open buffer
-					if (buffer != null) {
-						view.setBuffer(buffer);
-						view.toFront();
-						view.getEditPane().requestFocus();
+			TreePath path = tree.getClosestPathForLocation(e.getX(), e.getY());
+			if(path == null)
+				return;
+
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+			Object obj = node.getUserObject();
+			if(obj instanceof String)
+				return;
+
+			Buffer buffer = (Buffer) obj;
+			if(e.getClickCount() == 2
+				&& jEdit.getBooleanProperty("bufferlist.closeFilesOnDoubleClick", true))
+			{
+				// left mouse double press: close buffer
+				jEdit.closeBuffer(view, buffer);
+			}
+			else
+			{
+				// left mouse single press: open buffer
+				view.setBuffer(buffer);
+				view.toFront();
+				view.getEditPane().requestFocus();
+			}
+		}
+
+		public void mousePressed(MouseEvent e)
+		{
+			if(e.isPopupTrigger())
+				showPopup(e);
+		}
+
+		public void mouseReleased(MouseEvent e)
+		{
+			if(e.isPopupTrigger())
+				showPopup(e);
+		}
+
+		private void showPopup(MouseEvent e)
+		{
+			e.consume();
+
+			// if user didn't select any buffer, or selected only one buffer,
+			// then select entry at mouse position:
+			TreePath[] paths = tree.getSelectionPaths();
+			if(paths == null || paths.length == 1)
+			{
+				TreePath locPath = tree.getClosestPathForLocation(e.getX(), e.getY());
+				if(locPath != null)
+				{
+					Rectangle nodeRect = tree.getPathBounds(locPath);
+					if(nodeRect != null && nodeRect.contains(e.getX(), e.getY()))
+					{
+						paths = new TreePath[] { locPath };
+						tree.setSelectionPath(locPath);
 					}
-					e.consume();
-				} else if (e.getClickCount() == 2) {
-					// left mouse double press: open buffer or close files
-					if (jEdit.getBooleanProperty("bufferlist.closeFilesOnDoubleClick", true)) {
-						if (buffer != null)
-							jEdit.closeBuffer(view, buffer);
-					} else {
-						if (buffer != null) {
-							view.setBuffer(buffer);
-							view.toFront();
-							view.getEditPane().requestFocus();
+				}
+			}
+
+			// check whether user selected a directory node:
+			if(paths != null)
+			{
+				for(int i = 0; i < paths.length; ++i)
+				{
+					DefaultMutableTreeNode node = (DefaultMutableTreeNode) paths[i].getLastPathComponent();
+					Object obj = node.getUserObject();
+					if(obj != null && obj instanceof String)
+					{
+						// user selected directory node; select all entries below it:
+						Enumeration children = node.children();
+						while(children.hasMoreElements())
+						{
+							DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) children.nextElement();
+							TreePath path = new TreePath(childNode.getPath());
+							tree.addSelectionPath(path);
 						}
 					}
-					e.consume();
 				}
 			}
-			else if ((e.getModifiers() & MouseEvent.BUTTON3_MASK) != 0) {
-				// right mouse press: show popup
 
-				boolean isCurrent = (buffer != null && buffer == currentBuffer);
-				table1.getSelectionModel().setSelectionInterval(row, row);
-				BufferListPopup popup = new BufferListPopup(view, filename, true, isCurrent);
-				popup.show(table1, p.x+1, p.y+1);
-				e.consume();
-			}
+			// create & show popup
+			paths = tree.getSelectionPaths();
+			BufferListPopup popup = new BufferListPopup(view, tree, paths);
+			popup.show(tree, e.getX() + 1, e.getY() + 1);
 		}
 	}
 
 
 	/**
-	 * A mouse listener for the recent files table.
-	 */
-	class RecentFilesMouseHandler extends MouseAdapter
-	{
-		public void mouseClicked(MouseEvent e) {
-			// only double click allowed here:
-			if (e.getClickCount() < 2)
-				return;
-
-			// on double-click: jump to buffer
-			int row = table2.rowAtPoint(e.getPoint());
-			if (row == -1)
-				return;
-
-			String filename = model2.getFilename(row);
-			jEdit.openFile(view, filename);
-			// note: we don't request the focus of the text area here,
-			// because the user may want to open a series of files.
-		}
-
-
-		public void mousePressed(MouseEvent e) {
-			// only right mb click allowed here:
-			if ((e.getModifiers() & MouseEvent.BUTTON3_MASK) == 0)
-				return;
-
-			// show popup
-			Point p = e.getPoint();
-			int row = table2.rowAtPoint(p);
-			if (row == -1)
-				return;
-
-			String filename = model2.getFilename(row);
-			table2.getSelectionModel().setSelectionInterval(row, row);
-			BufferListPopup popup = new BufferListPopup(view, filename, false, false);
-			popup.show(table2, p.x+1, p.y+1);
-		}
-	}
-
-
-	/**
-	 * A focus handler for both tables.
-	 */
-	class FocusHandler extends FocusAdapter
-	{
-		public void focusGained(FocusEvent evt) {
-			if (evt.getComponent() == table1) {
-				header1.setFont(fontHeaderSelected);
-				header2.setFont(fontHeaderNormal);
-			} else {
-				header1.setFont(fontHeaderNormal);
-				header2.setFont(fontHeaderSelected);
-			}
-		}
-	}
-
-
-	/**
-	 * An action handler for both tables.
-	 */
-	class ActionHandler implements ActionListener
-	{
-		public void actionPerformed(ActionEvent evt) {
-			if (evt.getActionCommand().equals("enter-pressed")) {
-				// <Enter> opens the buffer
-				if (evt.getSource() == table1) {
-					// open files table
-					int sel = table1.getSelectedRow();
-					if (sel >= 0)
-						view.setBuffer(model1.getBuffer(sel));
-				} else {
-					// recent files table
-					int sel =table2.getSelectedRow();
-					if (sel >= 0) {
-						String filename = model2.getFilename(sel);
-						jEdit.openFile(view, filename);
-					}
-				}
-				view.toFront();
-				closeWindowAndFocusEditPane();
-			}
-			else if (evt.getActionCommand().equals("tab-pressed") || evt.getActionCommand().equals("shift-tab-pressed")) {
-				// <Tab>/<Shift-Tab> changes between both tables
-				if (evt.getSource() == table1)
-					table2.requestFocus();
-				else
-					table1.requestFocus();
-			}
-		}
-	}
-
-
-	/**
-	 * A key handler for the tables.
+	 * A key handler for the buffer list.
 	 */
 	class KeyHandler extends KeyAdapter
 	{
-		public void keyPressed(KeyEvent evt) {
-			if (evt.isConsumed())
+		public void keyPressed(KeyEvent evt)
+		{
+			if(evt.isConsumed())
 				return;
 
-			if (evt.getKeyCode() == KeyEvent.VK_ESCAPE) {
+			int kc = evt.getKeyCode();
+			if(kc == KeyEvent.VK_ESCAPE || kc == KeyEvent.VK_CANCEL)
+			{
 				evt.consume();
+				tree.clearSelection();
+				closeWindowAndFocusEditPane();
+			}
+			else if(kc == KeyEvent.VK_ENTER || kc == KeyEvent.VK_ACCEPT)
+			{
+				evt.consume();
+				TreePath[] sel = tree.getSelectionPaths();
+				if(sel != null && sel.length > 0)
+				{
+					if(sel.length > 1)
+					{
+						GUIUtilities.error(BufferList.this, "bufferlist.error.tooMuchSelection", null);
+						return;
+					}
+					else
+					{
+						DefaultMutableTreeNode node = (DefaultMutableTreeNode) sel[0].getLastPathComponent();
+						Object obj = node.getUserObject();
+						if(obj instanceof Buffer)
+							view.setBuffer((Buffer)obj);
+					}
+				}
 				closeWindowAndFocusEditPane();
 			}
 		}

@@ -1,6 +1,6 @@
 /*
  * BufferListPlugin.java
- * Copyright (c) 2000,2001 Dirk Moebius
+ * Copyright (c) 2000-2002 Dirk Moebius
  *
  * :tabSize=4:indentSize=4:noTabs=false:maxLineLen=0:
  *
@@ -16,7 +16,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
 
@@ -61,24 +61,24 @@ public class BufferListPlugin extends EBPlugin
 
 	public void handleMessage(EBMessage message)
 	{
-		if (message instanceof BufferUpdate)
+		if(message instanceof BufferUpdate)
 		{
 			BufferUpdate bu = (BufferUpdate) message;
-			if (jEdit.getBooleanProperty("bufferlist.autoshow", false)
+			if(jEdit.getBooleanProperty("bufferlist.autoshow", false)
 				&& bu.getView() != null
 				&& (bu.getWhat() == BufferUpdate.CREATED || bu.getWhat() == BufferUpdate.CLOSED))
 			{
 				bu.getView().getDockableWindowManager().addDockableWindow("bufferlist");
 			}
 		}
-		else if (message instanceof EditPaneUpdate)
+		else if(message instanceof EditPaneUpdate)
 		{
 			EditPaneUpdate epu = (EditPaneUpdate) message;
-			if (jEdit.getBooleanProperty("bufferlist.autoshow", false)
+			if(jEdit.getBooleanProperty("bufferlist.autoshow", false)
 				&& epu.getWhat() == EditPaneUpdate.BUFFER_CHANGED)
 			{
 				View view = ((EditPane) epu.getSource()).getView();
-				if (view != null)
+				if(view != null)
 					view.getDockableWindowManager().addDockableWindow("bufferlist");
 			}
 		}

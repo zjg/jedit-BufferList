@@ -1,7 +1,6 @@
 /*
  * BufferListPopup.java - provides popup actions for BufferList
- * Copyright (c) 2000 Dirk Moebius
- * With inspiration from Jason Ginchereau and Slava Pestov
+ * Copyright (c) 2000-2002 Dirk Moebius
  *
  * :tabSize=4:indentSize=4:noTabs=false:maxLineLen=0:
  *
@@ -17,22 +16,31 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA	02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
 
 package bufferlist;
 
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Vector;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import org.gjt.sp.jedit.Buffer;
-import org.gjt.sp.jedit.BufferHistory;
+import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 import org.gjt.sp.jedit.jEdit;
+import org.gjt.sp.jedit.Buffer;
+import org.gjt.sp.jedit.GUIUtilities;
+import org.gjt.sp.jedit.MiscUtilities;
 import org.gjt.sp.jedit.View;
+import org.gjt.sp.jedit.browser.VFSBrowser;
+import org.gjt.sp.jedit.search.DirectoryListSet;
+import org.gjt.sp.jedit.search.SearchAndReplace;
+import org.gjt.sp.jedit.search.SearchDialog;
 
 
 /**
@@ -44,38 +52,104 @@ public class BufferListPopup extends JPopupMenu
 {
 
 	private View view;
-	private String path;
+	private JTree tree;
+	private TreePath[] sel;
+	private String dir;
 
 
-	public BufferListPopup(
-			View view,
-			String path,
-			boolean isOpenFilesList,
-			boolean isCurrent)
+	public BufferListPopup(View view, JTree tree, TreePath[] sel)
 	{
 		this.view = view;
-		this.path = path;
+		this.tree = tree;
+		this.sel = sel;
 
-		if (isOpenFilesList) {
-			if (!isCurrent)
-				add(createMenuItem("goto"));
-			add(createMenuItem("open-view"));
-			addSeparator();
+		// check whether user selected at most one directory
+		if(sel != null)
+		{
+			String lastDir = null;
+			for(int i = 0; i < sel.length; ++i)
+			{
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode) sel[i].getLastPathComponent();
+				Object obj = node.getUserObject();
+				if(obj instanceof String)
+					this.dir = (String) obj;
+				else if(obj instanceof Buffer)
+					this.dir = MiscUtilities.getParentOfPath(((Buffer)obj).getPath());
+				if(lastDir == null)
+					lastDir = this.dir;
+				else
+				{
+					if(!lastDir.equals(this.dir))
+					{
+						this.dir = null; // more than one dir in selection
+						break;
+					}
+				}
+			}
+		}
+
+		Buffer viewBuffer = view.getBuffer();
+		Buffer selectedBuffer = null;
+		String title = jEdit.getProperty("bufferlist.popup.title.allFiles");
+
+		if(sel != null)
+		{
+			title = jEdit.getProperty("bufferlist.popup.title.multipleSelection");
+			if(sel.length == 1)
+			{
+				// one entry selected
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode) sel[0].getLastPathComponent();
+				Object obj = node.getUserObject();
+				if(obj instanceof Buffer)
+				{
+					selectedBuffer = (Buffer) obj;
+					title = selectedBuffer.getName();
+				}
+			}
+		}
+
+		add(title).setEnabled(false);
+		addSeparator();
+
+		if(selectedBuffer != null && selectedBuffer != viewBuffer)
+			add(createMenuItem("goto"));
+
+		if(selectedBuffer != null)
+			add(createMenuItem("open-in-new-view"));
+
+		if(sel != null)
+		{
 			add(createMenuItem("close"));
 			add(createMenuItem("save"));
+		}
+
+		if(selectedBuffer != null)
 			add(createMenuItem("save-as"));
-			addSeparator();
+
+		if(sel != null)
 			add(createMenuItem("reload"));
-		} else {
-			add(createMenuItem("open"));
-			add(createMenuItem("open-view"));
+
+		addSeparator();
+		add(createMenuItem("expand-all"));
+		add(createMenuItem("collapse-all"));
+
+		if(dir != null)
+		{
 			addSeparator();
-			add(createMenuItem("remove"));
+			add(createMenuItem("browse"));
+			add(createMenuItem("search"));
+		}
+
+		if(sel != null)
+		{
+			addSeparator();
+			add(createMenuItem("copy-paths"));
 		}
 	}
 
 
-	private JMenuItem createMenuItem(String name) {
+	private JMenuItem createMenuItem(String name)
+	{
 		String label = jEdit.getProperty("bufferlist.popup." + name + ".label");
 		JMenuItem mi = new JMenuItem(label);
 		mi.setActionCommand(name);
@@ -84,57 +158,64 @@ public class BufferListPopup extends JPopupMenu
 	}
 
 
-	class ActionHandler implements ActionListener {
-
-		public void actionPerformed(ActionEvent evt) {
+	class ActionHandler implements ActionListener
+	{
+		public void actionPerformed(ActionEvent evt)
+		{
 			String actionCommand = evt.getActionCommand();
 
-			if (actionCommand.equals("goto")) {
-				Buffer buffer = jEdit.getBuffer(path);
-				if (buffer != null)
-					view.setBuffer(buffer);
+			if(actionCommand.equals("expand-all"))
+				TreeTools.expandAll(tree);
+			else if(actionCommand.equals("collapse-all"))
+				TreeTools.collapseAll(tree);
+			else if(actionCommand.equals("browse"))
+				GUIUtilities.showVFSFileDialog(view, dir, VFSBrowser.BROWSER, true);
+			else if(actionCommand.equals("search"))
+			{
+				SearchAndReplace.setSearchFileSet(new DirectoryListSet(dir, "*[^~#]", true));
+				SearchDialog.showSearchDialog(view, "", SearchDialog.DIRECTORY);
 			}
-			else if (actionCommand.equals("open")) {
-				jEdit.openFile(view, path);
-			}
-			else if (actionCommand.equals("open-view")) {
-				Buffer buffer = jEdit.openFile(null, path);
-				if (buffer != null)
-					jEdit.newView(view, buffer);
-			}
-			else if (actionCommand.equals("close")) {
-				Buffer buffer = jEdit.getBuffer(path);
-				if (buffer != null)
-					jEdit.closeBuffer(view, buffer);
-			}
-			else if (actionCommand.equals("save")) {
-				Buffer buffer = jEdit.getBuffer(path);
-				if (buffer != null)
-					buffer.save(view, null);
-			}
-			else if (actionCommand.equals("save-as")) {
-				Buffer buffer = jEdit.getBuffer(path);
-				if (buffer != null)
-					buffer.saveAs(view, true);
-			}
-			else if (actionCommand.equals("reload")) {
-				Buffer buffer = jEdit.getBuffer(path);
-				if (buffer != null)
-					buffer.reload(view);
-			}
-			else if (actionCommand.equals("remove")) {
-				Vector history = BufferHistory.getBufferHistory();
-				for (int i = history.size() - 1; i >= 0; --i) {
-					BufferHistory.Entry entry = (BufferHistory.Entry) history.elementAt(i);
-					if (entry.path.equals(path)) {
-						history.removeElementAt(i);
-						jEdit.propertiesChanged();
-						break;
+			else if(sel != null)
+			{
+				StringBuffer pathStrings = new StringBuffer();
+				for(int i = 0; i < sel.length; ++i)
+				{
+					if(i > 0)
+						pathStrings.append('\n');
+
+					DefaultMutableTreeNode node = (DefaultMutableTreeNode) sel[i].getLastPathComponent();
+					Object obj = node.getUserObject();
+
+					if(obj instanceof String)
+						pathStrings.append((String)obj);
+					else if(obj instanceof Buffer)
+					{
+						Buffer buffer = (Buffer) obj;
+						pathStrings.append(buffer.getPath());
+						if(actionCommand.equals("goto"))
+							view.setBuffer(buffer);
+						else if(actionCommand.equals("open-in-new-view"))
+							jEdit.newView(view, buffer);
+						else if(actionCommand.equals("close"))
+							jEdit.closeBuffer(view, buffer);
+						else if(actionCommand.equals("save"))
+							buffer.save(view, null);
+						else if(actionCommand.equals("save-as"))
+							buffer.saveAs(view, true);
+						else if(actionCommand.equals("reload"))
+							buffer.reload(view);
 					}
 				}
+
+				if(actionCommand.equals("copy-paths"))
+					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
+						new StringSelection(pathStrings.toString()), null);
 			}
 
+			// help out the garbage collector
 			view = null;
+			tree = null;
+			sel = null;
 		}
 	}
 

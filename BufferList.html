@@ -1,6 +1,6 @@
 <HTML>
 <HEAD>
-<TITLE>Buffer List plugin</TITLE>
+<TITLE>BufferList plugin</TITLE>
 </HEAD>
 
 <BODY BGCOLOR="#FFFFFF">
@@ -10,7 +10,7 @@
        WIDTH="100%">
   <TR>
     <TD>
-      <H1>Buffer List plugin</H1>
+      <H1>BufferList Plugin</H1>
     </TD>
     <TD ALIGN="right">
         <SMALL>By Dirk M&ouml;bius<BR>
@@ -21,99 +21,27 @@
 </TABLE>
 
 
-<UL>
-    <LI><A HREF="#general">Introduction</A>
-    <LI><A HREF="#bufferlist">The Buffer List</A>
-    <LI><A HREF="#customization">Customization</A>
-    <LI><A HREF="#license">License</A>
-    <LI><A HREF="#feedback">Feedback</A>
-</UL>
-
-
-<A NAME="general"></A>
 <H2>Introduction</H2>
 
 <P>
-The Buffer List shows the lists of currently open files and the list of
-recent files in a window, that may be docked permanently into jEdit's
-view. The lists are displayed in a table fashion style.
+The BufferList Plugin shows the list of currently open files in a window, that
+may be docked permanently into jEdit's view. Some actions that operate on
+buffers, like open/save/reload, may be invoked by a popup that appears when
+right-clicking an entry.
 </P>
 
 
-<H2>Release Notes</H2>
-
-<P>
-<B>Help!!! Where's the Session Manager?!?</B>
-<P>
-
-<P>
-As of version 0.7, the session management functions have been taken out into
-a separate plugin called <B>Sessions</B>. You can download it using the
-Plugin Manager.
-</P>
-
-<P>
-Note: a side effect of splitting the Session Manager out of Buffer List is that
-it can no longer be shown as BufferList's toolbar. Sorry.
-</P>
-
-
-<A NAME="bufferlist"></A>
-<H2>The Buffer List</H2>
-
-<P>
-The BufferList shows:
-</P>
-
-<UL>
-    <LI>Status icon
-    <LI>Filename
-    <LI>Directory
-    <LI>Mode name
-</UL>
-
-<P>
-This can be configured to some extent in the Global Options. See
-<A HREF="#customization">Customization</A>.
-</P>
-
+<H2>Behaviour</H2>
 
 <H3>Mouse Actions</H3>
 
-<P><B>On the open files list:</B></P>
-
 <UL>
-    <LI>single click jumps to the selected buffer
-    <LI>double click closes the selected buffer (<i>this may be disabled in the
-        options pane, see below</i>)
-    <LI>right mouse button click opens a popup with some buffer related actions
-        (goto, open in new view, close, save, save as, reload)
+  <LI><B>single click</B> jumps to the selected buffer</LI>
+  <LI><B>double click</B> closes the selected buffer (<I>this may be
+      disabled in the options pane, see below</I>)</LI>
+  <LI><B>shift click</B> selects multiple entries</LI>
+  <LI><B>right click</B> opens a popup with some buffer related actions</LI>
 </UL>
-
-<P><B>On the recent files list:</B></P>
-
-<UL>
-    <LI>double click opens the selected buffer
-    <LI>right mouse button click opens a popup with some file related actions
-        (open, open in new view)
-</UL>
-
-<P><B>On both lists:</B></P>
-
-<UL>
-    <LI>If the column headers are displayed (see
-        <A HREF="#customization">Customization</A>)
-        single-clicking a column header sorts the list by this by this
-        column, in ascending order.<BR>
-        Clicking it again sorts the list in descending order.<BR>
-        Clicking it again turns sorting off and reverts to jEdit's sort order.
-    <LI>If the column headers are displayed, double-clicking on a column
-        header edge auto-resizes the column to the size of the largest
-        cell in that column.<BR>
-        Note: This only works if auto-resizing of columns is turned off in
-        BufferList's options.
-</UL>
-
 
 <H3>Menu Actions</H3>
 
@@ -123,38 +51,42 @@ The following menu actions are available in menu
 <P>
 
 <UL>
-        <LI><B>Buffer List</B><BR>
-               Show the Buffer List.
-        <LI><B>Go to Next Buffer in Buffer List</B><BR>
-               Go to the buffer below the current one in the Buffer List.
-               This is different from <B>View&gt;Go to Next Buffer</B>,
-               because the Buffer List might be sorted differently than jEdit's
-               internal list.
-        <LI><B>Go to Previous Buffer in Buffer List</B><BR>
-               Go to the buffer above the current one in the Buffer List.
+  <LI><B>Buffer List (Toggle)</B><BR>
+      Show/Hide the Buffer List.
+  <LI><B>Go to Buffer List</B><BR>
+      Show the Buffer List and set the focus on the current buffer entry.
+  <LI><B>Go to Next Buffer in Buffer List</B><BR>
+      Go to the buffer below the current one in the Buffer List.
+      This is different from <B>View&gt;Go to Next Buffer</B>,
+      because the Buffer List might be sorted differently than jEdit's
+      internal list.
+  <LI><B>Go to Previous Buffer in Buffer List</B><BR>
+      Go to the buffer above the current one in the Buffer List.
 </UL>
 
 
 <H3>Key Actions</H3>
 
 <P>
-Buffer List is fully keyboard navigable. A prerequisite is that you assigned
-a keyboard shortcut to the plugin action <b>Buffer List</b>.
+The Buffer List is fully keyboard navigable.
 </P>
 
 <P>
-You can assign a keyboard shortcut to this action under
-<b>Utilities&gt;Global&nbsp;options&gt;Shortcuts</b>.
-I suggest "A+b".
+A prerequisite is that you assigned a keyboard shortcut to the plugin action
+<B>Go to Buffer List</B>. You can assign keyboard shortcut to this action under
+<B>Utilities&gt;Global&nbsp;options&gt;Shortcuts</B>. I suggest that you use
+<B>"A+b"</B>.
 </P>
 
 <TABLE BORDER>
   <TR> <TD><B>Key Shortcut</B></TD> <TD><B>Action</B></TD>                             </TR>
   <TR> <TD>[Alt-b]</TD>             <TD>Show Buffer List</TD>                          </TR>
   <TR> <TD>[Up] / [Down]</TD>       <TD>Choose buffer</TD>                             </TR>
-  <TR> <TD>[Enter] / [Return]</TD>  <TD>Jump to/Open selected buffer</TD>              </TR>
+  <TR> <TD>[Right]</TD>             <TD>Expand a directory entry</TD>                  </TR>
+  <TR> <TD>[Left]</TD>              <TD>Collapse a directory entry</TD>                </TR>
   <TR> <TD>[Tab]</TD>               <TD>Switch between Open and Recent files list</TD> </TR>
-  <TR> <TD>[Esc]</TD>               <TD>Return to text area</TD>        </TR>
+  <TR> <TD>[Enter] / [Return]</TD>  <TD>Jump to/Open selected buffer</TD>              </TR>
+  <TR> <TD>[Esc]</TD>               <TD>Return to text area</TD>                       </TR>
 </TABLE>
 
 <BR>
@@ -167,26 +99,23 @@ I suggest "A+b".
 
 <P>
 You can customize the appearance of the Buffer List under
-<b>Utilities&gt;Global&nbsp;options&gt;Plugin&nbsp;Options&gt;Buffer&nbsp;List</b>.
+<B>Utilities&gt;Global&nbsp;options&gt;Plugin&nbsp;Options&gt;Buffer&nbsp;List</B>.
 The following options are available:
 </P>
 
 <UL>
-<LI><B>Auto-Show on buffer change</B><BR>
-    If enabled, the Buffer List is automatically shown, if the buffer
-    has been changed.
-<LI><B>Show vertical lines</B>
-<LI><B>Show horizontal lines</B>
-<LI><B>Show column headers</B><BR>
-    If the column headers are not shown, columns will be
-    auto-resized.
-<LI><B>Auto-Resize columns</B><BR>
-    If checked, the columns are auto-resized to the width of their
-    longest entry. You cannot resize the columns manually any longer,
-    if this option is checked.
-<LI><B>Show absolute pathname in filename column</B><BR>
-    The filename column is always shown. Use this option, if you want
-    to disable the directory column, but still see the directory.<BR>
+  <LI><B>Font</B><BR>
+      The base font of bufferlist entries.<BR>
+      The current buffer will be shown <B>bold</B>.
+      All entries will be shown with a color that matches one of the regular
+      expressions in
+      <B>Utilities&gt;Global&nbsp;options&gt;File&nbsp;System&nbsp;Browser&gt;Colors</B>.</LI>
+  <LI><B>Auto-Show on buffer change</B><BR>
+      If checked, the Buffer List is automatically shown, if the current buffer
+      has been changed.</LI>
+  <LI><B>Close files on double click</B><BR>
+      If checked, a buffer that has been double clicked is closed. Otherwise it
+      is opened.</LI>
 </UL>
 
 <H3>Docking</H3>
@@ -197,12 +126,7 @@ Buffer List may be docked anywhere into the view.
 
 <P>
 Open <b>Utilities&gt;Global&nbsp;options&gt;Docking</b> to define
-the position, where Buffer List will be docked.
-</P>
-
-<P>
-If Buffer List is docked to the left or right, the open files list is displayed
-above the recent files list. Otherwise they are displayed side by side.
+the position, where the Buffer List will be docked.
 </P>
 
 
@@ -211,7 +135,7 @@ above the recent files list. Otherwise they are displayed side by side.
 </A><H2>License</H2>
 
 <P>
-The source code is distributed under the GPL. Please see
+The source code is distributed under the GPL. Please have a look at:
 <A HREF="http://www.fsf.org/copyleft/gpl.html">http://www.fsf.org/copyleft/gpl.html</A>
 </P>
 

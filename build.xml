@@ -5,7 +5,10 @@
 	<property name="install.dir"  value=".."/>
 	<property name="doc.dir"  value="doc"/>
 
+	<property name="jedit.install.dir"  value="../.."/>
+
 	<path id="project.class.path">
+		<pathelement location="${jedit.install.dir}/jedit.jar"/>
 		<pathelement location="${install.dir}/CommonControls.jar"/>
 		<pathelement location="."/>
 	</path>
@@ -21,8 +24,9 @@
 		<javac
 			srcdir="${src.dir}"
 			destdir="${build.dir}"
-			debug="on"
+			debug="off"
 			deprecation="on"
+			optimize="on"
 			includeJavaRuntime="yes"
 		>
 			<classpath refid="project.class.path"/>
