@@ -31,6 +31,7 @@ bufferlist.menu.label=Buffer List
 #
 
 bufferlist.label=Buffer List
+bufferlist-toggle.label=Toggle Buffer List
 bufferlist-next-buffer.label=Go to Next Buffer in Buffer List
 bufferlist-previous-buffer.label=Go to Previous Buffer in Buffer List
 
