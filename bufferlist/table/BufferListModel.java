@@ -37,8 +37,8 @@ import org.gjt.sp.jedit.io.FileVFS;
 import org.gjt.sp.jedit.io.VFS;
 import org.gjt.sp.jedit.io.VFSManager;
 import org.gjt.sp.util.Log;
+import common.gui.HelpfulJTable;
 import bufferlist.BufferList;
-import bufferlist.HelpfulJTable;
 
 
 /**

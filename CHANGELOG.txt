@@ -1,3 +1,14 @@
+VERSION 0.7.1
+
+- New option to disable "Close files on double click" (Lee Turner)
+- New option to hide recent files window permanently (Lee Turner)
+- Updated to new jEdit 4.0 API
+- Using HelpfulJTable from CommonControls plugin
+- Removed action "Bring BufferList to front", because it is obsolete now with
+  the new jEdit 4.0 docking API
+- Requires jEdit 4.0pre1 or higher, CommonControls 0.2 or higher
+
+
 VERSION 0.7
 
 - Session management taken out into a new plugin: SessionsPlugin

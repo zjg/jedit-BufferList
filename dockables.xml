@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE DOCKABLES SYSTEM "dockables.dtd">
+
+<!-- BufferList dockable window -->
+
+<DOCKABLES>
+  <DOCKABLE NAME="bufferlist">
+    new bufferlist.BufferList(view, position);
+  </DOCKABLE>
+</DOCKABLES>
+

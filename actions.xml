@@ -4,49 +4,30 @@
 
 <ACTIONS>
 
-	<ACTION NAME="bufferlist">
-		<CODE>
-			view.getDockableWindowManager().toggleDockableWindow("bufferlist");
-		</CODE>
-		<IS_SELECTED>
-			return view.getDockableWindowManager().isDockableWindowVisible("bufferlist");
-		</IS_SELECTED>
-	</ACTION>
-
-	<ACTION NAME="bufferlist-to-front">
-		<CODE>
-			import bufferlist.*;
-
-			DockableWindowManager mgr = view.getDockableWindowManager();
-			mgr.addDockableWindow("bufferlist");
-			mgr.showDockableWindow("bufferlist");
-			BufferList bufferlist = (BufferList) mgr.getDockableWindow("bufferlist").getComponent();
-			bufferlist.requestFocusOpenFiles();
-		</CODE>
-	</ACTION>
-
 	<ACTION NAME="bufferlist-next-buffer">
 		<CODE>
-			import bufferlist.*;
+			import bufferlist.BufferList;
 
 			DockableWindowManager mgr = view.getDockableWindowManager();
 			DockableWindow win = mgr.getDockableWindow("bufferlist");
 			if (win == null)
 				mgr.addDockableWindow("bufferlist");
-			BufferList bufferlist = (BufferList) mgr.getDockableWindow("bufferlist").getComponent();
+
+			BufferList bufferlist = (BufferList) mgr.getDockable("bufferlist");
 			bufferlist.nextBuffer();
 		</CODE>
 	</ACTION>
 
 	<ACTION NAME="bufferlist-previous-buffer">
 		<CODE>
-			import bufferlist.*;
+			import bufferlist.BufferList;
 
 			DockableWindowManager mgr = view.getDockableWindowManager();
 			DockableWindow win = mgr.getDockableWindow("bufferlist");
 			if (win == null)
 				mgr.addDockableWindow("bufferlist");
-			BufferList bufferlist = (BufferList) mgr.getDockableWindow("bufferlist").getComponent();
+
+			BufferList bufferlist = (BufferList) mgr.getDockable("bufferlist");
 			bufferlist.previousBuffer();
 		</CODE>
 	</ACTION>

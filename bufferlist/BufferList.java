@@ -34,6 +34,7 @@ import org.gjt.sp.jedit.*;
 import org.gjt.sp.jedit.gui.*;
 import org.gjt.sp.jedit.msg.*;
 import org.gjt.sp.util.Log;
+import common.gui.HelpfulJTable;
 import bufferlist.table.BufferListModel;
 import bufferlist.table.PersistentTableColumnModel;
 
@@ -43,16 +44,17 @@ import bufferlist.table.PersistentTableColumnModel;
  *
  * @author Dirk Moebius
  */
-public class BufferList extends JPanel implements EBComponent, DockableWindow
+public class BufferList extends JPanel implements EBComponent
 {
 
 	public BufferList(View view, final String position) {
 		super(new BorderLayout(0, 5));
+		
 		this.view = view;
 		this.position = position;
 		this.currentBuffer = view.getBuffer();
-
-		textAreaFocusHandler = new TextAreaFocusHandler();
+		this.textAreaFocusHandler = new TextAreaFocusHandler();
+		
 		ActionHandler actionhandler = new ActionHandler();
 		KeyHandler keyhandler = new KeyHandler();
 		FocusHandler focushandler = new FocusHandler();
@@ -133,7 +135,10 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow
 		pane = new JSplitPane(splitmode, true, top, bottom);
 		pane.setOneTouchExpandable(true);
 
-		add(pane, BorderLayout.CENTER);
+		if (jEdit.getBooleanProperty("bufferlist.showRecentFiles", true))
+			add(pane, BorderLayout.CENTER);
+		else
+			add(top);
 
 		propertiesChanged();
 
@@ -144,18 +149,6 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow
 				pane.setDividerLocation(Integer.parseInt(jEdit.getProperty("bufferlist.divider", "300")));
 			}
 		});
-	}
-
-
-	/** DockableWindow implementation */
-	public String getName() {
-		return BufferListPlugin.NAME;
-	}
-
-
-	/** DockableWindow implementation */
-	public Component getComponent() {
-		return this;
 	}
 
 
@@ -379,7 +372,7 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow
 	private void closeWindowAndFocusEditPane() {
 		if (position.equals(DockableWindowManager.FLOATING)) {
 			DockableWindowManager wm = view.getDockableWindowManager();
-			wm.removeDockableWindow(BufferListPlugin.NAME);
+			wm.removeDockableWindow("bufferlist");
 		}
 		view.getTextArea().requestFocus();
 	}
@@ -454,7 +447,7 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow
 
 			if ((e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0) {
 				if (e.getClickCount() == 1) {
-					// left mouse single press: switch to buffer
+					// left mouse single press: open buffer
 					if (buffer != null) {
 						view.setBuffer(buffer);
 						view.toFront();
@@ -462,9 +455,17 @@ public class BufferList extends JPanel implements EBComponent, DockableWindow
 					}
 					e.consume();
 				} else if (e.getClickCount() == 2) {
-					// left mouse double press: close buffer
-					if (buffer != null)
-						jEdit.closeBuffer(view, buffer);
+					// left mouse double press: open buffer or close files
+					if (jEdit.getBooleanProperty("bufferlist.closeFilesOnDoubleClick", true)) {
+						if (buffer != null)
+							jEdit.closeBuffer(view, buffer);
+					} else {
+						if (buffer != null) {
+							view.setBuffer(buffer);
+							view.toFront();
+							view.getEditPane().requestFocus();
+						}
+					}
 					e.consume();
 				}
 			}

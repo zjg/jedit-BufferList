@@ -84,7 +84,8 @@ This can be configured to some extent in the Global Options. See
 
 <UL>
     <LI>single click jumps to the selected buffer
-    <LI>double click closes the selected buffer
+    <LI>double click closes the selected buffer (<i>this may be disabled in the
+        options pane, see below</i>)
     <LI>right mouse button click opens a popup with some buffer related actions
         (goto, open in new view, close, save, save as, reload)
 </UL>
@@ -123,11 +124,14 @@ The following menu actions are available in menu
 
 <UL>
         <LI><B>Buffer List</B><BR>
-               Show/Hide the Buffer List.
+               Show the Buffer List.
         <LI><B>Go to Next Buffer in Buffer List</B><BR>
-               ...
+               Go to the buffer below the current one in the Buffer List.
+               This is different from <B>View&gt;Go to Next Buffer</B>,
+               because the Buffer List might be sorted differently than jEdit's
+               internal list.
         <LI><B>Go to Previous Buffer in Buffer List</B><BR>
-               ...
+               Go to the buffer above the current one in the Buffer List.
 </UL>
 
 
@@ -135,8 +139,7 @@ The following menu actions are available in menu
 
 <P>
 Buffer List is fully keyboard navigable. A prerequisite is that you assigned
-a keyboard shortcut to the action <b>Bring Buffer List to front</b>, that
-is available after installation of BufferList.
+a keyboard shortcut to the plugin action <b>Buffer List</b>.
 </P>
 
 <P>
@@ -151,7 +154,7 @@ I suggest "A+b".
   <TR> <TD>[Up] / [Down]</TD>       <TD>Choose buffer</TD>                             </TR>
   <TR> <TD>[Enter] / [Return]</TD>  <TD>Jump to/Open selected buffer</TD>              </TR>
   <TR> <TD>[Tab]</TD>               <TD>Switch between Open and Recent files list</TD> </TR>
-  <TR> <TD>[Esc]</TD>               <TD>Close window (only, if not docked)</TD>        </TR>
+  <TR> <TD>[Esc]</TD>               <TD>Return to text area</TD>        </TR>
 </TABLE>
 
 <BR>

@@ -77,11 +77,19 @@ public class BufferListOptionPane extends AbstractOptionPane implements ActionLi
 		bShowMode = new JCheckBox(jEdit.getProperty("options.bufferlist.showMode"),
 			jEdit.getBooleanProperty("bufferlist.showColumn3", true));
 
+		bShowRecentFiles = new JCheckBox(jEdit.getProperty("options.bufferlist.showRecentFiles"),
+			jEdit.getBooleanProperty("bufferlist.showRecentFiles", true));
+			
+		bCloseFilesOnDoubleClick = new JCheckBox(jEdit.getProperty("options.bufferlist.closeFilesOnDoubleClick"),
+			jEdit.getBooleanProperty("bufferlist.closeFilesOnDoubleClick", true));
+
 		addSeparator("options.bufferlist.separator.behavior");
 		addComponent(bAutoShow);
 		addComponent(bCheckRecentFiles);
+		addComponent(bCloseFilesOnDoubleClick);
 
 		addSeparator("options.bufferlist.separator.appearance");
+		addComponent(bShowRecentFiles);
 		addComponent(bHeaders);
 		addComponent(bAutoResize);
 		addComponent(bVerticalLines);
@@ -101,7 +109,8 @@ public class BufferListOptionPane extends AbstractOptionPane implements ActionLi
 			jEdit.getBooleanProperty("bufferlist.showColumn2") != bShowDir.isSelected() ||
 			jEdit.getBooleanProperty("bufferlist.showColumn3") != bShowMode.isSelected();
 
-
+		jEdit.setBooleanProperty("bufferlist.showRecentFiles", bShowRecentFiles.isSelected());
+		jEdit.setBooleanProperty("bufferlist.closeFilesOnDoubleClick", bCloseFilesOnDoubleClick.isSelected());
 		jEdit.setBooleanProperty("bufferlist.autoshow", bAutoShow.isSelected());
 		jEdit.setBooleanProperty("bufferlist.verticalLines", bVerticalLines.isSelected());
 		jEdit.setBooleanProperty("bufferlist.horizontalLines", bHorizontalLines.isSelected());
@@ -150,5 +159,7 @@ public class BufferListOptionPane extends AbstractOptionPane implements ActionLi
 	private JCheckBox bShowStatus;
 	private JCheckBox bShowDir;
 	private JCheckBox bShowMode;
+	private JCheckBox bShowRecentFiles;
+	private JCheckBox bCloseFilesOnDoubleClick;
 }
 

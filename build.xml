@@ -5,11 +5,8 @@
 	<property name="install.dir"  value=".."/>
 	<property name="doc.dir"  value="doc"/>
 
-	<property name="jedit.install.dir"  value="C:/Java/jEdit"/>
-
-
 	<path id="project.class.path">
-		<pathelement location="${jedit.install.dir}/jedit.jar"/>
+		<pathelement location="${install.dir}/CommonControls.jar"/>
 		<pathelement location="."/>
 	</path>
 
@@ -39,6 +36,7 @@
 			<fileset dir="${build.dir}"/>
 			<fileset dir="${src.dir}">
 				<include name="actions.xml"/>
+				<include name="dockables.xml"/>
 				<include name="BufferList.props"/>
 				<include name="**/*.html"/>
 				<include name="**/*.gif"/>

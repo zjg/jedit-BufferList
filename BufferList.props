@@ -3,11 +3,11 @@
 #
 
 plugin.bufferlist.BufferListPlugin.name=BufferList
-plugin.bufferlist.BufferListPlugin.author=Dirk Moebius <dmoebius@gmx.net>
-plugin.bufferlist.BufferListPlugin.version=0.7
-plugin.bufferlist.BufferListPlugin.docs=bufferlist/BufferList.html
-plugin.bufferlist.BufferListPlugin.depend.0=jdk 1.1
-plugin.bufferlist.BufferListPlugin.depend.1=jedit 03.02.02.00
+plugin.bufferlist.BufferListPlugin.author=Dirk Moebius
+plugin.bufferlist.BufferListPlugin.version=0.7.1
+plugin.bufferlist.BufferListPlugin.docs=BufferList.html
+plugin.bufferlist.BufferListPlugin.depend.0=jedit 04.00.01.00
+plugin.bufferlist.BufferListPlugin.depend.1=plugin CommonControlsPlugin 0.2
 
 
 #
@@ -22,7 +22,7 @@ bufferlist.title=Buffer List
 # menu
 #
 
-bufferlist.menu=bufferlist - bufferlist-next-buffer bufferlist-previous-buffer bufferlist-to-front
+bufferlist.menu=bufferlist - bufferlist-next-buffer bufferlist-previous-buffer
 bufferlist.menu.label=Buffer List
 
 
@@ -33,7 +33,6 @@ bufferlist.menu.label=Buffer List
 bufferlist.label=Buffer List
 bufferlist-next-buffer.label=Go to Next Buffer in Buffer List
 bufferlist-previous-buffer.label=Go to Previous Buffer in Buffer List
-bufferlist-to-front.label=Bring Buffer List to front
 
 
 #
@@ -81,13 +80,15 @@ options.bufferlist.label=Buffer List
 options.bufferlist.separator.behavior=Behaviour
 options.bufferlist.autoshow=Auto-Show on buffer change
 options.bufferlist.checkRecentFiles=Check status of recent files
+options.bufferlist.closeFilesOnDoubleClick=Close files on double click
 
 options.bufferlist.separator.appearance=Appearance
+options.bufferlist.showRecentFiles=Show recent files window (requires restart)
 options.bufferlist.headers=Show column headers
 options.bufferlist.autoresize=Auto-Resize columns
 options.bufferlist.verticalLines=Show vertical lines
 options.bufferlist.horizontalLines=Show horizontal lines
-options.bufferlist.showAbsoluteFilename=Show absolute pathname in column Name
+options.bufferlist.showAbsoluteFilename=Show absolute pathname in column "Name"
 
 options.bufferlist.separator.showColumns=Columns
 options.bufferlist.showStatus=Status icon

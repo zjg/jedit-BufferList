@@ -28,7 +28,6 @@ import java.util.Vector;
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import org.gjt.sp.jedit.*;
-import org.gjt.sp.jedit.gui.DockableWindow;
 import org.gjt.sp.jedit.gui.OptionsDialog;
 import org.gjt.sp.jedit.msg.*;
 import org.gjt.sp.util.Log;
@@ -42,12 +41,9 @@ import org.gjt.sp.util.Log;
 public class BufferListPlugin extends EBPlugin
 {
 
-	public static final String NAME = "bufferlist";
-
-
 	public void start()
 	{
-		EditBus.addToNamedList(DockableWindow.DOCKABLE_WINDOW_LIST, NAME);
+		// nothing to do...
 	}
 
 
@@ -65,20 +61,14 @@ public class BufferListPlugin extends EBPlugin
 
 	public void handleMessage(EBMessage message)
 	{
-		if (message instanceof CreateDockableWindow)
-		{
-			CreateDockableWindow cmsg = (CreateDockableWindow)message;
-			if (cmsg.getDockableWindowName().equals(NAME))
-				cmsg.setDockableWindow(new BufferList(cmsg.getView(), cmsg.getPosition()));
-		}
-		else if (message instanceof BufferUpdate)
+		if (message instanceof BufferUpdate)
 		{
 			BufferUpdate bu = (BufferUpdate) message;
 			if (jEdit.getBooleanProperty("bufferlist.autoshow", false)
 				&& bu.getView() != null
 				&& (bu.getWhat() == BufferUpdate.CREATED || bu.getWhat() == BufferUpdate.CLOSED))
 			{
-				bu.getView().getDockableWindowManager().addDockableWindow(NAME);
+				bu.getView().getDockableWindowManager().addDockableWindow("bufferlist");
 			}
 		}
 		else if (message instanceof EditPaneUpdate)
@@ -89,7 +79,7 @@ public class BufferListPlugin extends EBPlugin
 			{
 				View view = ((EditPane) epu.getSource()).getView();
 				if (view != null)
-					view.getDockableWindowManager().addDockableWindow(NAME);
+					view.getDockableWindowManager().addDockableWindow("bufferlist");
 			}
 		}
 	}
