@@ -17,6 +17,7 @@
 
 	<path id="project.class.path">
 		<pathelement location="${jedit.install.dir}/jedit.jar"/>
+		<pathelement location="${install.dir}/GnuRegexp.jar"/>
 		<pathelement location="${src.dir}"/>
 	</path>
 
@@ -31,7 +32,7 @@
 		<javac
 			srcdir="${src.dir}"
 			destdir="${build.dir}"
-			debug="off"
+			debug="on"
 			deprecation="on"
 			optimize="on"
 			includeJavaRuntime="yes"

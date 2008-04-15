@@ -25,6 +25,8 @@ plugin.bufferlist.BufferListPlugin.author=Dirk Moebius
 plugin.bufferlist.BufferListPlugin.version=1.1
 plugin.bufferlist.BufferListPlugin.docs=BufferList.html
 plugin.bufferlist.BufferListPlugin.depend.0=jedit 04.02.05.00
+plugin.bufferlist.BufferListPlugin.depend.1=jdk 1.5
+plugin.bufferlist.BufferLIstPlugin.depend.2=plugin GnuRegexp 1.0.1
 # }}}
 
 #{{{ default user properties
