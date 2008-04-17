@@ -21,97 +21,104 @@
  */
 package bufferlist;
 
-//{{{ imports
-//}}}
+// {{{ imports
+// }}}
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
-import java.util.Vector;
-import javax.swing.JCheckBox;
-import javax.swing.JOptionPane;
-import org.gjt.sp.jedit.*;
+
+import org.gjt.sp.jedit.EBMessage;
+import org.gjt.sp.jedit.EBPlugin;
+import org.gjt.sp.jedit.EditPane;
 import org.gjt.sp.jedit.ServiceManager;
-import org.gjt.sp.jedit.gui.OptionsDialog;
+import org.gjt.sp.jedit.View;
 import org.gjt.sp.jedit.jEdit;
-import org.gjt.sp.jedit.msg.*;
-import org.gjt.sp.util.Log;
+import org.gjt.sp.jedit.msg.BufferUpdate;
+import org.gjt.sp.jedit.msg.EditPaneUpdate;
 import org.gjt.sp.util.Log;
 
 /**
  * The BufferList plugin.
- *
+ * 
  * @author Dirk Moebius
  */
-public class BufferListPlugin extends EBPlugin {
-	
-	public static final String MENU_SERVICE_TYPE = "bufferlist.MenuEntries";
-	
-	private static List menuExtensions;
-	
-	//{{{ +start() : void
-	public void start() {
-		menuExtensions = new ArrayList();
-		loadPopupMenuExtensions();
-	} //}}}
-	
-	//{{{ +stop() : void
-	public void stop() {
-		menuExtensions = null;
-	} //}}}
+public class BufferListPlugin extends EBPlugin
+{
 
-	//{{{ +handleMessage(EBMessage) : void
-	public void handleMessage(EBMessage message) {
-		if (message instanceof BufferUpdate) {
+	public static final String MENU_SERVICE_TYPE = "bufferlist.MenuEntries";
+
+	private static List<MenuEntries> menuExtensions;
+
+	// {{{ +start() : void
+	public void start()
+	{
+		menuExtensions = new ArrayList<MenuEntries>();
+		loadPopupMenuExtensions();
+	} // }}}
+
+	// {{{ +stop() : void
+	public void stop()
+	{
+		menuExtensions = null;
+	} // }}}
+
+	// {{{ +handleMessage(EBMessage) : void
+	public void handleMessage(EBMessage message)
+	{
+		if (message instanceof BufferUpdate)
+		{
 			BufferUpdate bu = (BufferUpdate) message;
-			if (jEdit.getBooleanProperty("bufferlist.autoshow", false)
-					&& bu.getView() != null
-					&& (bu.getWhat() == BufferUpdate.CREATED || bu.getWhat() == BufferUpdate.CLOSED)) {
+			if (jEdit.getBooleanProperty("bufferlist.autoshow", false) && bu.getView() != null
+				&& (bu.getWhat() == BufferUpdate.CREATED || bu.getWhat() == BufferUpdate.CLOSED))
+			{
 				bu.getView().getDockableWindowManager().addDockableWindow("bufferlist");
 			}
-		} else if (message instanceof EditPaneUpdate) {
+		}
+		else if (message instanceof EditPaneUpdate)
+		{
 			EditPaneUpdate epu = (EditPaneUpdate) message;
 			if (jEdit.getBooleanProperty("bufferlist.autoshow", false)
-					&& epu.getWhat() == EditPaneUpdate.BUFFER_CHANGED) {
+				&& epu.getWhat() == EditPaneUpdate.BUFFER_CHANGED)
+			{
 				View view = ((EditPane) epu.getSource()).getView();
 				if (view != null)
+				{
 					view.getDockableWindowManager().addDockableWindow("bufferlist");
+				}
 			}
 		}
-	} //}}}
+	} // }}}
 
-
-	//{{{ -loadPopupMenuExtensions() : void
+	// {{{ -loadPopupMenuExtensions() : void
 	/**
-	 * loads all the services defined by other plugins of type 'bufferlist.MenuEntries'
-	 * These services must return objects implementing the bufferlist.MenuEntries interface
+	 * loads all the services defined by other plugins of type
+	 * 'bufferlist.MenuEntries' These services must return objects implementing
+	 * the bufferlist.MenuEntries interface
 	 */
 	private void loadPopupMenuExtensions()
 	{
 		String[] serviceNames = ServiceManager.getServiceNames(MENU_SERVICE_TYPE);
-		for(int i = 0; i < serviceNames.length; ++i)
+		for (int i = 0; i < serviceNames.length; ++i)
 		{
 			Object service = ServiceManager.getService(MENU_SERVICE_TYPE, serviceNames[i]);
 			if (service instanceof bufferlist.MenuEntries)
 			{
-				this.menuExtensions.add((MenuEntries) service);
+				menuExtensions.add((MenuEntries) service);
 			}
 			else
 			{
-				Log.log(Log.WARNING, null, "Service " + serviceNames[i] + " is not a valid bufferlist.MenuEntries service");
+				Log.log(Log.WARNING, null, "Service " + serviceNames[i]
+					+ " is not a valid bufferlist.MenuEntries service");
 			}
 		}
-		
-	}
-	//}}}
-	
-	//{{{ getMenuExtension() : List
-	/** returns the List of MenuEntries objects to extend the popup menu.
-	*/
-	static List getMenuExtensions()
+	}// }}}
+
+	// {{{ getMenuExtension() : List
+	/**
+	 * returns the List of MenuEntries objects to extend the popup menu.
+	 */
+	static List<MenuEntries> getMenuExtensions()
 	{
 		return menuExtensions;
-	}
-	//}}}
+	}// }}}
 
 }
-

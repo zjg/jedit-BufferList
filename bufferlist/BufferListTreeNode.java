@@ -21,101 +21,121 @@
  */
 package bufferlist;
 
-//{{{ imports
-import org.gjt.sp.jedit.*;
+// {{{ imports
 import javax.swing.tree.DefaultMutableTreeNode;
 
-//}}}
+import org.gjt.sp.jedit.Buffer;
+
+// }}}
 
 /**
  * This is the tree node.
  */
-public class BufferListTreeNode extends DefaultMutableTreeNode {
-	//{{{instance variables
+public class BufferListTreeNode extends DefaultMutableTreeNode
+{
+	private static final long serialVersionUID = 1L;
+
+	// {{{instance variables
 	/**
-	 *
+	 * 
 	 */
 	private String user_path;
 
-	private boolean used = false;
+	// private boolean used = false;
 
 	private boolean expanded = false;
 
 	private boolean isConnected = false;
 
-	// private int reused = 0;	// NOTE: debug only
-	//}}}
+	// private int reused = 0; // NOTE: debug only
+	// }}}
 
-	//{{{ +BufferListTreeNode(Object userObject) : <init>
-	public BufferListTreeNode(Object userObject) {
+	// {{{ +BufferListTreeNode(Object userObject) : <init>
+	public BufferListTreeNode(Object userObject)
+	{
 		super(userObject);
 		init(userObject);
-	} //}}}
+	} // }}}
 
-	//{{{ +BufferListTreeNode(Object userObject, boolean allowsChildren) : <init>
-	public BufferListTreeNode(Object userObject, boolean allowsChildren) {
+	// {{{ +BufferListTreeNode(Object userObject, boolean allowsChildren) :
+	// <init>
+	public BufferListTreeNode(Object userObject, boolean allowsChildren)
+	{
 		super(userObject, allowsChildren);
 		init(userObject);
-	} //}}}
+	} // }}}
 
-	public void reset() {
-		// reused += 1;	// NOTE: debug only
-		used = false;
+	public void reset()
+	{
+		// reused += 1; // NOTE: debug only
+		// used = false;
 		expanded = false;
 		isConnected = false;
-		if (isDirNode() && user_path != null) {
-			setUserObject((String) user_path);
+		if (isDirNode() && user_path != null)
+		{
+			setUserObject(user_path);
 		}
 	}
 
-	private void init(Object userObject) {
+	private void init(Object userObject)
+	{
 		reset();
 		if (userObject instanceof Buffer)
+		{
 			user_path = ((Buffer) userObject).getPath();
+		}
 		else if (userObject instanceof String)
+		{
 			user_path = (String) userObject;
+		}
 		else
+		{
 			user_path = "ERROR";
+		}
 	}
 
-	public void setExpanded(boolean expanded) {
+	public void setExpanded(boolean expanded)
+	{
 		this.expanded = expanded;
 	}
 
-	public void setConnected() {
-		this.isConnected = true;
+	public void setConnected()
+	{
+		isConnected = true;
 	}
 
-	public boolean isConnected() {
-		return this.isConnected;
+	public boolean isConnected()
+	{
+		return isConnected;
 	}
 
 	/*
-	 public String getReused()
-	 {
-	 Integer obj = new Integer(reused);
-	 return obj.toString();
-	 }
+	 * public String getReused() { Integer obj = new Integer(reused); return
+	 * obj.toString(); }
 	 */
 
-	public String getUserPath() {
+	public String getUserPath()
+	{
 		return user_path;
 	}
 
-	public Buffer getBuffer() {
-		return (Buffer) this.getUserObject();
+	public Buffer getBuffer()
+	{
+		return (Buffer) getUserObject();
 	}
 
-	public boolean isExpanded() {
-		return this.expanded;
+	public boolean isExpanded()
+	{
+		return expanded;
 	}
 
-	public boolean isBuffer() {
-		return (this.getUserObject() instanceof Buffer);
+	public boolean isBuffer()
+	{
+		return (getUserObject() instanceof Buffer);
 	}
 
-	public boolean isDirNode() {
-		return (this.getUserObject() instanceof String);
+	public boolean isDirNode()
+	{
+		return (getUserObject() instanceof String);
 	}
 }
-

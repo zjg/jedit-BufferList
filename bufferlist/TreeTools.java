@@ -21,74 +21,91 @@
  */
 package bufferlist;
 
-//{{{ imports
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
+// {{{ imports
 import javax.swing.JTree;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
-//}}}
+// }}}
 
-public class TreeTools {
-	//{{{ +expandAll(JTree) : void
+public class TreeTools
+{
+	// {{{ +expandAll(JTree) : void
 	/**
 	 * Expand all nodes of a tree.
-	 *
-	 * @param tree  The tree whose nodes to expand.
+	 * 
+	 * @param tree
+	 *            The tree whose nodes to expand.
 	 */
-	public static void expandAll(JTree tree) {
+	public static void expandAll(JTree tree)
+	{
 		expandAll(tree, new TreePath(tree.getModel().getRoot()));
-	} //}}}
+	} // }}}
 
-	//{{{ +collapseAll(JTree) : void
+	// {{{ +collapseAll(JTree) : void
 	/**
 	 * Collapse all nodes of a tree.
-	 *
-	 * @param tree  The tree whose nodes to expand.
+	 * 
+	 * @param tree
+	 *            The tree whose nodes to expand.
 	 */
-	public static void collapseAll(JTree tree) {
+	public static void collapseAll(JTree tree)
+	{
 		TreePath pathToRoot = new TreePath(tree.getModel().getRoot());
 		collapseAll(tree, pathToRoot);
 		if (!tree.isRootVisible())
+		{
 			tree.expandPath(pathToRoot);
-	} //}}}
+		}
+	} // }}}
 
-	//{{{ +expandAll(JTree, TreePath) : void
+	// {{{ +expandAll(JTree, TreePath) : void
 	/**
 	 * Expand a tree node and all its child nodes recursively.
-	 *
-	 * @param tree  The tree whose nodes to expand.
-	 * @param path  Path to the node to start at.
+	 * 
+	 * @param tree
+	 *            The tree whose nodes to expand.
+	 * @param path
+	 *            Path to the node to start at.
 	 */
-	public static void expandAll(JTree tree, TreePath path) {
+	public static void expandAll(JTree tree, TreePath path)
+	{
 		Object node = path.getLastPathComponent();
 		TreeModel model = tree.getModel();
 		if (model.isLeaf(node))
+		{
 			return;
+		}
 		tree.expandPath(path);
 		int num = model.getChildCount(node);
 		for (int i = 0; i < num; i++)
+		{
 			expandAll(tree, path.pathByAddingChild(model.getChild(node, i)));
-	} //}}}
+		}
+	} // }}}
 
-	//{{{ +collapseAll(JTree, TreePath) : void
+	// {{{ +collapseAll(JTree, TreePath) : void
 	/**
 	 * Collapse a tree node and all its child nodes recursively.
-	 *
-	 * @param tree  The tree whose nodes to collapse.
-	 * @param path  Path to the node to start at.
+	 * 
+	 * @param tree
+	 *            The tree whose nodes to collapse.
+	 * @param path
+	 *            Path to the node to start at.
 	 */
-	public static void collapseAll(JTree tree, TreePath path) {
+	public static void collapseAll(JTree tree, TreePath path)
+	{
 		Object node = path.getLastPathComponent();
 		TreeModel model = tree.getModel();
 		if (model.isLeaf(node))
+		{
 			return;
+		}
 		int num = model.getChildCount(node);
 		for (int i = 0; i < num; i++)
+		{
 			collapseAll(tree, path.pathByAddingChild(model.getChild(node, i)));
+		}
 		tree.collapsePath(path);
-	} //}}}
+	} // }}}
 }
-
