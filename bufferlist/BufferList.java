@@ -59,7 +59,6 @@ import org.gjt.sp.jedit.EBMessage;
 import org.gjt.sp.jedit.EditBus;
 import org.gjt.sp.jedit.EditPane;
 import org.gjt.sp.jedit.GUIUtilities;
-import org.gjt.sp.jedit.MiscUtilities;
 import org.gjt.sp.jedit.View;
 import org.gjt.sp.jedit.jEdit;
 import org.gjt.sp.jedit.gui.DockableWindowManager;
@@ -79,39 +78,23 @@ import org.gjt.sp.util.StandardUtilities;
 public class BufferList extends JPanel implements EBComponent
 {
 	private static final long serialVersionUID = 1L;
-
 	// {{{ display mode constants
 	public static final int DISPLAY_MODE_FLAT_TREE = 1;
-
 	public static final int DISPLAY_MODE_HIERARCHICAL = 2;// }}}
-
 	// {{{ instance variables
 	private final View view;
-
 	private final String position;
-
 	private final TextAreaFocusHandler textAreaFocusHandler;
-
 	private final JTree tree;
-
 	private final JScrollPane scrTree;
-
 	private DefaultTreeModel model;
-
 	private final BufferListTreeNode rootNode;
-
 	private boolean sortIgnoreCase;
-
 	private boolean ignoreSelectionChange;
-
 	private int displayMode;
-
 	private boolean CreateModelPending = false;
-
 	private HashMap<String, BufferListTreeNode> DistinctDirs = null;
-
 	private final Buffer lastBuffer = null;
-
 	private final JLabel bufferCountsLabel = new JLabel();// }}}
 
 	// {{{ +BufferList(View, String) : <init>
@@ -119,8 +102,7 @@ public class BufferList extends JPanel implements EBComponent
 	{
 		super(new BorderLayout(0, 5));
 		// <reusage of BufferListTreeNode>
-		final Object root = new Object()
-		{
+		final Object root = new Object() {
 			@Override
 			public String toString()
 			{
@@ -139,14 +121,16 @@ public class BufferList extends JPanel implements EBComponent
 		sortIgnoreCase = jEdit.getBooleanProperty("vfs.browser.sortIgnoreCase");
 		// tree:
 		ignoreSelectionChange = false;
-		tree = new JTree()
-		{
+		tree = new JTree() {
+			private static final long serialVersionUID = 1L;
+
 			@Override
-			protected boolean processKeyBinding(KeyStroke ks, KeyEvent e, int condition,
-				boolean pressed)
+			protected boolean processKeyBinding(KeyStroke ks, KeyEvent e,
+					int condition, boolean pressed)
 			{
 				ignoreSelectionChange = true;
-				boolean res = super.processKeyBinding(ks, e, condition, pressed);
+				boolean res = super
+						.processKeyBinding(ks, e, condition, pressed);
 				ignoreSelectionChange = false;
 				return res;
 			}
@@ -155,16 +139,16 @@ public class BufferList extends JPanel implements EBComponent
 		tree.setShowsRootHandles(true);
 		tree.addMouseListener(new MouseHandler());
 		tree.addKeyListener(new KeyHandler());
-		tree.addTreeSelectionListener(new TreeSelectionListener()
-		{
+		tree.addTreeSelectionListener(new TreeSelectionListener() {
 			public void valueChanged(TreeSelectionEvent e)
 			{
-				if (ignoreSelectionChange || e.getNewLeadSelectionPath() == null)
+				if (ignoreSelectionChange
+						|| e.getNewLeadSelectionPath() == null)
 				{
 					return;
 				}
-				BufferListTreeNode node = (BufferListTreeNode) e.getNewLeadSelectionPath()
-					.getLastPathComponent();
+				BufferListTreeNode node = (BufferListTreeNode)e
+						.getNewLeadSelectionPath().getLastPathComponent();
 				Object obj = node.getUserObject();
 				if (obj instanceof Buffer)
 				{
@@ -183,7 +167,8 @@ public class BufferList extends JPanel implements EBComponent
 		panel.add(BorderLayout.NORTH, bufferCountsLabel);
 		panel.add(BorderLayout.CENTER, scrTree);
 		add(panel);
-		setDisplayMode(jEdit.getIntegerProperty("bufferlist.displayMode", DISPLAY_MODE_FLAT_TREE));
+		setDisplayMode(jEdit.getIntegerProperty("bufferlist.displayMode",
+				DISPLAY_MODE_FLAT_TREE));
 		handlePropertiesChanged();
 		if (position.equals(DockableWindowManager.FLOATING))
 		{
@@ -195,8 +180,7 @@ public class BufferList extends JPanel implements EBComponent
 			TreeTools.expandAll(tree);
 		}
 		// move tree scrollbar to the left, ie. show left side of the tree:
-		SwingUtilities.invokeLater(new Runnable()
-		{
+		SwingUtilities.invokeLater(new Runnable() {
 			// {{{ +run() : void
 			public void run()
 			{
@@ -205,7 +189,6 @@ public class BufferList extends JPanel implements EBComponent
 			} // }}}
 		});
 	} // }}}
-
 	// {{{ +getInstanceForView(View) : BufferList
 	/**
 	 * Helper used by various actions in "actions.xml";
@@ -216,15 +199,14 @@ public class BufferList extends JPanel implements EBComponent
 	public static BufferList getInstanceForView(View view)
 	{
 		DockableWindowManager mgr = view.getDockableWindowManager();
-		BufferList bufferlist = (BufferList) mgr.getDockable("bufferlist");
+		BufferList bufferlist = (BufferList)mgr.getDockable("bufferlist");
 		if (bufferlist == null)
 		{
 			mgr.addDockableWindow("bufferlist");
-			bufferlist = (BufferList) mgr.getDockable("bufferlist");
+			bufferlist = (BufferList)mgr.getDockable("bufferlist");
 		}
 		return bufferlist;
 	} // }}}
-
 	// {{{ +requestFocusOpenFiles() : void
 	/**
 	 * Invoked by action "bufferlist-to-front" only; sets the focus on the table
@@ -241,7 +223,6 @@ public class BufferList extends JPanel implements EBComponent
 		tree.expandPath(path);
 		tree.setSelectionPath(path);
 	} // }}}
-
 	// {{{ +nextBuffer() : void
 	/**
 	 * Go to next buffer in open files list.
@@ -280,11 +261,10 @@ public class BufferList extends JPanel implements EBComponent
 		}
 		if (next != null)
 		{
-			Buffer nextBuffer = (Buffer) next.getUserObject();
+			Buffer nextBuffer = (Buffer)next.getUserObject();
 			view.goToBuffer(nextBuffer);
 		}
 	} // }}}
-
 	// {{{ +previousBuffer() : void
 	/**
 	 * Go to previous buffer in open files list.
@@ -321,11 +301,10 @@ public class BufferList extends JPanel implements EBComponent
 		}
 		if (prev != null)
 		{
-			Buffer prevBuffer = (Buffer) prev.getUserObject();
+			Buffer prevBuffer = (Buffer)prev.getUserObject();
 			view.goToBuffer(prevBuffer);
 		}
 	} // }}}
-
 	// {{{ +setDisplayMode(int) : void
 	/**
 	 * Helper function; may be called from "actions.xml"; set the display mode
@@ -339,14 +318,12 @@ public class BufferList extends JPanel implements EBComponent
 		if (displayMode == DISPLAY_MODE_FLAT_TREE)
 		{
 			tree.putClientProperty("JTree.lineStyle", "Horizontal");
-		}
-		else
+		} else
 		{
 			tree.putClientProperty("JTree.lineStyle", "Angled");
 		}
 		recreateModel();
 	} // }}}
-
 	// {{{ +toggleDisplayMode() : void
 	/**
 	 * Invoked by action "bufferlist-toggle-display-mode" only; toggles between
@@ -360,13 +337,11 @@ public class BufferList extends JPanel implements EBComponent
 		if (displayMode == DISPLAY_MODE_FLAT_TREE)
 		{
 			setDisplayMode(DISPLAY_MODE_HIERARCHICAL);
-		}
-		else
+		} else
 		{
 			setDisplayMode(DISPLAY_MODE_FLAT_TREE);
 		}
 	} // }}}
-
 	// {{{ +getDisplayMode(View) : int
 	/**
 	 * Used by "bufferlist-toggle-display-mode:IS_SELECTED"; returns the display
@@ -378,17 +353,16 @@ public class BufferList extends JPanel implements EBComponent
 	public static int getDisplayMode(View view)
 	{
 		DockableWindowManager mgr = view.getDockableWindowManager();
-		BufferList bufferlist = (BufferList) mgr.getDockable("bufferlist");
+		BufferList bufferlist = (BufferList)mgr.getDockable("bufferlist");
 		if (bufferlist == null)
 		{
-			return jEdit.getIntegerProperty("bufferlist.displayMode", DISPLAY_MODE_FLAT_TREE);
-		}
-		else
+			return jEdit.getIntegerProperty("bufferlist.displayMode",
+					DISPLAY_MODE_FLAT_TREE);
+		} else
 		{
 			return bufferlist.displayMode;
 		}
 	} // }}}
-
 	// {{{ +addNotify() : void
 	/**
 	 * Invoked when the component is created; adds focus event handlers to all
@@ -408,7 +382,6 @@ public class BufferList extends JPanel implements EBComponent
 			}
 		}
 	} // }}}
-
 	// {{{ +removeNotify() : void
 	/**
 	 * Invoked when the component is removed; removes the focus event handlers
@@ -426,44 +399,40 @@ public class BufferList extends JPanel implements EBComponent
 			EditPane[] editPanes = view.getEditPanes();
 			for (EditPane editPane : editPanes)
 			{
-				editPane.getTextArea().removeFocusListener(textAreaFocusHandler);
+				editPane.getTextArea()
+						.removeFocusListener(textAreaFocusHandler);
 			}
 		}
 	} // }}}
-
 	// {{{ +handleMessage(EBMessage) : void
 	/** Handle jEdit EditBus messages */
 	public void handleMessage(EBMessage message)
 	{
 		if (message instanceof BufferUpdate)
 		{
-			handleBufferUpdate((BufferUpdate) message);
-		}
-		else if (message instanceof EditPaneUpdate)
+			handleBufferUpdate((BufferUpdate)message);
+		} else if (message instanceof EditPaneUpdate)
 		{
-			handleEditPaneUpdate((EditPaneUpdate) message);
-		}
-		else if (message instanceof PropertiesChanged)
+			handleEditPaneUpdate((EditPaneUpdate)message);
+		} else if (message instanceof PropertiesChanged)
 		{
 			handlePropertiesChanged();
 		}
 	} // }}}
-
 	// {{{ -handleBufferUpdate(BufferUpdate) : void
 	private void handleBufferUpdate(BufferUpdate bu)
 	{
 		if (bu.getWhat() == BufferUpdate.DIRTY_CHANGED)
 		{
 			updateNode(bu.getBuffer());
-		}
-		else if (bu.getWhat() == BufferUpdate.CREATED || bu.getWhat() == BufferUpdate.CLOSED
-			|| bu.getWhat() == BufferUpdate.SAVED)
+		} else if (bu.getWhat() == BufferUpdate.CREATED
+				|| bu.getWhat() == BufferUpdate.CLOSED
+				|| bu.getWhat() == BufferUpdate.SAVED)
 		{
 			recreateModel();
 		}
 		updateBufferCounts();
 	} // }}}
-
 	// {{{ -handleEditPaneUpdate(EditPaneUpdate) : void
 	private void handleEditPaneUpdate(EditPaneUpdate epu)
 	{
@@ -475,18 +444,17 @@ public class BufferList extends JPanel implements EBComponent
 		}
 		if (epu.getWhat() == EditPaneUpdate.CREATED)
 		{
-			epu.getEditPane().getTextArea().addFocusListener(textAreaFocusHandler);
-		}
-		else if (epu.getWhat() == EditPaneUpdate.DESTROYED)
+			epu.getEditPane().getTextArea().addFocusListener(
+					textAreaFocusHandler);
+		} else if (epu.getWhat() == EditPaneUpdate.DESTROYED)
 		{
-			epu.getEditPane().getTextArea().removeFocusListener(textAreaFocusHandler);
-		}
-		else if (epu.getWhat() == EditPaneUpdate.BUFFER_CHANGED)
+			epu.getEditPane().getTextArea().removeFocusListener(
+					textAreaFocusHandler);
+		} else if (epu.getWhat() == EditPaneUpdate.BUFFER_CHANGED)
 		{
 			currentBufferChanged();
 		}
 	} // }}}
-
 	// {{{ -handlePropertiesChanged() : void
 	private void handlePropertiesChanged()
 	{
@@ -495,13 +463,14 @@ public class BufferList extends JPanel implements EBComponent
 		if (jEdit.getIntegerProperty("bufferlist.textClipping", 1) == 0)
 		{
 			scrTree
-				.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		}
-		else
+					.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		} else
 		{
-			scrTree.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+			scrTree
+					.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		}
-		boolean newSortIgnoreCase = jEdit.getBooleanProperty("vfs.browser.sortIgnoreCase");
+		boolean newSortIgnoreCase = jEdit
+				.getBooleanProperty("vfs.browser.sortIgnoreCase");
 		if (sortIgnoreCase != newSortIgnoreCase)
 		{
 			modelChanged = true;
@@ -514,7 +483,6 @@ public class BufferList extends JPanel implements EBComponent
 		// set new cell renderer to change fonts:
 		tree.setCellRenderer(new BufferListRenderer(view));
 	} // }}}
-
 	// {{{ -updateBufferCounts() : void
 	private void updateBufferCounts()
 	{
@@ -527,17 +495,18 @@ public class BufferList extends JPanel implements EBComponent
 				dirtyBuffers++;
 			}
 		}
-		bufferCountsLabel.setText(jEdit.getProperty("bufferlist.openfiles.label")
-			+ jEdit.getBufferCount() + " " + jEdit.getProperty("bufferlist.dirtyfiles.label")
-			+ dirtyBuffers);
+		bufferCountsLabel.setText(jEdit
+				.getProperty("bufferlist.openfiles.label")
+				+ jEdit.getBufferCount()
+				+ " "
+				+ jEdit.getProperty("bufferlist.dirtyfiles.label")
+				+ dirtyBuffers);
 	} // }}}
-
 	// {{{ -getDir(Buffer) : String
 	private static String getDir(Buffer buffer)
 	{
 		return buffer.getVFS().getParentOfPath(buffer.getPath());
 	} // }}}
-
 	// {{{ -createDirectoryNodes(String) : BufferListTreeNode
 	private BufferListTreeNode createDirectoryNodes(String path)
 	{
@@ -559,8 +528,7 @@ public class BufferList extends JPanel implements EBComponent
 			if (displayMode == DISPLAY_MODE_FLAT_TREE)
 			{
 				parentNode = DistinctDirs.get("ROOT");
-			}
-			else
+			} else
 			{
 				parentNode = createDirectoryNodes(parent);
 			}
@@ -569,7 +537,6 @@ public class BufferList extends JPanel implements EBComponent
 		}
 		return node;
 	} // }}}
-
 	// {{{ -removeObsoleteDirNodes(BufferListTreeNode) : void
 	/**
 	 * Removes all intermediate directory nodes that only have one diretory node
@@ -578,7 +545,8 @@ public class BufferList extends JPanel implements EBComponent
 	 */
 	private void removeObsoleteDirNodes(BufferListTreeNode node)
 	{
-		Vector<BufferListTreeNode> vec = new Vector<BufferListTreeNode>(node.getChildCount());
+		Vector<BufferListTreeNode> vec = new Vector<BufferListTreeNode>(node
+				.getChildCount());
 		Enumeration<BufferListTreeNode> children = node.children();
 		while (children.hasMoreElements())
 		{
@@ -590,10 +558,11 @@ public class BufferList extends JPanel implements EBComponent
 		{
 			BufferListTreeNode child = children.nextElement();
 			removeObsoleteDirNodes(child);
-			boolean keep = child.getChildCount() > 1 || child.getUserObject() instanceof Buffer;
+			boolean keep = child.getChildCount() > 1
+					|| child.getUserObject() instanceof Buffer;
 			if (!keep && child.getChildCount() == 1)
 			{
-				if (((BufferListTreeNode) child.getFirstChild()).getUserObject() instanceof Buffer)
+				if (((BufferListTreeNode)child.getFirstChild()).getUserObject() instanceof Buffer)
 				{
 					keep = true;
 				}
@@ -601,10 +570,10 @@ public class BufferList extends JPanel implements EBComponent
 			if (keep)
 			{
 				node.add(child);
-			}
-			else
+			} else
 			{
-				Enumeration<BufferListTreeNode> childChildren = child.children();
+				Enumeration<BufferListTreeNode> childChildren = child
+						.children();
 				while (childChildren.hasMoreElements())
 				{
 					node.add(childChildren.nextElement());
@@ -612,34 +581,34 @@ public class BufferList extends JPanel implements EBComponent
 			}
 		}
 	} // }}}
-
 	// {{{ -removeDirNodesCommonPrefixes(BufferListTreeNode, String) : void
 	/**
 	 * Removes the path prefix that is present in the parent node (for each
 	 * directory node)
 	 */
-	private void removeDirNodesCommonPrefixes(BufferListTreeNode node, String prefix)
+	private void removeDirNodesCommonPrefixes(BufferListTreeNode node,
+			String prefix)
 	{
-		Enumeration children = node.children();
+		Enumeration<BufferListTreeNode> children = node.children();
 		while (children.hasMoreElements())
 		{
-			BufferListTreeNode child = (BufferListTreeNode) children.nextElement();
+			BufferListTreeNode child = children.nextElement();
 			if (child.getUserObject() instanceof String)
 			{
-				String child_prefix = (String) child.getUserObject();
+				String child_prefix = (String)child.getUserObject();
 				if (child_prefix.startsWith(prefix))
 				{
-					child.setUserObject(child_prefix.substring(prefix.length()));
+					child
+							.setUserObject(child_prefix.substring(prefix
+									.length()));
 				}
 				removeDirNodesCommonPrefixes(child, child_prefix);
-			}
-			else
+			} else
 			{
 				removeDirNodesCommonPrefixes(child, prefix);
 			}
 		}
 	} // }}}
-
 	// {{{ -saveExpansionState() : void
 	/**
 	 * Saves the expansion state of all directory nodes (within each
@@ -651,8 +620,8 @@ public class BufferList extends JPanel implements EBComponent
 		{
 			node.reset();
 		}
-		Enumeration<TreePath> e = tree.getExpandedDescendants(new TreePath(tree.getModel()
-			.getRoot()));
+		Enumeration<TreePath> e = tree.getExpandedDescendants(new TreePath(tree
+				.getModel().getRoot()));
 		if (e != null)
 		{
 			while (e.hasMoreElements())
@@ -660,13 +629,13 @@ public class BufferList extends JPanel implements EBComponent
 				TreePath expPath = e.nextElement();
 				if (expPath.getLastPathComponent() instanceof BufferListTreeNode)
 				{
-					BufferListTreeNode node = (BufferListTreeNode) expPath.getLastPathComponent();
+					BufferListTreeNode node = (BufferListTreeNode)expPath
+							.getLastPathComponent();
 					node.setExpanded(true);
 				}
 			}
 		}
 	} // }}}
-
 	// {{{ -restoreExpansionState() : void
 	/**
 	 * Restrores the expansion state of all directory nodes.
@@ -681,7 +650,6 @@ public class BufferList extends JPanel implements EBComponent
 			}
 		}
 	} // }}}
-
 	// {{{ -recreateModel() : void
 	/**
 	 * Schedules a recreation of the tree model (preserving the current
@@ -692,8 +660,7 @@ public class BufferList extends JPanel implements EBComponent
 		if (!CreateModelPending)
 		{
 			CreateModelPending = true;
-			SwingUtilities.invokeLater(new Runnable()
-			{
+			SwingUtilities.invokeLater(new Runnable() {
 				public void run()
 				{
 					saveExpansionState();
@@ -703,7 +670,6 @@ public class BufferList extends JPanel implements EBComponent
 			});
 		}
 	} // }}}
-
 	// {{{ -createModel() : void
 	/**
 	 * Sets a new tree model.
@@ -711,25 +677,23 @@ public class BufferList extends JPanel implements EBComponent
 	private void createModel()
 	{
 		Buffer[] buffers = jEdit.getBuffers();
-		Arrays.sort(buffers, new Comparator<Buffer>()
-		{
+		Arrays.sort(buffers, new Comparator<Buffer>() {
 			public int compare(Buffer buf1, Buffer buf2)
 			{
 				if (buf1 == buf2)
 				{
 					return 0;
-				}
-				else
+				} else
 				{
 					String dir1 = getDir(buf1);
 					String dir2 = getDir(buf2);
-					int cmpDir = StandardUtilities.compareStrings(dir1, dir2, sortIgnoreCase);
+					int cmpDir = StandardUtilities.compareStrings(dir1, dir2,
+							sortIgnoreCase);
 					if (cmpDir == 0)
 					{
-						return StandardUtilities.compareStrings(buf1.getName(), buf2.getName(),
-							sortIgnoreCase);
-					}
-					else
+						return StandardUtilities.compareStrings(buf1.getName(),
+								buf2.getName(), sortIgnoreCase);
+					} else
 					{
 						return cmpDir;
 					}
@@ -751,8 +715,8 @@ public class BufferList extends JPanel implements EBComponent
 		for (int i = 0; i < buffers.length; ++i)
 		{
 			Buffer buffer = buffers[i];
-			BufferListTreeNode dirNode = createDirectoryNodes(buffer.getVFS().getParentOfPath(
-				buffer.getPath()));
+			BufferListTreeNode dirNode = createDirectoryNodes(buffer.getVFS()
+					.getParentOfPath(buffer.getPath()));
 			dirNode.add(new BufferListTreeNode(buffer, false));
 		}
 		removeObsoleteDirNodes(rootNode); // NOTE: when ommited, the tree
@@ -763,7 +727,6 @@ public class BufferList extends JPanel implements EBComponent
 		tree.setModel(model);
 		CreateModelPending = false;
 	} // }}}
-
 	// {{{ -getNode(Buffer) : BufferListTreeNode
 	/**
 	 * @return the tree node for the jEdit buffer, or null if the buffer cannot
@@ -782,7 +745,6 @@ public class BufferList extends JPanel implements EBComponent
 		}
 		return null;
 	} // }}}
-
 	// {{{ -updateNode(Buffer) : void
 	private void updateNode(Buffer buffer)
 	{
@@ -793,7 +755,6 @@ public class BufferList extends JPanel implements EBComponent
 		}
 		model.nodeChanged(node);
 	} // }}}
-
 	// {{{ -currentBufferChanged() : void
 	/**
 	 * Called after the current buffer has changed; notifies the cell renderer
@@ -825,7 +786,6 @@ public class BufferList extends JPanel implements EBComponent
 			tree.scrollRectToVisible(bounds);
 		}
 	} // }}}
-
 	// {{{ -closeWindowAndFocusEditPane() : void
 	private void closeWindowAndFocusEditPane()
 	{
@@ -848,20 +808,19 @@ public class BufferList extends JPanel implements EBComponent
 		@Override
 		public void focusGained(FocusEvent evt)
 		{
-			Component comp = SwingUtilities.getAncestorOfClass(EditPane.class, (Component) evt
-				.getSource());
+			Component comp = SwingUtilities.getAncestorOfClass(EditPane.class,
+					(Component)evt.getSource());
 			if (comp == null)
 			{
 				return;
 			}
-			Buffer buffer = ((EditPane) comp).getBuffer();
+			Buffer buffer = ((EditPane)comp).getBuffer();
 			if (buffer != lastBuffer)
 			{
 				currentBufferChanged();
 			}
 		} // }}}
 	} // }}}
-
 	// {{{ -class MouseHandler
 	/**
 	 * A mouse listener for the buffer list.
@@ -885,8 +844,8 @@ public class BufferList extends JPanel implements EBComponent
 			{
 				return;
 			}
-			if (e.isAltDown() || e.isAltGraphDown() || e.isMetaDown() || e.isShiftDown()
-				|| e.isControlDown())
+			if (e.isAltDown() || e.isAltGraphDown() || e.isMetaDown()
+					|| e.isShiftDown() || e.isControlDown())
 			{
 				return;
 			}
@@ -900,26 +859,26 @@ public class BufferList extends JPanel implements EBComponent
 			{
 				return;
 			}
-			BufferListTreeNode node = (BufferListTreeNode) path.getLastPathComponent();
+			BufferListTreeNode node = (BufferListTreeNode)path
+					.getLastPathComponent();
 			Object obj = node.getUserObject();
 			if (obj instanceof String)
 			{
 				return;
 			}
-			Buffer buffer = (Buffer) obj;
+			Buffer buffer = (Buffer)obj;
 			if (e.getClickCount() >= 2
-				&& jEdit.getBooleanProperty("bufferlist.closeFilesOnDoubleClick", true))
+					&& jEdit.getBooleanProperty(
+							"bufferlist.closeFilesOnDoubleClick", true))
 			{
 				// left mouse double press: close buffer
 				jEdit.closeBuffer(view, buffer);
-			}
-			else
+			} else
 			{
 				// left mouse single press: open buffer
 				// view.goToBuffer(buffer);
 			}
 		} // }}}
-
 		// {{{ +mousePressed(MouseEvent) : void
 		@Override
 		public void mousePressed(MouseEvent e)
@@ -929,7 +888,6 @@ public class BufferList extends JPanel implements EBComponent
 				showPopup(e);
 			}
 		} // }}}
-
 		// {{{ +mouseReleased(MouseEvent) : void
 		@Override
 		public void mouseReleased(MouseEvent e)
@@ -939,7 +897,6 @@ public class BufferList extends JPanel implements EBComponent
 				showPopup(e);
 			}
 		} // }}}
-
 		// {{{ -showPopup(MouseEvent) : void
 		private void showPopup(MouseEvent e)
 		{
@@ -949,11 +906,13 @@ public class BufferList extends JPanel implements EBComponent
 			TreePath[] paths = tree.getSelectionPaths();
 			if (paths == null || paths.length == 1)
 			{
-				TreePath locPath = tree.getClosestPathForLocation(e.getX(), e.getY());
+				TreePath locPath = tree.getClosestPathForLocation(e.getX(), e
+						.getY());
 				if (locPath != null)
 				{
 					Rectangle nodeRect = tree.getPathBounds(locPath);
-					if (nodeRect != null && nodeRect.contains(e.getX(), e.getY()))
+					if (nodeRect != null
+							&& nodeRect.contains(e.getX(), e.getY()))
 					{
 						paths = new TreePath[] { locPath };
 						tree.setSelectionPath(locPath);
@@ -965,16 +924,19 @@ public class BufferList extends JPanel implements EBComponent
 			{
 				for (int i = 0; i < paths.length; ++i)
 				{
-					BufferListTreeNode node = (BufferListTreeNode) paths[i].getLastPathComponent();
+					BufferListTreeNode node = (BufferListTreeNode)paths[i]
+							.getLastPathComponent();
 					Object obj = node.getUserObject();
 					if (obj != null && obj instanceof String)
 					{
 						// user selected directory node; select all entries
 						// below it:
-						Enumeration<BufferListTreeNode> children = node.depthFirstEnumeration();
+						Enumeration<BufferListTreeNode> children = node
+								.depthFirstEnumeration();
 						while (children.hasMoreElements())
 						{
-							BufferListTreeNode childNode = children.nextElement();
+							BufferListTreeNode childNode = children
+									.nextElement();
 							TreePath path = new TreePath(childNode.getPath());
 							tree.addSelectionPath(path);
 						}
@@ -983,12 +945,11 @@ public class BufferList extends JPanel implements EBComponent
 			}
 			// create & show popup
 			paths = tree.getSelectionPaths();
-			BufferListPopup popup = new BufferListPopup(view, tree, paths, BufferListPlugin
-				.getMenuExtensions());
+			BufferListPopup popup = new BufferListPopup(view, tree, paths,
+					BufferListPlugin.getMenuExtensions());
 			popup.show(tree, e.getX() + 1, e.getY() + 1);
 		} // }}}
 	} // }}}
-
 	// {{{ -class KeyHandler
 	/**
 	 * A key handler for the buffer list.
@@ -1009,8 +970,7 @@ public class BufferList extends JPanel implements EBComponent
 				evt.consume();
 				tree.clearSelection();
 				closeWindowAndFocusEditPane();
-			}
-			else if (kc == KeyEvent.VK_ENTER || kc == KeyEvent.VK_ACCEPT)
+			} else if (kc == KeyEvent.VK_ENTER || kc == KeyEvent.VK_ACCEPT)
 			{
 				evt.consume();
 				TreePath[] sel = tree.getSelectionPaths();
@@ -1018,18 +978,17 @@ public class BufferList extends JPanel implements EBComponent
 				{
 					if (sel.length > 1)
 					{
-						GUIUtilities.error(BufferList.this, "bufferlist.error.tooMuchSelection",
-							null);
+						GUIUtilities.error(BufferList.this,
+								"bufferlist.error.tooMuchSelection", null);
 						return;
-					}
-					else
+					} else
 					{
-						BufferListTreeNode node = (BufferListTreeNode) sel[0]
-							.getLastPathComponent();
+						BufferListTreeNode node = (BufferListTreeNode)sel[0]
+								.getLastPathComponent();
 						Object obj = node.getUserObject();
 						if (obj instanceof Buffer)
 						{
-							view.setBuffer((Buffer) obj);
+							view.setBuffer((Buffer)obj);
 						}
 					}
 				}

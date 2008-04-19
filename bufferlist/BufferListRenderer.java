@@ -32,8 +32,8 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Rectangle;
-import java.util.HashMap;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.WeakHashMap;
 
 import javax.swing.JLabel;
 import javax.swing.JTree;
@@ -57,15 +57,15 @@ public class BufferListRenderer extends DefaultTreeCellRenderer
 
 	private static final String USER_HOME_SEP = USER_HOME + java.io.File.separator;// }}}
 
-	// {{{ static variables
-	private static Object LOCK = new Object();// }}}
-
 	// {{{ instance variables
 	private View view;
 
-	private Vector<ColorEntry> colors;
+	/**
+	 * Coloring rules.
+	 */
+	private ArrayList<ColorEntry> colors;
 
-	private HashMap<String, Color> name2color;
+	private WeakHashMap<String, Color> name2color;
 
 	private Color colNormal = UIManager.getColor("Tree.foreground");
 
@@ -85,7 +85,7 @@ public class BufferListRenderer extends DefaultTreeCellRenderer
 	public BufferListRenderer(View view)
 	{
 		this.view = view;
-		name2color = new HashMap<String, Color>();
+		name2color = new WeakHashMap<String, Color>();
 		textClipping = jEdit.getIntegerProperty("bufferlist.textClipping", 1);
 
 		Font font = jEdit.getFontProperty("bufferlist.font", UIManager.getFont("Tree.font"));
@@ -214,9 +214,8 @@ public class BufferListRenderer extends DefaultTreeCellRenderer
 			return col;
 		}
 		loadColors();
-		for (int i = 0; i < colors.size(); i++)
+		for (ColorEntry entry : colors)
 		{
-			ColorEntry entry = colors.elementAt(i);
 			if (entry.re.isMatch(name))
 			{
 				name2color.put(name, entry.color);
@@ -233,9 +232,9 @@ public class BufferListRenderer extends DefaultTreeCellRenderer
 		{
 			return;
 		}
-		synchronized (LOCK)
+		synchronized (BufferListRenderer.class)
 		{
-			colors = new Vector<ColorEntry>();
+			colors = new ArrayList<ColorEntry>();
 			if (!jEdit.getBooleanProperty("vfs.browser.colorize"))
 			{
 				return;
@@ -246,7 +245,7 @@ public class BufferListRenderer extends DefaultTreeCellRenderer
 				int i = 0;
 				while ((glob = jEdit.getProperty("vfs.browser.colors." + i + ".glob")) != null)
 				{
-					colors.addElement(new ColorEntry(new RE(StandardUtilities.globToRE(glob)),
+					colors.add(new ColorEntry(new RE(StandardUtilities.globToRE(glob)),
 						jEdit.getColorProperty("vfs.browser.colors." + i + ".color", colNormal)));
 					i++;
 				}
@@ -262,8 +261,14 @@ public class BufferListRenderer extends DefaultTreeCellRenderer
 	// {{{ +class ColorEntry
 	public static class ColorEntry
 	{
+		/**
+		 * Regular expression for file name.
+		 */
 		RE re;
 
+		/**
+		 * Color for files of this type.
+		 */
 		Color color;
 
 		ColorEntry(RE re, Color color)

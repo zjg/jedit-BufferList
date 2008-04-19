@@ -55,12 +55,25 @@ public class BufferListPopup extends JPopupMenu
 	private static final long serialVersionUID = 1L;
 
 	// {{{ instance variables
+	/**
+	 * Current view.
+	 */
 	private View view;
 
+	/**
+	 * Current buffer tree.
+	 */
 	private JTree tree;
 
+	/**
+	 * Selected paths in the tree.
+	 */
 	private TreePath[] sel;
 
+	/**
+	 * Selected directory. <code>null</code> if none or more than one
+	 * directory selected.
+	 */
 	private String dir;
 
 	// }}}
@@ -170,13 +183,12 @@ public class BufferListPopup extends JPopupMenu
 		}
 
 		// process any menu extensions
-		for (int i = 0; i < extensions.size(); ++i)
+		for (MenuEntries me : extensions)
 		{
 			addSeparator();
 			// casting here is safe as the entries have already been checked
 			// when they were
 			// added to the List in the BufferListPlugin class.
-			MenuEntries me = extensions.get(i);
 			me.addEntries(this, view, tree, sel);
 		}
 	} // }}}
@@ -218,56 +230,52 @@ public class BufferListPopup extends JPopupMenu
 			}
 			else if (sel != null)
 			{
-				StringBuffer pathStrings = new StringBuffer();
-				for (int i = 0; i < sel.length; ++i)
-				{
-					if (i > 0)
-					{
-						pathStrings.append('\n');
-					}
-
-					BufferListTreeNode node = (BufferListTreeNode) sel[i].getLastPathComponent();
-					Object obj = node.getUserObject();
-
-					if (obj instanceof String)
-					{
-						pathStrings.append((String) obj);
-					}
-					else if (obj instanceof Buffer)
-					{
-						Buffer buffer = (Buffer) obj;
-						pathStrings.append(buffer.getPath());
-						if (actionCommand.equals("goto"))
-						{
-							view.setBuffer(buffer);
-						}
-						else if (actionCommand.equals("open-in-new-view"))
-						{
-							jEdit.newView(view, buffer);
-						}
-						else if (actionCommand.equals("close"))
-						{
-							jEdit.closeBuffer(view, buffer);
-						}
-						else if (actionCommand.equals("save"))
-						{
-							buffer.save(view, null);
-						}
-						else if (actionCommand.equals("save-as"))
-						{
-							buffer.saveAs(view, true);
-						}
-						else if (actionCommand.equals("reload"))
-						{
-							buffer.reload(view);
-						}
-					}
-				}
-
 				if (actionCommand.equals("copy-paths"))
 				{
+					StringBuilder pathStrings = new StringBuilder();
+					for (TreePath path : sel)
+					{
+						pathStrings.append(((BufferListTreeNode)path.getLastPathComponent()).getUserPath());
+						pathStrings.append('\n');
+					}
+					pathStrings.setLength(pathStrings.length() - 1);
 					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
 						new StringSelection(pathStrings.toString()), null);
+				}
+				else
+				{
+					for (TreePath path : sel)
+					{
+						BufferListTreeNode node = (BufferListTreeNode) path.getLastPathComponent();
+						if (node.isBuffer())
+						{
+							Buffer buffer = node.getBuffer();
+							if (actionCommand.equals("goto"))
+							{
+								view.setBuffer(buffer);
+							}
+							else if (actionCommand.equals("open-in-new-view"))
+							{
+								jEdit.newView(view, buffer);
+							}
+							else if (actionCommand.equals("close"))
+							{
+								jEdit.closeBuffer(view, buffer);
+							}
+							else if (actionCommand.equals("save"))
+							{
+								buffer.save(view, null);
+							}
+							else if (actionCommand.equals("save-as"))
+							{
+								buffer.saveAs(view, true);
+							}
+							else if (actionCommand.equals("reload"))
+							{
+								buffer.reload(view);
+							}
+						}
+					}
 				}
 			}
 
