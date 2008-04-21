@@ -37,15 +37,16 @@ public class BufferListTreeNode extends DefaultMutableTreeNode
 
 	// {{{instance variables
 	/**
-	 * 
+	 * Path to this node in VFS. UserObject represents the label of the node and
+	 * so getUserObject()!=user_path for directory nodes.
 	 */
 	private String user_path;
 
 	// private boolean used = false;
 
-	private boolean expanded = false;
+	private boolean expanded;
 
-	private boolean isConnected = false;
+	private boolean isConnected;
 
 	// private int reused = 0; // NOTE: debug only
 	// }}}
@@ -71,7 +72,8 @@ public class BufferListTreeNode extends DefaultMutableTreeNode
 		// used = false;
 		expanded = false;
 		isConnected = false;
-		if (isDirNode() && user_path != null)
+		//restore label of the node
+		if (isDirNode())
 		{
 			setUserObject(user_path);
 		}
@@ -79,7 +81,6 @@ public class BufferListTreeNode extends DefaultMutableTreeNode
 
 	private void init(Object userObject)
 	{
-		reset();
 		if (userObject instanceof Buffer)
 		{
 			user_path = ((Buffer) userObject).getPath();
@@ -92,6 +93,7 @@ public class BufferListTreeNode extends DefaultMutableTreeNode
 		{
 			user_path = "ERROR";
 		}
+		reset();
 	}
 
 	public void setExpanded(boolean expanded)

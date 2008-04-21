@@ -35,7 +35,6 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.WeakHashMap;
 
-import javax.swing.JLabel;
 import javax.swing.JTree;
 import javax.swing.UIManager;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -65,20 +64,38 @@ public class BufferListRenderer extends DefaultTreeCellRenderer
 	 */
 	private ArrayList<ColorEntry> colors;
 
+	/**
+	 * Cache of colors for file names.
+	 */
 	private WeakHashMap<String, Color> name2color;
 
 	private Color colNormal = UIManager.getColor("Tree.foreground");
 
 	private Color colSelected = UIManager.getColor("Tree.selectionForeground");
 
+	/**
+	 * Font of leaf for invisible buffer.
+	 */
 	private Font fontNormal;
 
+	/**
+	 * Font of leaf for visible buffer.
+	 */
 	private Font fontSelected;
 
+	/**
+	 * The way we should clip labels.
+	 */
 	private int textClipping;
 
+	/**
+	 * Tree control.
+	 */
 	private JTree tree;
 
+	/**
+	 * Row in the tree control.
+	 */
 	private int row;// }}}
 
 	// {{{ +BufferListRenderer(View) : <init>
@@ -92,14 +109,20 @@ public class BufferListRenderer extends DefaultTreeCellRenderer
 		fontNormal = font.deriveFont(font.isItalic() ? Font.ITALIC : Font.PLAIN);
 		fontSelected = font.deriveFont(font.isItalic() ? Font.BOLD | Font.ITALIC : Font.BOLD);
 	} // }}}
-
+	
 	// {{{ +getTreeCellRendererComponent(JTree, Object, boolean, boolean,
 	// boolean, int, boolean) : Component
+	/**
+	 * Configures the renderer.
+	 * 
+	 * @return this
+	 */
 	public Component getTreeCellRendererComponent(JTree tree, Object value, boolean isSelected,
 		boolean isExpanded, boolean isLeaf, int row, boolean hasFocus)
 	{
-		JLabel comp = (JLabel) super.getTreeCellRendererComponent(tree, value, isSelected,
-			isExpanded, isLeaf, row, hasFocus);
+		// configure this component
+		super.getTreeCellRendererComponent(tree, value, isSelected, isExpanded, isLeaf, row,
+			hasFocus);
 
 		this.tree = tree;
 		this.row = row;
@@ -110,18 +133,16 @@ public class BufferListRenderer extends DefaultTreeCellRenderer
 			// Buffer entry
 			Buffer buffer = node.getBuffer();
 			String name = buffer.getName();
-			comp.setText(name);
-			comp.setToolTipText(node.getUserPath());
-			comp.setIcon(buffer.getIcon());
-			comp.setFont(buffer == view.getBuffer() ? fontSelected : fontNormal);
-			comp.setForeground(isSelected ? colSelected : getColor(name));
+			setText(name);
+			setToolTipText(node.getUserPath());
+			setIcon(buffer.getIcon());
+			setFont(buffer == view.getBuffer() ? fontSelected : fontNormal);
+			setForeground(isSelected ? colSelected : getColor(name));
 		}
 		else if (node.isDirNode())
 		{
 			// Directory entry
-			// ### HACK: replace $user.home/ at the start of the path with ~/
-			Object obj = node.getUserObject();
-			String path = obj != null ? obj.toString() : "";
+			String path = (String) node.getUserObject();
 			if (jEdit.getBooleanProperty("bufferlist.shortenHome", true))
 			{
 				if (path.equals(USER_HOME))
@@ -133,16 +154,16 @@ public class BufferListRenderer extends DefaultTreeCellRenderer
 					path = "~" + path.substring(USER_HOME.length());
 				}
 			}
-			// comp.setText((node.isExpanded()?"+":"-")+node.getReused()+":"+obj.toString());
+			// setText((node.isExpanded()?"+":"-")+node.getReused()+":"+obj.toString());
 			// // NOTE: debug only
-			comp.setText(path);
-			comp.setToolTipText(node.getUserPath());
-			comp.setIcon(null);
-			comp.setFont(fontNormal);
-			comp.setForeground(isSelected ? colSelected : colNormal);
+			setText(path);
+			setToolTipText(node.getUserPath());
+			setIcon(null);
+			setFont(fontNormal);
+			setForeground(isSelected ? colSelected : colNormal);
 		}
 
-		return comp;
+		return this;
 	} // }}}
 
 	// {{{ +paintComponent(Graphics g) : void
@@ -206,6 +227,11 @@ public class BufferListRenderer extends DefaultTreeCellRenderer
 	} // }}}
 
 	// {{{ -getColor(String) : Color
+	/**
+	 * @param name
+	 *            of the file
+	 * @return color of label for this file name.
+	 */
 	private Color getColor(String name)
 	{
 		Color col = name2color.get(name);
@@ -245,8 +271,8 @@ public class BufferListRenderer extends DefaultTreeCellRenderer
 				int i = 0;
 				while ((glob = jEdit.getProperty("vfs.browser.colors." + i + ".glob")) != null)
 				{
-					colors.add(new ColorEntry(new RE(StandardUtilities.globToRE(glob)),
-						jEdit.getColorProperty("vfs.browser.colors." + i + ".color", colNormal)));
+					colors.add(new ColorEntry(new RE(StandardUtilities.globToRE(glob)), jEdit
+						.getColorProperty("vfs.browser.colors." + i + ".color", colNormal)));
 					i++;
 				}
 			}
