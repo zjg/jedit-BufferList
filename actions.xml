@@ -3,7 +3,12 @@
 <!DOCTYPE ACTIONS SYSTEM "actions.dtd">
 
 <ACTIONS>
-
+    <ACTION NAME="bufferlist-show">
+        <CODE>
+            wm.addDockableWindow("bufferlist");
+            wm.getDockableWindow("bufferlist").requestFocusOpenFiles();
+        </CODE>
+    </ACTION>
 	<ACTION NAME="bufferlist-next-buffer">
 		<CODE>
 			bufferlist.BufferList.getInstanceForView(view).nextBuffer();
@@ -13,15 +18,6 @@
 	<ACTION NAME="bufferlist-previous-buffer">
 		<CODE>
 			bufferlist.BufferList.getInstanceForView(view).previousBuffer();
-		</CODE>
-	</ACTION>
-
-	<ACTION NAME="bufferlist-to-front">
-		<CODE>
-			DockableWindowManager mgr = view.getDockableWindowManager();
-			mgr.showDockableWindow("bufferlist");
-			bufferlist.BufferList bufferlist = mgr.getDockable("bufferlist");
-			bufferlist.requestFocusOpenFiles();
 		</CODE>
 	</ACTION>
 

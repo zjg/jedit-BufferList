@@ -8,7 +8,7 @@
 	<property name="compiler.target" value="1.5" />
 	<import file="${build.support}/plugin-build.xml" />
 	<path id="project.class.path">
-		<pathelement location="${jedit.install.dir}/jars/GnuRegexp.jar" />
+		<pathelement location="${install.dir}/GnuRegexp.jar" />
 	</path>
 	<selector id="packageFiles">
 		<filename name="BufferList.html" />

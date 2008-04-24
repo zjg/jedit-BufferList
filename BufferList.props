@@ -48,17 +48,16 @@ bufferlist.title=Buffer List
 #}}}
 
 #{{{ menu
-plugin.bufferlist.BufferListPlugin.menu=bufferlist-toggle \
+plugin.bufferlist.BufferListPlugin.menu=bufferlist-show \
 	- \
-	bufferlist-to-front bufferlist-next-buffer bufferlist-previous-buffer \
+	bufferlist-next-buffer bufferlist-previous-buffer \
 	- \
 	bufferlist-toggle-display-mode
 # }}}
 
 #{{{ actions
 bufferlist.label=Buffer List
-bufferlist-toggle.label=Toggle Buffer List
-bufferlist-to-front.label=Go to Buffer List
+bufferlist-show.label=Show Buffer List
 bufferlist-next-buffer.label=Go to Next Buffer in Buffer List
 bufferlist-previous-buffer.label=Go to Previous Buffer in Buffer List
 bufferlist-toggle-display-mode.label=Flat Tree
