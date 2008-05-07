@@ -166,6 +166,7 @@ public class BufferListPopup extends JPopupMenu
 		}
 
 		addSeparator();
+		add(createMenuItem("toggle-display-mode"));
 		add(createMenuItem("expand-all"));
 		add(createMenuItem("collapse-all"));
 
@@ -218,6 +219,10 @@ public class BufferListPopup extends JPopupMenu
 			else if (actionCommand.equals("collapse-all"))
 			{
 				TreeTools.collapseAll(tree);
+			}
+			else if (actionCommand.equals("toggle-display-mode"))
+			{
+				((BufferList)view.getDockableWindowManager().getDockable("bufferlist")).toggleDisplayMode();
 			}
 			else if (actionCommand.equals("browse"))
 			{
