@@ -6,7 +6,6 @@
     <ACTION NAME="bufferlist-show">
         <CODE>
             wm.addDockableWindow("bufferlist");
-            wm.getDockableWindow("bufferlist").requestFocusOpenFiles();
         </CODE>
     </ACTION>
 	<ACTION NAME="bufferlist-next-buffer">

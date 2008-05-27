@@ -71,6 +71,8 @@ import org.gjt.sp.util.StandardUtilities;
  */
 public class BufferList extends JPanel implements EBComponent
 {
+	static final String ROOT = "ROOT";
+
 	private static final long serialVersionUID = 1L;
 
 	// {{{ display mode constants
@@ -111,12 +113,12 @@ public class BufferList extends JPanel implements EBComponent
 			@Override
 			public String toString()
 			{
-				return "ROOT";
+				return ROOT;
 			}
 		};
 		rootNode = new BufferListTreeNode(root);
 		distinctDirs = new HashMap<String, BufferListTreeNode>();
-		distinctDirs.put("ROOT", rootNode);
+		distinctDirs.put(ROOT, rootNode);
 		// </reusage of BufferListTreeNode>
 		this.view = view;
 		// this.position = position;
@@ -158,7 +160,7 @@ public class BufferList extends JPanel implements EBComponent
 				}
 			}
 		});
-		createModel();
+		
 		ToolTipManager.sharedInstance().registerComponent(tree);
 		// scrollpane for tree:
 		scrTree = new JScrollPane(tree);
@@ -166,13 +168,15 @@ public class BufferList extends JPanel implements EBComponent
 		updateBufferCounts();
 		add(BorderLayout.NORTH, bufferCountsLabel);
 		add(BorderLayout.CENTER, scrTree);
-		setDisplayMode(jEdit.getIntegerProperty("bufferlist.displayMode", DISPLAY_MODE_FLAT_TREE));
+		displayMode = jEdit.getIntegerProperty("bufferlist.displayMode", DISPLAY_MODE_FLAT_TREE);
+		sortIgnoreCase = jEdit.getBooleanProperty("vfs.browser.sortIgnoreCase");
+		createModel();
 		handlePropertiesChanged();
 		if (position.equals(DockableWindowManager.FLOATING))
 		{
-			requestFocusOpenFiles();
+			requestTreeFocus();
 		}
-		currentBufferChanged();
+		expandCurrentPath();
 		if (jEdit.getBooleanProperty("bufferlist.startExpanded"))
 		{
 			TreeTools.expandAll(tree);
@@ -198,17 +202,22 @@ public class BufferList extends JPanel implements EBComponent
 		return bufferlist;
 	} // }}}
 
-	// {{{ +requestFocusOpenFiles() : void
+	// {{{ +requestTreeFocus() : void
 	/**
-	 * Invoked by action "bufferlist-to-front" only; sets the focus on the table
-	 * of open files.
+	 * Set the focus on the tree.
 	 * 
-	 * @since BufferList 0.5
-	 * @see actions.xml
+	 * @since BufferList 1.2
 	 */
-	public void requestFocusOpenFiles()
+	public void requestTreeFocus()
 	{
 		tree.requestFocus();
+	} // }}}
+	
+	/**
+	 * Expand path to the current buffer and make sure it is visible.
+	 */
+	public void expandCurrentPath()
+	{
 		BufferListTreeNode node = getNode(view.getBuffer());
 		if (node == null)
 		{
@@ -216,8 +225,21 @@ public class BufferList extends JPanel implements EBComponent
 		}
 		TreePath path = new TreePath(node.getPath());
 		tree.expandPath(path);
-		tree.setSelectionPath(path);
-	} // }}}
+		//We don't need two emphasizers - selection and bold font.
+		tree.clearSelection();
+		// Make sure path is visible.
+		// Note: can't use tree.scrollPathToVisible(path) here, because it moves
+		// the enclosing JScrollPane horizontally; but we want vertical movement
+		// only.
+		// tree.makeVisible(path);
+		Rectangle bounds = tree.getPathBounds(path);
+		if (bounds != null)
+		{
+			bounds.width = 0;
+			bounds.x = 0;
+			tree.scrollRectToVisible(bounds);
+		}
+	}
 
 	// {{{ +nextBuffer() : void
 	/**
@@ -237,7 +259,7 @@ public class BufferList extends JPanel implements EBComponent
 			{
 				first = node;
 			}
-			if (node.getUserObject() == buffer)
+			if (node.getBuffer() == buffer)
 			{
 				break;
 			}
@@ -600,7 +622,7 @@ public class BufferList extends JPanel implements EBComponent
 			node.reset();
 		}
 		distinctDirs.clear();
-		distinctDirs.put("ROOT", rootNode);
+		distinctDirs.put(ROOT, rootNode);
 		Enumeration<TreePath> e = tree.getExpandedDescendants(new TreePath(tree.getModel()
 			.getRoot()));
 		if (e != null)
@@ -739,29 +761,9 @@ public class BufferList extends JPanel implements EBComponent
 	 */
 	private void currentBufferChanged()
 	{
-		Buffer buffer = view.getBuffer();
-		BufferListTreeNode node = getNode(buffer);
-		if (node == null)
-		{
-			return;
-		}
-		// Expand tree to show current buffer
-		TreePath path = new TreePath(node.getPath());
-		tree.expandPath(path);
+		expandCurrentPath();
 		// Set new cell renderer to draw to current buffer bold
 		tree.setCellRenderer(new BufferListRenderer(view));
-		// Make sure path is visible.
-		// Note: can't use tree.scrollPathToVisible(path) here, because it moves
-		// the enclosing JScrollPane horizontally; but we want vertical movement
-		// only.
-		// tree.makeVisible(path);
-		Rectangle bounds = tree.getPathBounds(path);
-		if (bounds != null)
-		{
-			bounds.width = 0;
-			bounds.x = 0;
-			tree.scrollRectToVisible(bounds);
-		}
 	} // }}}
 
 	// {{{ -focusEditPane() : void
@@ -883,8 +885,7 @@ public class BufferList extends JPanel implements EBComponent
 						while (children.hasMoreElements())
 						{
 							BufferListTreeNode childNode = children.nextElement();
-							TreePath path = new TreePath(childNode.getPath());
-							tree.addSelectionPath(path);
+							tree.addSelectionPath(new TreePath(childNode.getPath()));
 						}
 					}
 				}
