@@ -224,7 +224,7 @@ public class BufferList extends JPanel implements EBComponent
 			return;
 		}
 		TreePath path = new TreePath(node.getPath());
-		tree.expandPath(path);
+		tree.expandPath(path.getParentPath());
 		//We don't need two emphasizers - selection and bold font.
 		tree.clearSelection();
 		// Make sure path is visible.
