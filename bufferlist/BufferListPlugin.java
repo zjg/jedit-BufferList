@@ -22,7 +22,6 @@
 package bufferlist;
 
 // {{{ imports
-// }}}
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +34,7 @@ import org.gjt.sp.jedit.jEdit;
 import org.gjt.sp.jedit.msg.BufferUpdate;
 import org.gjt.sp.jedit.msg.EditPaneUpdate;
 import org.gjt.sp.util.Log;
+// }}}
 
 /**
  * The BufferList plugin.
