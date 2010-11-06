@@ -7,9 +7,6 @@
 	<property name="compiler.source" value="1.5" />
 	<property name="compiler.target" value="1.5" />
 	<import file="${build.support}/plugin-build.xml" />
-	<path id="project.class.path">
-		<pathelement location="${install.dir}/GnuRegexp.jar" />
-	</path>
 	<selector id="packageFiles">
 		<filename name="BufferList.html" />
 	</selector>

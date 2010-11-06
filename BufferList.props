@@ -29,6 +29,7 @@ plugin.bufferlist.BufferListPlugin.depend.0=jedit 04.03.99.00
 plugin.bufferlist.BufferListPlugin.depend.1=jdk 1.5
 plugin.bufferlist.BufferListPlugin.depend.2=plugin GnuRegexpPlugin 1.0.1
 plugin.bufferlist.BufferListPlugin.description=The BufferList Plugin shows the list of currently open files in a tree.
+plugin.bufferlist.BufferListPlugin.usePluginHome=true
 # }}}
 
 #{{{ default user properties

@@ -1,0 +1,6 @@
+<ivy-module version="2.0">
+    <info organisation="jedit-plugins" module="RFCReader"/>
+    <dependencies>
+        <dependency org="jedit-plugins" name="GnuRegexp" rev="1.0.1"/>
+    </dependencies>
+</ivy-module>
