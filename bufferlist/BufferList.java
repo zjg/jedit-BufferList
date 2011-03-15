@@ -259,7 +259,7 @@ public class BufferList extends JPanel implements EBComponent
 			{
 				first = node;
 			}
-			if (node.getBuffer() == buffer)
+			if (node.isBuffer() && node.getBuffer() == buffer)
 			{
 				break;
 			}
@@ -297,7 +297,7 @@ public class BufferList extends JPanel implements EBComponent
 		while (e.hasMoreElements())
 		{
 			node = e.nextElement();
-			if (node.getUserObject() == buffer)
+			if (node.isBuffer() && node.getUserObject() == buffer)
 			{
 				break;
 			}
