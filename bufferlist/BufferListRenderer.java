@@ -40,6 +40,7 @@ import javax.swing.UIManager;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import org.gjt.sp.jedit.Buffer;
+import org.gjt.sp.jedit.MiscUtilities;
 import org.gjt.sp.jedit.View;
 import org.gjt.sp.jedit.jEdit;
 import org.gjt.sp.util.Log;
@@ -109,12 +110,12 @@ public class BufferListRenderer extends DefaultTreeCellRenderer
 		fontNormal = font.deriveFont(font.isItalic() ? Font.ITALIC : Font.PLAIN);
 		fontSelected = font.deriveFont(font.isItalic() ? Font.BOLD | Font.ITALIC : Font.BOLD);
 	} // }}}
-	
+
 	// {{{ +getTreeCellRendererComponent(JTree, Object, boolean, boolean,
 	// boolean, int, boolean) : Component
 	/**
 	 * Configures the renderer.
-	 * 
+	 *
 	 * @return this
 	 */
 	public Component getTreeCellRendererComponent(JTree tree, Object value, boolean isSelected,
@@ -145,14 +146,7 @@ public class BufferListRenderer extends DefaultTreeCellRenderer
 			String path = (String) node.getUserObject();
 			if (jEdit.getBooleanProperty("bufferlist.shortenHome", true))
 			{
-				if (path.equals(USER_HOME))
-				{
-					path = "~";
-				}
-				else if (path.startsWith(USER_HOME_SEP))
-				{
-					path = "~" + path.substring(USER_HOME.length());
-				}
+				path = MiscUtilities.abbreviate(path);
 			}
 			// setText((node.isExpanded()?"+":"-")+node.getReused()+":"+obj.toString());
 			// // NOTE: debug only
