@@ -2,7 +2,7 @@
  * BufferList.java
  * Copyright (c) 2000-2002 Dirk Moebius
  * Copyright (c) 2004 Karsten Pilz
- *
+ * Parts (c) 2012 Alan Ezust
  * :tabSize=4:indentSize=4:noTabs=false:maxLineLen=0:folding=explicit:collapseFolds=1:
  *
  * This program is free software; you can redistribute it and/or
@@ -30,11 +30,11 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Vector;
 
 import javax.swing.JLabel;
@@ -678,16 +678,18 @@ public class BufferList extends JPanel implements EBComponent
 		restoreExpansionState();
 	} // }}}
 
+	//{{{ -getBuffers(): Buffer[]
+	/**
+	 * Returns an array of Buffers opened from view. 
+	 */
 	private Buffer[] getBuffers() {
 		BufferSetManager mgr = jEdit.getBufferSetManager();
-		if (mgr.getScope() == BufferSet.Scope.global) 
-			return jEdit.getBuffers();
-		ArrayList<Buffer> retval = new ArrayList<Buffer>();
+		HashSet<Buffer> retval = new HashSet<Buffer>();
 		for (EditPane ep: view.getEditPanes()) {
 			BufferSet bs = ep.getBufferSet();
 			for (Buffer b: bs.getAllBuffers()) 
 				retval.add(b);
-			if (mgr.getScope() == BufferSet.Scope.view)
+			if (mgr.getScope() != BufferSet.Scope.editpane)
 				break;	
 		}
 		Buffer[] bufs = new Buffer[retval.size()];
