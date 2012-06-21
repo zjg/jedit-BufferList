@@ -857,38 +857,45 @@ public class BufferList extends JPanel implements EBComponent
 			// if user didn't select any buffer, or selected only one buffer,
 			// then select entry at mouse position:
 			TreePath[] paths = tree.getSelectionPaths();
-			if (paths == null || paths.length == 1)
-			{
-				TreePath locPath = tree.getClosestPathForLocation(e.getX(), e.getY());
-				if (locPath != null)
+			try {
+				ignoreSelectionChange=true;
+				if (paths == null || paths.length <= 1)
 				{
-					Rectangle nodeRect = tree.getPathBounds(locPath);
-					if (nodeRect != null && nodeRect.contains(e.getX(), e.getY()))
+					System.out.println("paths="+paths);
+					TreePath locPath = tree.getClosestPathForLocation(e.getX(), e.getY());
+					if (locPath != null)
 					{
-						paths = new TreePath[] { locPath };
-						tree.setSelectionPath(locPath);
-					}
-				}
-			}
-			// check whether user selected a directory node:
-			if (paths != null)
-			{
-				for (int i = 0; i < paths.length; ++i)
-				{
-					BufferListTreeNode node = (BufferListTreeNode) paths[i].getLastPathComponent();
-					Object obj = node.getUserObject();
-					if (obj != null && obj instanceof String)
-					{
-						// user selected directory node; select all entries
-						// below it:
-						Enumeration<BufferListTreeNode> children = node.depthFirstEnumeration();
-						while (children.hasMoreElements())
+						Rectangle nodeRect = tree.getPathBounds(locPath);
+						if (nodeRect != null && nodeRect.contains(e.getX(), e.getY()))
 						{
-							BufferListTreeNode childNode = children.nextElement();
-							tree.addSelectionPath(new TreePath(childNode.getPath()));
+							paths = new TreePath[] { locPath };
+							tree.setSelectionPath(locPath);
 						}
 					}
 				}
+				// check whether user selected a directory node:
+				if (paths != null)
+				{
+					System.out.println("paths!=null, length="+paths.length);
+					for (int i = 0; i < paths.length; ++i)
+					{
+						BufferListTreeNode node = (BufferListTreeNode) paths[i].getLastPathComponent();
+						System.out.println(i+": node="+node);
+						if (node.isDirNode())
+						{
+							// user selected directory node; select all entries
+							// below it:
+							Enumeration<BufferListTreeNode> children = node.depthFirstEnumeration();
+							while (children.hasMoreElements())
+							{
+								BufferListTreeNode childNode = children.nextElement();
+								tree.addSelectionPath(new TreePath(childNode.getPath()));
+							}
+						}
+					}
+				}
+			} finally {
+				ignoreSelectionChange=false;
 			}
 			// create & show popup
 			paths = tree.getSelectionPaths();
