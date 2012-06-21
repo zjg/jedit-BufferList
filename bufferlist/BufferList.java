@@ -30,6 +30,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Enumeration;
@@ -52,8 +53,12 @@ import org.gjt.sp.jedit.Buffer;
 import org.gjt.sp.jedit.EBComponent;
 import org.gjt.sp.jedit.EBMessage;
 import org.gjt.sp.jedit.EditBus;
+import org.gjt.sp.jedit.EditPane;
 import org.gjt.sp.jedit.GUIUtilities;
+import org.gjt.sp.jedit.MiscUtilities;
 import org.gjt.sp.jedit.View;
+import org.gjt.sp.jedit.bufferset.BufferSet;
+import org.gjt.sp.jedit.bufferset.BufferSetManager;
 import org.gjt.sp.jedit.jEdit;
 import org.gjt.sp.jedit.gui.DockableWindowManager;
 import org.gjt.sp.jedit.io.VFS;
@@ -673,13 +678,32 @@ public class BufferList extends JPanel implements EBComponent
 		restoreExpansionState();
 	} // }}}
 
+	private Buffer[] getBuffers() {
+		BufferSetManager mgr = jEdit.getBufferSetManager();
+		if (mgr.getScope() == BufferSet.Scope.global) 
+			return jEdit.getBuffers();
+		ArrayList<Buffer> retval = new ArrayList<Buffer>();
+		for (EditPane ep: view.getEditPanes()) {
+			BufferSet bs = ep.getBufferSet();
+			for (Buffer b: bs.getAllBuffers()) 
+				retval.add(b);
+			if (mgr.getScope() == BufferSet.Scope.view)
+				break;	
+		}
+		Buffer[] bufs = new Buffer[retval.size()];
+		retval.toArray(bufs);
+		return bufs;
+	}
+	
 	// {{{ -createModel() : void
 	/**
 	 * Sets a new tree model.
 	 */
 	private void createModel()
 	{
-		Buffer[] buffers = jEdit.getBuffers();
+		
+		Buffer[] buffers = getBuffers();
+			
 		Arrays.sort(buffers, new Comparator<Buffer>()
 		{
 			public int compare(Buffer buf1, Buffer buf2)
@@ -693,6 +717,7 @@ public class BufferList extends JPanel implements EBComponent
 					String dir1 = getDir(buf1);
 					String dir2 = getDir(buf2);
 					int cmpDir = StandardUtilities.compareStrings(dir1, dir2, sortIgnoreCase);
+					if (MiscUtilities.pathsEqual(dir1, dir2)) cmpDir = 0;
 					if (cmpDir == 0)
 					{
 						return StandardUtilities.compareStrings(buf1.getName(), buf2.getName(),

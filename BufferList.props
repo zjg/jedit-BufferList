@@ -22,11 +22,11 @@
 plugin.bufferlist.BufferListPlugin.activate=defer
 plugin.bufferlist.BufferListPlugin.name=BufferList
 plugin.bufferlist.BufferListPlugin.author=Dirk Moebius
-plugin.bufferlist.BufferListPlugin.version=1.3.1
+plugin.bufferlist.BufferListPlugin.version=1.4
 plugin.bufferlist.BufferListPlugin.docs=BufferList.html
 plugin.bufferlist.BufferListPlugin.usePluginHome=true
-plugin.bufferlist.BufferListPlugin.depend.0=jedit 04.03.99.00
-plugin.bufferlist.BufferListPlugin.depend.1=jdk 1.5
+plugin.bufferlist.BufferListPlugin.depend.0=jedit 04.05.99.00
+plugin.bufferlist.BufferListPlugin.depend.1=jdk 1.6
 plugin.bufferlist.BufferListPlugin.depend.2=plugin GnuRegexpPlugin 1.0.1
 plugin.bufferlist.BufferListPlugin.description=The BufferList Plugin shows the list of currently open files in a tree.
 plugin.bufferlist.BufferListPlugin.usePluginHome=true
