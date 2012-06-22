@@ -56,6 +56,7 @@ import org.gjt.sp.jedit.EditBus;
 import org.gjt.sp.jedit.EditPane;
 import org.gjt.sp.jedit.GUIUtilities;
 import org.gjt.sp.jedit.MiscUtilities;
+import org.gjt.sp.jedit.OperatingSystem;
 import org.gjt.sp.jedit.View;
 import org.gjt.sp.jedit.bufferset.BufferSet;
 import org.gjt.sp.jedit.bufferset.BufferSetManager;
@@ -522,11 +523,16 @@ public class BufferList extends JPanel implements EBComponent
 		{
 			return rootNode;
 		}
-		BufferListTreeNode node = distinctDirs.get(path);
+		String comparablePath = path;
+		if ((vfs.getCapabilities() & VFS.CASE_INSENSITIVE_CAP) != 0)
+		{
+			comparablePath = path.toUpperCase();
+		}
+		BufferListTreeNode node = distinctDirs.get(comparablePath);
 		if (node == null)
 		{
 			node = new BufferListTreeNode(path, true);
-			distinctDirs.put(path, node);
+			distinctDirs.put(comparablePath, node);
 		}
 		if (!node.isConnected())
 		{
