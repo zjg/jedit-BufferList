@@ -495,7 +495,7 @@ public class BufferList extends JPanel implements EBComponent
 	private void updateBufferCounts()
 	{
 		int dirtyBuffers = 0;
-		Buffer buffers[] = jEdit.getBuffers();
+		Buffer buffers[] = getBuffers();
 		for (Buffer buffer : buffers)
 		{
 			if (buffer.isDirty())
@@ -504,7 +504,7 @@ public class BufferList extends JPanel implements EBComponent
 			}
 		}
 		bufferCountsLabel.setText(jEdit.getProperty("bufferlist.openfiles.label")
-			+ jEdit.getBufferCount() + " " + jEdit.getProperty("bufferlist.dirtyfiles.label")
+			+ buffers.length + " " + jEdit.getProperty("bufferlist.dirtyfiles.label")
 			+ dirtyBuffers);
 	} // }}}
 
