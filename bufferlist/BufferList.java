@@ -68,6 +68,7 @@ import org.gjt.sp.jedit.msg.BufferUpdate;
 import org.gjt.sp.jedit.msg.EditPaneUpdate;
 import org.gjt.sp.jedit.msg.PropertiesChanged;
 import org.gjt.sp.util.StandardUtilities;
+import org.gjt.sp.util.Log;
 
 // }}}
 /**
@@ -831,6 +832,7 @@ public class BufferList extends JPanel implements EBComponent
 			if (e.isAltDown() || e.isAltGraphDown() || e.isMetaDown() || e.isShiftDown()
 				|| e.isControlDown())
 			{
+				//Log.log(Log.DEBUG, this, "mouseClicked with modifier, ignoring");
 				return;
 			}
 			if (e.getClickCount() > 2 && e.getClickCount() % 2 != 0)
@@ -886,6 +888,8 @@ public class BufferList extends JPanel implements EBComponent
 		// {{{ -showPopup(MouseEvent) : void
 		private void showPopup(MouseEvent e)
 		{
+			ignoreSelectionChange = true;
+			
 			e.consume();
 			// if user didn't select any buffer, or selected only one buffer,
 			// then select entry at mouse position:
@@ -932,6 +936,7 @@ public class BufferList extends JPanel implements EBComponent
 			}
 			// create & show popup
 			paths = tree.getSelectionPaths();
+			ignoreSelectionChange = false;
 			BufferListPopup popup = new BufferListPopup(view, tree, paths, BufferListPlugin
 				.getMenuExtensions());
 			popup.show(tree, e.getX() + 1, e.getY() + 1);
